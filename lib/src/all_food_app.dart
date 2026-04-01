@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import 'pages/home_page.dart';
-import 'pages/login_page.dart';
+import 'features/home/presentation/pages/home_page.dart';
+import 'features/auth/presentation/pages/login_page.dart';
+import 'features/splash/splash_page.dart';
 
 class AllFoodApp extends StatelessWidget {
   const AllFoodApp({
@@ -62,9 +63,9 @@ class AllFoodApp extends StatelessWidget {
         ),
       ),
       // Punto de entrada real: decide si mostrar login o home segun sesion.
-      home: SessionGate(
+      home: SplashPage(
         supabaseReady: supabaseReady,
-        initializationMessage: initializationMessage,
+        // initializationMessage: initializationMessage,
       ),
     );
   }
