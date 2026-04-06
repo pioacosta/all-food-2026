@@ -36,6 +36,7 @@ class _LoginPageState extends State<LoginPage> {
   void initState() {
     super.initState();
 
+    // Si venimos de logout exitoso, muestra una confirmacion visual al entrar.
     if (widget.successMessage != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
@@ -109,6 +110,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void _completarIngresoRapidoDuenio() {
+    // Precarga credenciales de prueba para agilizar demos/manual testing.
     _emailController.text = DemoAccounts.duenioEmail;
     _passwordController.text = DemoAccounts.duenioPassword;
     setState(() {});
@@ -128,6 +130,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void _mostrarToastExito(String mensaje) {
+    // Toast custom flotante para confirmaciones positivas (evita dialogos default).
     ScaffoldMessenger.of(context)
       ..clearSnackBars()
       ..showSnackBar(
