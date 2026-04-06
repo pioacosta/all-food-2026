@@ -188,9 +188,11 @@ class _LoginPageState extends State<LoginPage> {
                     'All Food',
                     textAlign: TextAlign.center,
                     style: TextStyle(
+                      fontFamily: 'ArchivoBlack',
                       fontSize: 34,
-                      fontWeight: FontWeight.w800,
                       color: Colors.white,
+                      letterSpacing: -2,
+                      height: 1,
                     ),
                   ),
                   const SizedBox(height: 8),

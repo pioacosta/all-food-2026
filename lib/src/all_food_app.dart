@@ -42,6 +42,7 @@ class AllFoodApp extends StatelessWidget {
           focusedBorder: OutlineInputBorder(
             borderSide: BorderSide(color: Colors.white),
           ),
+          errorStyle: TextStyle(color: Color(0xFFdfaaa4)),
           errorBorder: OutlineInputBorder(
             borderSide: BorderSide(color: Color(0xFFFF8A80)),
           ),
@@ -51,8 +52,8 @@ class AllFoodApp extends StatelessWidget {
         ),
         filledButtonTheme: FilledButtonThemeData(
           style: FilledButton.styleFrom(
-            backgroundColor: const Color(0xFFC62828),
-            foregroundColor: Colors.white,
+            backgroundColor: const Color(0xFFFFFFFF),
+            foregroundColor: Colors.black,
           ),
         ),
         outlinedButtonTheme: OutlinedButtonThemeData(

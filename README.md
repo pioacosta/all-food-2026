@@ -48,13 +48,21 @@ En las tablas solo se guarda el enlace o path del archivo para luego cargarlo de
 
 (2)
 
+1. Apellidos y nombres: Lezcano Adrian
+2. Módulos (objetivos) a desarrollar: creación e implementación del splash screen con sus respectivas animaciones (LOGO A MODIFICAR)
+3. Fecha de inicio de la tarea: 31/03/2026.
+4. Fecha de finalización de la tarea: 01/04/2026.
+5. Branch (si posee): main.
+
+(3)
+
 1. Apellido y nombres: Acosta Pio.
 2. Módulos (objetivos) a desarrollar: actualización de colores principales (azul -> rojo). Se agregó logo y se incluyó en el splash
 3. Fecha de inicio de la tarea: 06/04/2026.
 4. Fecha de finalización de la tarea: 06/04/2026.
 5. Branch (si posee): main.
 
-(3)
+(4)
 
 1. Apellido y nombres: Acosta Pio.
 2. Módulos (objetivos) a desarrollar: se agregó ingreso rápido a la pantalla de ingreso (para dueño) y alerta al cerrar sesión

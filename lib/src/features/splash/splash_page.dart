@@ -114,7 +114,8 @@ class _SplashPageState extends State<SplashPage>
 
   @override
   Widget build(BuildContext context) {
-    final letterStyle = GoogleFonts.archivoBlack(
+    final letterStyle = TextStyle(
+      fontFamily: 'ArchivoBlack',
       fontSize: 72,
       color: Colors.white,
       letterSpacing: -6,

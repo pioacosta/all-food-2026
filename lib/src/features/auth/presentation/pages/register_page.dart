@@ -124,9 +124,11 @@ class _RegisterPageState extends State<RegisterPage> {
                     'All Food',
                     textAlign: TextAlign.center,
                     style: TextStyle(
+                      fontFamily: 'ArchivoBlack',
                       fontSize: 34,
-                      fontWeight: FontWeight.w800,
                       color: Colors.white,
+                      letterSpacing: -2,
+                      height: 1,
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -245,6 +247,9 @@ class _RegisterPageState extends State<RegisterPage> {
                   ),
                   const SizedBox(height: 12),
                   TextButton(
+                    style: TextButton.styleFrom(
+                      foregroundColor: Colors.white70,
+                    ),
                     onPressed:
                         _isLoading
                             ? null
