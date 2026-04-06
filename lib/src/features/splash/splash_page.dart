@@ -69,18 +69,22 @@ class _SplashPageState extends State<SplashPage>
     _logoSlide = Tween<Offset>(
       begin: const Offset(0, 0.4),
       end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: const Interval(0.1, 0.42, curve: Curves.bounceOut),
-    ));
+    ).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: const Interval(0.1, 0.42, curve: Curves.bounceOut),
+      ),
+    );
 
     _namesSlide = Tween<Offset>(
       begin: const Offset(0, 0.4),
       end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: const Interval(0.2, 0.4, curve: Curves.easeOut),
-    ));
+    ).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: const Interval(0.2, 0.4, curve: Curves.easeOut),
+      ),
+    );
 
     _exitFade = Tween<double>(begin: 1, end: 0).animate(
       CurvedAnimation(
@@ -126,10 +130,7 @@ class _SplashPageState extends State<SplashPage>
           animation: _controller,
           builder: (context, child) {
             final opacity = _fadeAnim.value * _exitFade.value;
-            return Opacity(
-              opacity: opacity.clamp(0.0, 1.0),
-              child: child,
-            );
+            return Opacity(opacity: opacity.clamp(0.0, 1.0), child: child);
           },
           child: Center(
             child: Column(
@@ -176,20 +177,25 @@ class _SplashPageState extends State<SplashPage>
                 SlideTransition(
                   position: _namesSlide,
                   child: Column(
-                    children: ['Lezcano Adrián', 'Acosta Pío', 'Bordón Luciano']
-                        .map((name) => Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 2),
-                              child: Text(
-                                name,
-                                style: GoogleFonts.nunito(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w700,
-                                  color: Colors.white,
-                                  letterSpacing: 0.5,
+                    children:
+                        ['Lezcano Adrián', 'Acosta Pio', 'Bordón Luciano']
+                            .map(
+                              (name) => Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 2,
+                                ),
+                                child: Text(
+                                  name,
+                                  style: GoogleFonts.nunito(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w700,
+                                    color: Colors.white,
+                                    letterSpacing: 0.5,
+                                  ),
                                 ),
                               ),
-                            ))
-                        .toList(),
+                            )
+                            .toList(),
                   ),
                 ),
               ],
