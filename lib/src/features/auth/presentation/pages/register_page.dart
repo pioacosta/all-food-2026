@@ -120,7 +120,7 @@ class _RegisterPageState extends State<RegisterPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                   const Text(
+                  const Text(
                     'All Food',
                     textAlign: TextAlign.center,
                     style: TextStyle(
@@ -153,7 +153,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     },
                   ),
                   const SizedBox(height: 16),
-                  
+
                   TextFormField(
                     controller: _apellidoController,
                     style: const TextStyle(color: Colors.white),
@@ -242,6 +242,17 @@ class _RegisterPageState extends State<RegisterPage> {
                               child: CircularProgressIndicator(strokeWidth: 2),
                             )
                             : const Text('Crear cuenta'),
+                  ),
+                  const SizedBox(height: 12),
+                  TextButton(
+                    onPressed:
+                        _isLoading
+                            ? null
+                            : () {
+                              // Vuelve al login manteniendo la navegacion simple.
+                              Navigator.of(context).pop();
+                            },
+                    child: const Text('¿Ya tenés cuenta? Ingresá acá'),
                   ),
                 ],
               ),
