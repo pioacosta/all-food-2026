@@ -13,7 +13,7 @@ class AuthCard extends StatelessWidget {
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 430),
           child: Card(
-            color: const Color(0xFF163A73),
+            color: const Color(0xFF8D2628),
             child: Padding(
               padding: const EdgeInsets.all(20),
               child: Column(

@@ -45,3 +45,15 @@ En las tablas solo se guarda el enlace o path del archivo para luego cargarlo de
 3. Fecha de inicio de la tarea: 28/03/2026.
 4. Fecha de finalización de la tarea: 28/03/2026.
 5. Branch (si posee): main.
+
+6. Apellido y nombres: Acosta Pio.
+7. Módulos (objetivos) a desarrollar: actualización de colores principales (azul -> rojo). Se agregó logo y se incluyó en el splash
+8. Fecha de inicio de la tarea: 06/04/2026.
+9. Fecha de finalización de la tarea: 06/04/2026.
+10. Branch (si posee): main.
+
+11. Apellido y nombres: Acosta Pio.
+12. Módulos (objetivos) a desarrollar: se agregó ingreso rápido a la pantalla de ingreso (para dueño) y alerta al cerrar sesión
+13. Fecha de inicio de la tarea: 06/04/2026.
+14. Fecha de finalización de la tarea: 06/04/2026.
+15. Branch (si posee): main.

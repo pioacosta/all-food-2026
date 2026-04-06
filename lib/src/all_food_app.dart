@@ -19,7 +19,7 @@ class AllFoodApp extends StatelessWidget {
   Widget build(BuildContext context) {
     // Esquema de color base para mantener coherencia visual.
     final colorScheme = ColorScheme.fromSeed(
-      seedColor: const Color(0xFF0D47A1),
+      seedColor: const Color(0xFFB71C1C),
       brightness: Brightness.light,
     );
 
@@ -29,9 +29,9 @@ class AllFoodApp extends StatelessWidget {
       theme: ThemeData(
         useMaterial3: true,
         colorScheme: colorScheme,
-        scaffoldBackgroundColor: const Color(0xFF0A1931),
+        scaffoldBackgroundColor: const Color(0xFF5B1718),
         appBarTheme: const AppBarTheme(
-          backgroundColor: Color(0xFF102A5C),
+          backgroundColor: Color(0xFF7A2021),
           foregroundColor: Colors.white,
         ),
         inputDecorationTheme: const InputDecorationTheme(
@@ -51,7 +51,7 @@ class AllFoodApp extends StatelessWidget {
         ),
         filledButtonTheme: FilledButtonThemeData(
           style: FilledButton.styleFrom(
-            backgroundColor: const Color(0xFF1E88E5),
+            backgroundColor: const Color(0xFFC62828),
             foregroundColor: Colors.white,
           ),
         ),

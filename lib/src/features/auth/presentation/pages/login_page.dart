@@ -3,6 +3,7 @@ import 'package:all_food/src/features/auth/widgets/auth_card.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../../../../config/demo_accounts.dart';
 import '../../../home/presentation/pages/home_page.dart';
 import 'register_page.dart';
 
@@ -10,11 +11,13 @@ class LoginPage extends StatefulWidget {
   const LoginPage({
     required this.supabaseReady,
     this.initializationMessage,
+    this.successMessage,
     super.key,
   });
 
   final bool supabaseReady;
   final String? initializationMessage;
+  final String? successMessage;
 
   @override
   State<LoginPage> createState() => _LoginPageState();
@@ -28,6 +31,18 @@ class _LoginPageState extends State<LoginPage> {
   final _passwordController = TextEditingController();
 
   var _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    if (widget.successMessage != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        _mostrarToastExito(widget.successMessage!);
+      });
+    }
+  }
 
   @override
   void dispose() {
@@ -93,6 +108,12 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
+  void _completarIngresoRapidoDuenio() {
+    _emailController.text = DemoAccounts.duenioEmail;
+    _passwordController.text = DemoAccounts.duenioPassword;
+    setState(() {});
+  }
+
   void _mostrarMensaje(String mensaje, {required bool esError}) {
     // Centraliza mensajes de error/exito en un mismo estilo visual.
     ScaffoldMessenger.of(context)
@@ -102,6 +123,49 @@ class _LoginPageState extends State<LoginPage> {
           content: Text(mensaje),
           backgroundColor:
               esError ? const Color(0xFF992E2E) : const Color(0xFF2D6A4F),
+        ),
+      );
+  }
+
+  void _mostrarToastExito(String mensaje) {
+    ScaffoldMessenger.of(context)
+      ..clearSnackBars()
+      ..showSnackBar(
+        SnackBar(
+          behavior: SnackBarBehavior.floating,
+          margin: const EdgeInsets.all(16),
+          elevation: 0,
+          backgroundColor: Colors.transparent,
+          content: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            decoration: BoxDecoration(
+              color: const Color(0xFF2D6A4F),
+              borderRadius: BorderRadius.circular(14),
+              boxShadow: const [
+                BoxShadow(
+                  color: Color(0x33000000),
+                  blurRadius: 12,
+                  offset: Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Row(
+              children: [
+                const Icon(Icons.check_circle_rounded, color: Colors.white),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    mensaje,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          duration: const Duration(seconds: 2),
         ),
       );
   }
@@ -135,7 +199,7 @@ class _LoginPageState extends State<LoginPage> {
                   if (widget.initializationMessage != null) ...[
                     const SizedBox(height: 16),
                     MaterialBanner(
-                      backgroundColor: const Color(0xFF244A8F),
+                      backgroundColor: const Color(0xFF8D2628),
                       content: Text(
                         widget.initializationMessage!,
                         style: const TextStyle(color: Colors.white),
@@ -214,6 +278,43 @@ class _LoginPageState extends State<LoginPage> {
                               );
                             },
                     child: const Text('Crear cuenta'),
+                  ),
+                  const SizedBox(height: 18),
+                  Row(
+                    children: const [
+                      Expanded(child: Divider(color: Colors.white38)),
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 10),
+                        child: Text(
+                          'INGRESOS RAPIDOS',
+                          style: TextStyle(
+                            color: Colors.white70,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 1,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ),
+                      Expanded(child: Divider(color: Colors.white38)),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Center(
+                    child: Tooltip(
+                      message: 'Completar ingreso de duenio',
+                      child: OutlinedButton(
+                        onPressed:
+                            _isLoading ? null : _completarIngresoRapidoDuenio,
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 18,
+                            vertical: 12,
+                          ),
+                          shape: const CircleBorder(),
+                        ),
+                        child: const Icon(Icons.badge_outlined),
+                      ),
+                    ),
                   ),
                 ],
               ),

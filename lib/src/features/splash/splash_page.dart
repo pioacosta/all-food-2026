@@ -164,10 +164,11 @@ class _SplashPageState extends State<SplashPage>
                 // logo
                 SlideTransition(
                   position: _logoSlide,
-                  child: const Icon(
-                    Icons.fastfood,
-                    size: 100,
-                    color: Colors.white,
+                  child: Image.asset(
+                    'assets/images/logo.png',
+                    width: 110,
+                    height: 110,
+                    fit: BoxFit.contain,
                   ),
                 ),
 

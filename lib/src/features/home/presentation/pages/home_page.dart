@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../../../auth/presentation/pages/login_page.dart';
+
 class HomePage extends StatefulWidget {
   const HomePage({required this.supabaseReady, super.key});
 
@@ -28,8 +30,17 @@ class _HomePageState extends State<HomePage> {
       }
 
       if (!mounted) return;
-      // Vuelve al inicio de navegacion (SessionGate llevara a login).
-      Navigator.of(context).popUntil((route) => route.isFirst);
+      // Limpia la navegacion y vuelve al ingreso con confirmacion visual.
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(
+          builder:
+              (_) => LoginPage(
+                supabaseReady: widget.supabaseReady,
+                successMessage: 'Sesión cerrada correctamente.',
+              ),
+        ),
+        (route) => false,
+      );
     } on AuthException catch (error) {
       _mostrarMensaje(error.message, esError: true);
     } catch (_) {
@@ -81,7 +92,7 @@ class _HomePageState extends State<HomePage> {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [Color(0xFF0A1931), Color(0xFF102A5C)],
+            colors: [Color(0xFF5B1718), Color(0xFF7A2021)],
           ),
         ),
         child: const SafeArea(
