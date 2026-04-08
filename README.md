@@ -69,3 +69,10 @@ En las tablas solo se guarda el enlace o path del archivo para luego cargarlo de
 3. Fecha de inicio de la tarea: 06/04/2026.
 4. Fecha de finalización de la tarea: 06/04/2026.
 5. Branch (si posee): main.
+
+(5)
+1. Apellido y nombres: Lcuiano Bordón.
+2. Módulos (objetivos) a desarrollar: Se agrego icono de la aplicacion personalizado
+3. Fecha de inicio de la tarea: 06/04/2026.
+4. Fecha de finalización de la tarea: 06/04/2026.
+5. Branch (si posee): main.
