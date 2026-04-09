@@ -1,6 +1,8 @@
+import 'dart:io';
 import 'package:all_food/src/features/auth/widgets/auth_background.dart';
 import 'package:all_food/src/features/auth/widgets/auth_card.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class RegisterPage extends StatefulWidget {
@@ -18,9 +20,12 @@ class _RegisterPageState extends State<RegisterPage> {
   // Controladores de cada campo del registro.
   final _nombreController = TextEditingController();
   final _apellidoController = TextEditingController();
+  final _dniController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
+
+  File? _foto;
 
   var _isLoading = false;
 
@@ -29,6 +34,7 @@ class _RegisterPageState extends State<RegisterPage> {
     // Libera recursos al salir de la pantalla.
     _nombreController.dispose();
     _apellidoController.dispose();
+    _dniController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
@@ -50,40 +56,70 @@ class _RegisterPageState extends State<RegisterPage> {
       return;
     }
 
+    if (_foto == null) {
+      _mostrarMensaje('Debes tomar una foto.', esError: true);
+      return;
+    }
+
     setState(() {
       _isLoading = true;
     });
 
     try {
-      // Crea usuario en Auth y guarda metadatos basicos.
-      final response = await Supabase.instance.client.auth.signUp(
+      final supabase = Supabase.instance.client;
+
+      // paso 1 crear usuario en auth.
+      final response = await supabase.auth.signUp(
         email: _emailController.text.trim(),
         password: _passwordController.text,
-        data: {
-          'nombres': _nombreController.text.trim(),
-          'apellidos': _apellidoController.text.trim(),
-        },
       );
 
       if (!mounted) return;
 
-      if (response.user == null) {
+      final user = response.user;
+
+      if (user == null) {
         _mostrarMensaje('No fue posible crear la cuenta.', esError: true);
         return;
       }
 
+      final userId = user.id;
+
+      // paso 2 subir imagen a storage
+      final fileName = '$userId-${DateTime.now().millisecondsSinceEpoch}.jpg';
+
+      await supabase.storage.from('avatares').upload(fileName, _foto!);
+
+      // paso 3 obtener URL publica
+      final fotoUrl = supabase.storage.from('avatares').getPublicUrl(fileName);
+
+      // paso 4 insetar en tabla perfiles
+      await supabase.from('perfiles').insert({
+        'id': userId,
+        'nombres': _nombreController.text.trim(),
+        'apellidos': _apellidoController.text.trim(),
+        'dni': _dniController.text.trim(),
+        'correo': _emailController.text.trim(),
+        'perfil': 'cliente_registrado',
+        'estado_registro': 'pendiente_aprobacion',
+        'foto_url': fotoUrl,
+        'habilitado': false
+      });
+
       _mostrarMensaje(
-        'Cuenta creada. Revisa tu correo para confirmar el registro si es necesario.',
+        'Registro exitoso. Esperando aprobación.',
         esError: false,
       );
+      
+      await Supabase.instance.client.auth.signOut();
 
-      // Vuelve al login para iniciar sesion con la nueva cuenta.
       Navigator.of(context).pop();
+    
     } on AuthException catch (error) {
       _mostrarMensaje(error.message, esError: true);
-    } catch (_) {
+    } catch (e) {
       _mostrarMensaje(
-        'Ocurrió un error inesperado al registrar.',
+        'Ocurrió un error inesperado al registrar. $e',
         esError: true,
       );
     } finally {
@@ -172,6 +208,30 @@ class _RegisterPageState extends State<RegisterPage> {
                       return null;
                     },
                   ),
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    controller: _dniController,
+                    style: const TextStyle(color: Colors.white),
+                    keyboardType: TextInputType.number,
+                    decoration: const InputDecoration(
+                      labelText: 'DNI',
+                      border: OutlineInputBorder(),
+                    ),
+                    validator: (value) {
+                      final text = value?.trim() ?? '';
+                      if (text.isEmpty) {
+                        return 'Debes ingresar el DNI.';
+                      }
+                      if (!RegExp(r'^\d+$').hasMatch(text)) {
+                        return 'El DNI debe ser numérico.';
+                      }
+                      if (text.length < 7) {
+                        return 'DNI inválido.';
+                      }
+                      return null;
+                    },
+                  ),
+
                   const SizedBox(height: 14),
                   TextFormField(
                     controller: _emailController,
@@ -193,6 +253,28 @@ class _RegisterPageState extends State<RegisterPage> {
                       return null;
                     },
                   ),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () async {
+                      final picker = ImagePicker();
+                      final picked = await picker.pickImage(
+                        source: ImageSource.camera,
+                      );
+
+                      if (picked != null) {
+                        setState(() {
+                          _foto = File(picked.path);
+                        });
+                      }
+                    },
+                    child: const Text('Tomar foto'),
+                  ),
+                  const SizedBox(height: 10),
+
+                  // PREVIEW DE LA FOTO
+                  if (_foto != null)
+                    Center(child: Image.file(_foto!, height: 120)),
+
                   const SizedBox(height: 14),
                   TextFormField(
                     controller: _passwordController,

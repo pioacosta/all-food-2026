@@ -1,3 +1,4 @@
+import 'package:all_food/src/shared/widgets/logo_loader.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -64,15 +65,12 @@ class AllFoodApp extends StatelessWidget {
         ),
       ),
       // Punto de entrada real: decide si mostrar login o home segun sesion.
-      home: SplashPage(
-        supabaseReady: supabaseReady,
-        // initializationMessage: initializationMessage,
-      ),
+      home: SessionGate(supabaseReady: supabaseReady),
     );
   }
 }
 
-class SessionGate extends StatelessWidget {
+class SessionGate extends StatefulWidget {
   const SessionGate({
     required this.supabaseReady,
     this.initializationMessage,
@@ -83,19 +81,31 @@ class SessionGate extends StatelessWidget {
   final String? initializationMessage;
 
   @override
+  State<SessionGate> createState() => _SessionGateState();
+}
+
+class _SessionGateState extends State<SessionGate> {
+  bool _splashDone = false;
+
+  @override
   Widget build(BuildContext context) {
-    // Si Supabase no esta listo, solo permite ver la pantalla de login con aviso.
-    if (!supabaseReady) {
+    if (!widget.supabaseReady) {
       return LoginPage(
-        supabaseReady: supabaseReady,
-        initializationMessage: initializationMessage,
+        supabaseReady: widget.supabaseReady,
+        initializationMessage: widget.initializationMessage,
       );
     }
 
-    // Escucha cambios de autenticacion en tiempo real.
+    // Splash todavía no terminó, lo mostramos dentro del SessionGate
+    if (!_splashDone) {
+      return SplashPage(
+        supabaseReady: widget.supabaseReady,
+        onFinished: () => setState(() => _splashDone = true), // 👈
+      );
+    }
+
     return StreamBuilder<AuthState>(
       stream: Supabase.instance.client.auth.onAuthStateChange,
-      // Toma la sesion actual al inicio para evitar parpadeos de pantalla.
       initialData: AuthState(
         AuthChangeEvent.initialSession,
         Supabase.instance.client.auth.currentSession,
@@ -103,16 +113,46 @@ class SessionGate extends StatelessWidget {
       builder: (context, snapshot) {
         final session = snapshot.data?.session;
 
-        // Sin sesion activa: se mantiene en login.
         if (session == null) {
           return LoginPage(
-            supabaseReady: supabaseReady,
-            initializationMessage: initializationMessage,
+            supabaseReady: widget.supabaseReady,
+            initializationMessage: widget.initializationMessage,
           );
         }
 
-        // Con sesion valida: navega al home.
-        return HomePage(supabaseReady: supabaseReady);
+        return FutureBuilder(
+          future:
+              Supabase.instance.client
+                  .from('perfiles')
+                  .select()
+                  .eq('id', session.user.id)
+                  .single(),
+          builder: (context, perfilSnapshot) {
+            if (!perfilSnapshot.hasData) {
+              return const LogoLoader(); 
+            }
+
+            final estado = perfilSnapshot.data!['estado_registro'];
+
+            if (estado == 'aprobado') {
+              return HomePage(supabaseReady: widget.supabaseReady);
+            }
+
+            final mensaje =
+                estado == 'pendiente_aprobacion'
+                    ? 'Tu cuenta está pendiente de aprobación.'
+                    : 'Tu cuenta ha sido rechazada.';
+
+            Future.microtask(() async {
+              await Supabase.instance.client.auth.signOut();
+            });
+
+            return LoginPage(
+              supabaseReady: widget.supabaseReady,
+              errorMessage: mensaje,
+            );
+          },
+        );
       },
     );
   }

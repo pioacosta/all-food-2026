@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../all_food_app.dart';
 
 class SplashPage extends StatefulWidget {
-  const SplashPage({required this.supabaseReady, super.key});
+  const SplashPage({
+    required this.supabaseReady,
+    required this.onFinished, // 👈
+    super.key,
+  });
 
   final bool supabaseReady;
+  final VoidCallback onFinished;
 
   @override
   State<SplashPage> createState() => _SplashPageState();
@@ -97,11 +101,7 @@ class _SplashPageState extends State<SplashPage>
 
     _controller.addStatusListener((status) {
       if (status == AnimationStatus.completed && mounted) {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(
-            builder: (_) => SessionGate(supabaseReady: widget.supabaseReady),
-          ),
-        );
+        widget.onFinished(); // 👈 en vez de Navigator.pushReplacement
       }
     });
   }

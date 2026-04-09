@@ -2,9 +2,7 @@ import 'package:all_food/src/features/auth/widgets/auth_background.dart';
 import 'package:all_food/src/features/auth/widgets/auth_card.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-
 import '../../../../config/demo_accounts.dart';
-import '../../../home/presentation/pages/home_page.dart';
 import 'register_page.dart';
 
 class LoginPage extends StatefulWidget {
@@ -12,12 +10,14 @@ class LoginPage extends StatefulWidget {
     required this.supabaseReady,
     this.initializationMessage,
     this.successMessage,
+    this.errorMessage,
     super.key,
   });
 
   final bool supabaseReady;
   final String? initializationMessage;
   final String? successMessage;
+  final String? errorMessage;
 
   @override
   State<LoginPage> createState() => _LoginPageState();
@@ -41,6 +41,13 @@ class _LoginPageState extends State<LoginPage> {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
         _mostrarToastExito(widget.successMessage!);
+      });
+    }
+
+    if (widget.errorMessage != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        _mostrarMensaje(widget.errorMessage!, esError: true);
       });
     }
   }
@@ -73,8 +80,9 @@ class _LoginPageState extends State<LoginPage> {
     });
 
     try {
+      final supabase = Supabase.instance.client;
       // Login por email y contraseña usando Supabase Auth.
-      final response = await Supabase.instance.client.auth.signInWithPassword(
+      final response = await supabase.auth.signInWithPassword(
         email: _emailController.text.trim(),
         password: _passwordController.text,
       );
@@ -86,12 +94,6 @@ class _LoginPageState extends State<LoginPage> {
         return;
       }
 
-      // Reemplaza la pantalla actual para que no vuelva al login con atras.
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (_) => HomePage(supabaseReady: widget.supabaseReady),
-        ),
-      );
     } on AuthException catch (error) {
       _mostrarMensaje(error.message, esError: true);
     } catch (_) {
