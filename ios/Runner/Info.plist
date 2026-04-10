@@ -45,5 +45,7 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>All Food utiliza la camara para tomar la foto del empleado y leer el QR del DNI.</string>
 </dict>
 </plist>

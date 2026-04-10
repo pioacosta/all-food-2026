@@ -14,6 +14,57 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   var _cerrandoSesion = false;
+  bool _cargandoPerfil = true;
+  String? _perfil;
+
+  @override
+  void initState() {
+    super.initState();
+    _cargarPerfil();
+  }
+
+  Future<void> _cargarPerfil() async {
+    if (!widget.supabaseReady) {
+      setState(() {
+        _perfil = null;
+        _cargandoPerfil = false;
+      });
+      return;
+    }
+
+    try {
+      final supabase = Supabase.instance.client;
+      final userId = supabase.auth.currentUser?.id;
+
+      if (userId == null) {
+        if (!mounted) return;
+        setState(() {
+          _perfil = null;
+          _cargandoPerfil = false;
+        });
+        return;
+      }
+
+      final data =
+          await supabase
+              .from('perfiles')
+              .select('perfil')
+              .eq('id', userId)
+              .single();
+
+      if (!mounted) return;
+      setState(() {
+        _perfil = data['perfil'] as String?;
+        _cargandoPerfil = false;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _perfil = null;
+        _cargandoPerfil = false;
+      });
+    }
+  }
 
   Future<void> _cerrarSesion() async {
     // Evita dobles taps que disparen logout multiple.
@@ -69,6 +120,8 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final puedeCrearEmpleados = _perfil == 'dueno' || _perfil == 'supervisor';
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('All Food'),
@@ -95,11 +148,30 @@ class _HomePageState extends State<HomePage> {
             colors: [Color(0xFF5B1718), Color(0xFF7A2021)],
           ),
         ),
-        child:  SafeArea(
+        child: SafeArea(
           child: Center(
-            child: ElevatedButton(onPressed: () {
-              Navigator.pushNamed(context, '/crear-plato');
-            }, child: const Text('crear plato'))
+            child:
+                _cargandoPerfil
+                    ? const CircularProgressIndicator()
+                    : Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        ElevatedButton(
+                          onPressed: () {
+                            Navigator.pushNamed(context, '/crear-plato');
+                          },
+                          child: const Text('Crear plato'),
+                        ),
+                        const SizedBox(height: 12),
+                        if (puedeCrearEmpleados)
+                          ElevatedButton(
+                            onPressed: () {
+                              Navigator.pushNamed(context, '/alta-empleado');
+                            },
+                            child: const Text('Alta de empleados'),
+                          ),
+                      ],
+                    ),
           ),
         ),
       ),

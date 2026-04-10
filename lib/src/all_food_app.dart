@@ -1,4 +1,5 @@
 import 'package:all_food/src/features/platos/presentation/pages/crear_plato_page.dart';
+import 'package:all_food/src/features/staff/presentation/pages/alta_empleado_page.dart';
 import 'package:all_food/src/shared/widgets/logo_loader.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -66,19 +67,21 @@ class AllFoodApp extends StatelessWidget {
         ),
       ),
       initialRoute: '/session',
-routes: {
-  '/session': (_) => SessionGate(supabaseReady: supabaseReady),
+      routes: {
+        '/session': (_) => SessionGate(supabaseReady: supabaseReady),
 
-  '/home': (_) => HomePage(supabaseReady: supabaseReady),
+        '/home': (_) => HomePage(supabaseReady: supabaseReady),
 
-  '/crear-plato': (_) =>
-      CrearPlatoPage(supabaseReady: supabaseReady),
+        '/crear-plato': (_) => CrearPlatoPage(supabaseReady: supabaseReady),
 
-  '/login': (_) => LoginPage(
-        supabaseReady: supabaseReady,
-        initializationMessage: initializationMessage,
-      ),
-},
+        '/alta-empleado': (_) => AltaEmpleadoPage(supabaseReady: supabaseReady),
+
+        '/login':
+            (_) => LoginPage(
+              supabaseReady: supabaseReady,
+              initializationMessage: initializationMessage,
+            ),
+      },
     );
   }
 }
@@ -142,7 +145,7 @@ class _SessionGateState extends State<SessionGate> {
                   .single(),
           builder: (context, perfilSnapshot) {
             if (!perfilSnapshot.hasData) {
-              return const LogoLoader(); 
+              return const LogoLoader();
             }
 
             final estado = perfilSnapshot.data!['estado_registro'];
