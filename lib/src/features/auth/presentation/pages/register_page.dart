@@ -1,10 +1,11 @@
 import 'dart:io';
 import 'package:all_food/src/features/auth/widgets/auth_background.dart';
 import 'package:all_food/src/features/auth/widgets/auth_card.dart';
+import 'package:all_food/src/shared/errors/app_error_mapper.dart';
 import 'package:all_food/src/shared/widgets/logo_spinner.dart';
+import 'package:all_food/src/features/auth/data/repositories/auth_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({required this.supabaseReady, super.key});
@@ -27,6 +28,8 @@ class _RegisterPageState extends State<RegisterPage> {
   final _confirmPasswordController = TextEditingController();
 
   File? _foto;
+  // Repositorio que concentra el flujo de alta contra Supabase.
+  final _authRepository = AuthRepository();
 
   var _isLoading = false;
 
@@ -67,61 +70,30 @@ class _RegisterPageState extends State<RegisterPage> {
     });
 
     try {
-      final supabase = Supabase.instance.client;
-
-      // paso 1 crear usuario en auth.
-      final response = await supabase.auth.signUp(
-        email: _emailController.text.trim(),
+      // La pantalla solo recolecta datos; el repositorio ejecuta el alta completa.
+      await _authRepository.registerClient(
+        nombres: _nombreController.text.trim(),
+        apellidos: _apellidoController.text.trim(),
+        dni: _dniController.text.trim(),
+        correo: _emailController.text.trim(),
         password: _passwordController.text,
+        foto: _foto!,
       );
 
       if (!mounted) return;
-
-      final user = response.user;
-
-      if (user == null) {
-        _mostrarMensaje('No fue posible crear la cuenta.', esError: true);
-        return;
-      }
-
-      final userId = user.id;
-
-      // paso 2 subir imagen a storage
-      final fileName = '$userId-${DateTime.now().millisecondsSinceEpoch}.jpg';
-
-      await supabase.storage.from('avatares').upload(fileName, _foto!);
-
-      // paso 3 obtener URL publica
-      final fotoUrl = supabase.storage.from('avatares').getPublicUrl(fileName);
-
-      // paso 4 insetar en tabla perfiles
-      await supabase.from('perfiles').insert({
-        'id': userId,
-        'nombres': _nombreController.text.trim(),
-        'apellidos': _apellidoController.text.trim(),
-        'dni': _dniController.text.trim(),
-        'correo': _emailController.text.trim(),
-        'perfil': 'cliente_registrado',
-        'estado_registro': 'pendiente_aprobacion',
-        'foto_url': fotoUrl,
-        'habilitado': false,
-      });
 
       _mostrarMensaje(
         'Registro exitoso. Esperando aprobación.',
         esError: false,
       );
 
-      await Supabase.instance.client.auth.signOut();
-
-      if (!mounted) return;
-
       Navigator.of(context).pop();
-    } on AuthException catch (error) {
-      _mostrarMensaje(error.message, esError: true);
-    } catch (e) {
+    } catch (error) {
       _mostrarMensaje(
-        'Ocurrió un error inesperado al registrar. $e',
+        AppErrorMapper.toUserMessage(
+          error,
+          fallbackMessage: 'Ocurrió un error inesperado al registrar.',
+        ),
         esError: true,
       );
     } finally {

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:all_food/src/features/home/data/repositories/home_repository.dart';
+import 'package:all_food/src/shared/errors/app_error_mapper.dart';
 import '../../../../shared/widgets/logo_spinner.dart';
 
 import '../../../auth/presentation/pages/login_page.dart';
@@ -17,6 +18,7 @@ class _HomePageState extends State<HomePage> {
   var _cerrandoSesion = false;
   bool _cargandoPerfil = true;
   String? _perfil;
+  final _homeRepository = HomeRepository();
 
   @override
   void initState() {
@@ -34,28 +36,11 @@ class _HomePageState extends State<HomePage> {
     }
 
     try {
-      final supabase = Supabase.instance.client;
-      final userId = supabase.auth.currentUser?.id;
-
-      if (userId == null) {
-        if (!mounted) return;
-        setState(() {
-          _perfil = null;
-          _cargandoPerfil = false;
-        });
-        return;
-      }
-
-      final data =
-          await supabase
-              .from('perfiles')
-              .select('perfil')
-              .eq('id', userId)
-              .single();
+      final perfil = await _homeRepository.getCurrentUserRole();
 
       if (!mounted) return;
       setState(() {
-        _perfil = data['perfil'] as String?;
+        _perfil = perfil;
         _cargandoPerfil = false;
       });
     } catch (_) {
@@ -77,8 +62,8 @@ class _HomePageState extends State<HomePage> {
 
     try {
       if (widget.supabaseReady) {
-        // Cierra sesion del usuario en Supabase Auth.
-        await Supabase.instance.client.auth.signOut();
+        // Cierra sesion a traves de la capa de datos.
+        await _homeRepository.signOut();
       }
 
       if (!mounted) return;
@@ -93,10 +78,14 @@ class _HomePageState extends State<HomePage> {
         ),
         (route) => false,
       );
-    } on AuthException catch (error) {
-      _mostrarMensaje(error.message, esError: true);
-    } catch (_) {
-      _mostrarMensaje('No fue posible cerrar sesión.', esError: true);
+    } catch (error) {
+      _mostrarMensaje(
+        AppErrorMapper.toUserMessage(
+          error,
+          fallbackMessage: 'No fue posible cerrar sesión.',
+        ),
+        esError: true,
+      );
     } finally {
       if (mounted) {
         setState(() {

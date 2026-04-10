@@ -1,8 +1,9 @@
 import 'package:all_food/src/features/auth/widgets/auth_background.dart';
 import 'package:all_food/src/features/auth/widgets/auth_card.dart';
+import 'package:all_food/src/shared/errors/app_error_mapper.dart';
 import 'package:all_food/src/shared/widgets/logo_spinner.dart';
 import 'package:flutter/material.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:all_food/src/features/auth/data/repositories/auth_repository.dart';
 import '../../../../config/demo_accounts.dart';
 import 'register_page.dart';
 
@@ -30,6 +31,8 @@ class _LoginPageState extends State<LoginPage> {
   // Controladores para leer y limpiar campos de texto.
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  // Repositorio que abstrae llamadas a backend fuera de presentation.
+  final _authRepository = AuthRepository();
 
   var _isLoading = false;
 
@@ -81,9 +84,8 @@ class _LoginPageState extends State<LoginPage> {
     });
 
     try {
-      final supabase = Supabase.instance.client;
-      // Login por email y contraseña usando Supabase Auth.
-      final response = await supabase.auth.signInWithPassword(
+      // La UI delega el login al repositorio y solo maneja estados visuales.
+      final response = await _authRepository.loginWithEmailPassword(
         email: _emailController.text.trim(),
         password: _passwordController.text,
       );
@@ -94,11 +96,12 @@ class _LoginPageState extends State<LoginPage> {
         _mostrarMensaje('No fue posible iniciar sesión.', esError: true);
         return;
       }
-    } on AuthException catch (error) {
-      _mostrarMensaje(error.message, esError: true);
-    } catch (_) {
+    } catch (error) {
       _mostrarMensaje(
-        'Ocurrió un error inesperado al ingresar.',
+        AppErrorMapper.toUserMessage(
+          error,
+          fallbackMessage: 'Ocurrió un error inesperado al ingresar.',
+        ),
         esError: true,
       );
     } finally {

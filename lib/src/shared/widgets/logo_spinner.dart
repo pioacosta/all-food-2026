@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+// Spinner reutilizable con el logo de la app en el centro.
 class LogoSpinner extends StatelessWidget {
   const LogoSpinner({
     this.size = 64,
@@ -14,6 +15,7 @@ class LogoSpinner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Superpone indicador de progreso con imagen circular del logo.
     return SizedBox(
       width: size,
       height: size,

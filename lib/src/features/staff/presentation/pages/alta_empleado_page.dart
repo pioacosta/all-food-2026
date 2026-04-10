@@ -4,9 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:all_food/src/features/staff/data/repositories/staff_repository.dart';
+import 'package:all_food/src/shared/errors/app_error_mapper.dart';
 import '../../../../shared/widgets/logo_spinner.dart';
 
+// Pantalla para alta de personal con validaciones y carga de foto.
 class AltaEmpleadoPage extends StatefulWidget {
   const AltaEmpleadoPage({required this.supabaseReady, super.key});
 
@@ -27,6 +29,7 @@ class _AltaEmpleadoPageState extends State<AltaEmpleadoPage> {
   final _passwordController = TextEditingController();
 
   final _picker = ImagePicker();
+  final _staffRepository = StaffRepository();
 
   File? _foto;
   String? _perfilSeleccionado;
@@ -37,6 +40,7 @@ class _AltaEmpleadoPageState extends State<AltaEmpleadoPage> {
   @override
   void initState() {
     super.initState();
+    // Valida permisos al abrir para bloquear acceso no autorizado.
     _cargarPermisos();
   }
 
@@ -61,27 +65,7 @@ class _AltaEmpleadoPageState extends State<AltaEmpleadoPage> {
     }
 
     try {
-      final supabase = Supabase.instance.client;
-      final userId = supabase.auth.currentUser?.id;
-
-      if (userId == null) {
-        setState(() {
-          _validandoAcceso = false;
-          _puedeCrearEmpleados = false;
-        });
-        return;
-      }
-
-      final perfil =
-          await supabase
-              .from('perfiles')
-              .select('perfil, habilitado')
-              .eq('id', userId)
-              .single();
-
-      final rol = (perfil['perfil'] as String?) ?? '';
-      final habilitado = perfil['habilitado'] == true;
-      final autorizado = habilitado && (rol == 'dueno' || rol == 'supervisor');
+      final autorizado = await _staffRepository.canCurrentUserCreateEmployees();
 
       if (!mounted) return;
 
@@ -98,6 +82,7 @@ class _AltaEmpleadoPageState extends State<AltaEmpleadoPage> {
     }
   }
 
+  // Toma foto personal obligatoria usando camara frontal.
   Future<void> _tomarFoto() async {
     final tomada = await _picker.pickImage(
       source: ImageSource.camera,
@@ -112,6 +97,7 @@ class _AltaEmpleadoPageState extends State<AltaEmpleadoPage> {
     });
   }
 
+  // Abre scanner QR/PDF417 para autocompletar datos del DNI.
   Future<void> _abrirLectorQrDni() async {
     final resultado = await Navigator.of(context).push<_DniQrData>(
       MaterialPageRoute(builder: (_) => const _DniQrScannerPage()),
@@ -141,19 +127,12 @@ class _AltaEmpleadoPageState extends State<AltaEmpleadoPage> {
     );
   }
 
+  // Delega upload de imagen al repositorio de staff.
   Future<String> _subirFotoEmpleado(File foto) async {
-    final supabase = Supabase.instance.client;
-    final uid = supabase.auth.currentUser!.id;
-    final millis = DateTime.now().millisecondsSinceEpoch;
-    final path = '$uid/staff_$millis.jpg';
-
-    await supabase.storage
-        .from('avatares')
-        .upload(path, foto, fileOptions: const FileOptions(upsert: false));
-
-    return supabase.storage.from('avatares').getPublicUrl(path);
+    return _staffRepository.uploadStaffPhoto(foto);
   }
 
+  // Ejecuta alta de empleado validando permisos y datos requeridos.
   Future<void> _crearEmpleado() async {
     if (!_puedeCrearEmpleados) {
       _mostrarMensaje(
@@ -186,18 +165,15 @@ class _AltaEmpleadoPageState extends State<AltaEmpleadoPage> {
     try {
       final fotoUrl = await _subirFotoEmpleado(_foto!);
 
-      await Supabase.instance.client.rpc(
-        'crear_empleado_staff',
-        params: {
-          'p_nombres': _nombreController.text.trim(),
-          'p_apellidos': _apellidoController.text.trim(),
-          'p_dni': _dniController.text.trim(),
-          'p_cuil': _cuilController.text.trim(),
-          'p_correo': _correoController.text.trim().toLowerCase(),
-          'p_password': _passwordController.text,
-          'p_perfil': _perfilSeleccionado,
-          'p_foto_url': fotoUrl,
-        },
+      await _staffRepository.createEmployee(
+        nombres: _nombreController.text.trim(),
+        apellidos: _apellidoController.text.trim(),
+        dni: _dniController.text.trim(),
+        cuil: _cuilController.text.trim(),
+        correo: _correoController.text.trim().toLowerCase(),
+        password: _passwordController.text,
+        perfil: _perfilSeleccionado!,
+        fotoUrl: fotoUrl,
       );
 
       if (!mounted) return;
@@ -216,14 +192,12 @@ class _AltaEmpleadoPageState extends State<AltaEmpleadoPage> {
         _perfilSeleccionado = null;
         _foto = null;
       });
-    } on PostgrestException catch (error) {
-      final detalle = (error.message).trim();
-      final mensaje =
-          detalle.isEmpty ? 'No se pudo crear el empleado.' : detalle;
-      _mostrarMensaje(mensaje, esError: true);
-    } catch (_) {
+    } catch (error) {
       _mostrarMensaje(
-        'Ocurrió un error inesperado al crear el empleado.',
+        AppErrorMapper.toUserMessage(
+          error,
+          fallbackMessage: 'Ocurrió un error inesperado al crear el empleado.',
+        ),
         esError: true,
       );
     } finally {

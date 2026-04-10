@@ -1,8 +1,9 @@
 import 'dart:io';
 
+import 'package:all_food/src/features/platos/data/repositories/platos_repository.dart';
+import 'package:all_food/src/shared/errors/app_error_mapper.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:all_food/src/shared/widgets/logo_spinner.dart';
 
 class CrearPlatoPage extends StatefulWidget {
@@ -25,6 +26,7 @@ class _CrearPlatoPageState extends State<CrearPlatoPage> {
   final List<XFile?> _imagenes = [null, null, null];
 
   final ImagePicker _picker = ImagePicker();
+  final _platosRepository = PlatosRepository();
 
   bool _guardando = false;
 
@@ -86,19 +88,10 @@ class _CrearPlatoPageState extends State<CrearPlatoPage> {
 
   // ☁️ Subir imagen a Supabase Storage
   Future<String> _subirImagen(XFile imagen, String nombreArchivo) async {
-    final bytes = await imagen.readAsBytes();
-
-    final path = 'platos/$nombreArchivo';
-
-    await Supabase.instance.client.storage
-        .from('productos')
-        .uploadBinary(path, bytes);
-
-    final url = Supabase.instance.client.storage
-        .from('productos')
-        .getPublicUrl(path);
-
-    return url;
+    return _platosRepository.uploadDishImage(
+      image: imagen,
+      fileName: nombreArchivo,
+    );
   }
 
   // 💾 Guardar plato
@@ -120,7 +113,7 @@ class _CrearPlatoPageState extends State<CrearPlatoPage> {
       final tiempo = int.parse(_tiempoController.text);
       final precio = double.parse(_precioController.text);
 
-      final userId = Supabase.instance.client.auth.currentUser!.id;
+      final userId = _platosRepository.getCurrentUserIdOrThrow();
       final timestamp = DateTime.now().millisecondsSinceEpoch;
       final base = '${userId}_$timestamp';
 
@@ -130,17 +123,15 @@ class _CrearPlatoPageState extends State<CrearPlatoPage> {
       final foto3 = await _subirImagen(_imagenes[2]!, '${base}_3.jpg');
 
       // 💾 guardar en DB
-      await Supabase.instance.client.from('productos').insert({
-        'tipo': 'plato',
-        'nombre': nombre,
-        'descripcion': descripcion,
-        'tiempo_elaboracion_min': tiempo,
-        'precio': precio,
-        'foto_1_url': foto1,
-        'foto_2_url': foto2,
-        'foto_3_url': foto3,
-        'habilitado': true,
-      });
+      await _platosRepository.createDish(
+        nombre: nombre,
+        descripcion: descripcion,
+        tiempo: tiempo,
+        precio: precio,
+        foto1: foto1,
+        foto2: foto2,
+        foto3: foto3,
+      );
 
       _mostrarMensaje('Plato creado correctamente', esError: false);
 
@@ -155,8 +146,14 @@ class _CrearPlatoPageState extends State<CrearPlatoPage> {
         _imagenes[1] = null;
         _imagenes[2] = null;
       });
-    } catch (e) {
-      _mostrarMensaje('Error al crear el plato: $e', esError: true);
+    } catch (error) {
+      _mostrarMensaje(
+        AppErrorMapper.toUserMessage(
+          error,
+          fallbackMessage: 'Error al crear el plato.',
+        ),
+        esError: true,
+      );
     } finally {
       if (mounted) {
         setState(() => _guardando = false);
