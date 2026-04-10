@@ -93,3 +93,11 @@ En las tablas solo se guarda el enlace o path del archivo para luego cargarlo de
 3. Fecha de inicio de la tarea: 10/04/2026.
 4. Fecha de finalización de la tarea: 10/04/2026.
 5. Branch (si posee): main.
+
+(7)
+
+1. Apellido y nombres: Pio Acosta
+2. Módulos (objetivos) a desarrollar: Actualización del spinner con logo y círculo de carga
+3. Fecha de inicio de la tarea: 10/04/2026.
+4. Fecha de finalización de la tarea: 10/04/2026.
+5. Branch (si posee): main.
