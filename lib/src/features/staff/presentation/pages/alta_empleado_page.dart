@@ -212,11 +212,42 @@ class _AltaEmpleadoPageState extends State<AltaEmpleadoPage> {
       ..clearSnackBars()
       ..showSnackBar(
         SnackBar(
-          content: Text(mensaje),
+          content: Text(
+            mensaje,
+            maxLines: esError ? 4 : 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+          duration: Duration(seconds: esError ? 8 : 4),
+          action:
+              esError
+                  ? SnackBarAction(
+                    label: 'Ver detalle',
+                    textColor: Colors.white,
+                    onPressed: () => _mostrarDialogoError(mensaje),
+                  )
+                  : null,
           backgroundColor:
               esError ? const Color(0xFF992E2E) : const Color(0xFF2D6A4F),
         ),
       );
+  }
+
+  void _mostrarDialogoError(String mensaje) {
+    showDialog<void>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Error al crear empleado'),
+          content: SingleChildScrollView(child: SelectableText(mensaje)),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cerrar'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   String? _validarNombreOApellido(String? value, String etiqueta) {

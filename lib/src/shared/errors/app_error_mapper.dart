@@ -20,8 +20,17 @@ class AppErrorMapper {
 
     // Errores de base de datos (queries/RPC).
     if (error is PostgrestException) {
-      final detail = error.message.trim();
-      return detail.isEmpty ? fallbackMessage : detail;
+      final detailsText = error.details?.toString().trim() ?? '';
+      final hintText = error.hint?.toString().trim() ?? '';
+      final parts =
+          <String>[
+            error.message.trim(),
+            detailsText,
+            hintText,
+          ].where((p) => p.isNotEmpty).toList();
+
+      if (parts.isEmpty) return fallbackMessage;
+      return parts.join('\n');
     }
 
     // Errores de red frecuentes.
