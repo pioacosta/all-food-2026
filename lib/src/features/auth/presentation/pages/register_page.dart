@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:all_food/src/features/auth/widgets/auth_background.dart';
 import 'package:all_food/src/features/auth/widgets/auth_card.dart';
+import 'package:all_food/src/shared/widgets/logo_spinner.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -103,18 +104,19 @@ class _RegisterPageState extends State<RegisterPage> {
         'perfil': 'cliente_registrado',
         'estado_registro': 'pendiente_aprobacion',
         'foto_url': fotoUrl,
-        'habilitado': false
+        'habilitado': false,
       });
 
       _mostrarMensaje(
         'Registro exitoso. Esperando aprobación.',
         esError: false,
       );
-      
+
       await Supabase.instance.client.auth.signOut();
 
+      if (!mounted) return;
+
       Navigator.of(context).pop();
-    
     } on AuthException catch (error) {
       _mostrarMensaje(error.message, esError: true);
     } catch (e) {
@@ -323,7 +325,7 @@ class _RegisterPageState extends State<RegisterPage> {
                             ? const SizedBox(
                               width: 20,
                               height: 20,
-                              child: CircularProgressIndicator(strokeWidth: 2),
+                              child: LogoSpinner(size: 20, strokeWidth: 2),
                             )
                             : const Text('Crear cuenta'),
                   ),

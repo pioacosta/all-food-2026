@@ -3,12 +3,10 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:all_food/src/shared/widgets/logo_spinner.dart';
 
 class CrearPlatoPage extends StatefulWidget {
-  const CrearPlatoPage({
-    required this.supabaseReady,
-    super.key,
-  });
+  const CrearPlatoPage({required this.supabaseReady, super.key});
 
   final bool supabaseReady;
 
@@ -127,12 +125,9 @@ class _CrearPlatoPageState extends State<CrearPlatoPage> {
       final base = '${userId}_$timestamp';
 
       // 📸 subir imágenes
-      final foto1 =
-          await _subirImagen(_imagenes[0]!, '${base}_1.jpg');
-      final foto2 =
-          await _subirImagen(_imagenes[1]!, '${base}_2.jpg');
-      final foto3 =
-          await _subirImagen(_imagenes[2]!, '${base}_3.jpg');
+      final foto1 = await _subirImagen(_imagenes[0]!, '${base}_1.jpg');
+      final foto2 = await _subirImagen(_imagenes[1]!, '${base}_2.jpg');
+      final foto3 = await _subirImagen(_imagenes[2]!, '${base}_3.jpg');
 
       // 💾 guardar en DB
       await Supabase.instance.client.from('productos').insert({
@@ -160,7 +155,6 @@ class _CrearPlatoPageState extends State<CrearPlatoPage> {
         _imagenes[1] = null;
         _imagenes[2] = null;
       });
-
     } catch (e) {
       _mostrarMensaje('Error al crear el plato: $e', esError: true);
     } finally {
@@ -185,261 +179,265 @@ class _CrearPlatoPageState extends State<CrearPlatoPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Crear Plato'),
-      ),
-   body: Container(
-  width: double.infinity,
-  height: double.infinity,
-  color: const Color(0xFF6B1010), // fondo rojo oscuro
-  child: SingleChildScrollView(
-    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 48),
-    child: Center(
-      child: Container(
-        padding: const EdgeInsets.all(24),
-        decoration: BoxDecoration(
-          color: const Color(0xFF8B1A1A), // card rojo medio
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // TÍTULO
-              const Text(
-                'Crear Plato',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontFamily: 'ArchivoBlack',
-                  fontSize: 34,
-                  color: Colors.white,
-                  letterSpacing: -2,
-                  height: 1,
-                ),
+      appBar: AppBar(title: const Text('Crear Plato')),
+      body: Container(
+        width: double.infinity,
+        height: double.infinity,
+        color: const Color(0xFF6B1010), // fondo rojo oscuro
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 48),
+          child: Center(
+            child: Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: const Color(0xFF8B1A1A), // card rojo medio
+                borderRadius: BorderRadius.circular(16),
               ),
-              const SizedBox(height: 8),
-              const Text(
-                'Completá los datos del plato',
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 16, color: Colors.white70),
-              ),
-              const SizedBox(height: 16),
-
-              // NOMBRE
-              TextFormField(
-                controller: _nombreController,
-                style: const TextStyle(color: Colors.white),
-                textCapitalization: TextCapitalization.words,
-                decoration: InputDecoration(
-                  labelText: 'Nombre del plato',
-                  labelStyle: const TextStyle(color: Colors.white70),
-                  filled: true,
-                  fillColor: const Color(0xFF9B2A2A),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: Colors.white24),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: Colors.white24),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: Colors.white54),
-                  ),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'El nombre es obligatorio';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-
-              // DESCRIPCIÓN
-              TextFormField(
-                controller: _descripcionController,
-                style: const TextStyle(color: Colors.white),
-                maxLines: 3,
-                decoration: InputDecoration(
-                  labelText: 'Descripción',
-                  labelStyle: const TextStyle(color: Colors.white70),
-                  filled: true,
-                  fillColor: const Color(0xFF9B2A2A),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: Colors.white24),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: Colors.white24),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: Colors.white54),
-                  ),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'La descripción es obligatoria';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-
-              // TIEMPO
-              TextFormField(
-                controller: _tiempoController,
-                style: const TextStyle(color: Colors.white),
-                keyboardType: TextInputType.number,
-                decoration: InputDecoration(
-                  labelText: 'Tiempo de elaboración (min)',
-                  labelStyle: const TextStyle(color: Colors.white70),
-                  filled: true,
-                  fillColor: const Color(0xFF9B2A2A),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: Colors.white24),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: Colors.white24),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: Colors.white54),
-                  ),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'El tiempo es obligatorio';
-                  }
-                  if (int.tryParse(value) == null) {
-                    return 'Debe ser un número válido';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-
-              // PRECIO
-              TextFormField(
-                controller: _precioController,
-                style: const TextStyle(color: Colors.white),
-                keyboardType: TextInputType.number,
-                decoration: InputDecoration(
-                  labelText: 'Precio',
-                  labelStyle: const TextStyle(color: Colors.white70),
-                  filled: true,
-                  fillColor: const Color(0xFF9B2A2A),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: Colors.white24),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: Colors.white24),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: Colors.white54),
-                  ),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'El precio es obligatorio';
-                  }
-                  if (double.tryParse(value) == null) {
-                    return 'Debe ser un número válido';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-
-              // FOTOS — label
-              const Text(
-                'Fotos del plato',
-                style: TextStyle(color: Colors.white70),
-              ),
-              const SizedBox(height: 10),
-
-              // FOTOS — 3 slots
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: List.generate(3, (index) {
-                  final imagen = _imagenes[index];
-                  return GestureDetector(
-                    onTap: () => _seleccionarImagen(index),
-                    child: Container(
-                      width: 90,
-                      height: 90,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF9B2A2A),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: Colors.white24),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    // TÍTULO
+                    const Text(
+                      'Crear Plato',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontFamily: 'ArchivoBlack',
+                        fontSize: 34,
+                        color: Colors.white,
+                        letterSpacing: -2,
+                        height: 1,
                       ),
-                      child: imagen == null
-                          ? const Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(Icons.camera_alt, color: Colors.white70),
-                                SizedBox(height: 4),
-                                Text(
-                                  'Agregar',
-                                  style: TextStyle(
-                                    color: Colors.white70,
-                                    fontSize: 10,
-                                  ),
-                                ),
-                              ],
-                            )
-                          : ClipRRect(
-                              borderRadius: BorderRadius.circular(12),
-                              child: Image.file(
-                                File(imagen.path),
-                                fit: BoxFit.cover,
-                              ),
-                            ),
                     ),
-                  );
-                }),
-              ),
+                    const SizedBox(height: 8),
+                    const Text(
+                      'Completá los datos del plato',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 16, color: Colors.white70),
+                    ),
+                    const SizedBox(height: 16),
 
-              const SizedBox(height: 20),
-
-              // BOTÓN GUARDAR
-              FilledButton(
-                onPressed: _guardando ? null : _guardarPlato,
-                style: FilledButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  foregroundColor: const Color(0xFF6B1010),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                ),
-                child: _guardando
-                    ? const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : const Text(
-                        'Guardar',
-                        style: TextStyle(fontWeight: FontWeight.bold),
+                    // NOMBRE
+                    TextFormField(
+                      controller: _nombreController,
+                      style: const TextStyle(color: Colors.white),
+                      textCapitalization: TextCapitalization.words,
+                      decoration: InputDecoration(
+                        labelText: 'Nombre del plato',
+                        labelStyle: const TextStyle(color: Colors.white70),
+                        filled: true,
+                        fillColor: const Color(0xFF9B2A2A),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: const BorderSide(color: Colors.white24),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: const BorderSide(color: Colors.white24),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: const BorderSide(color: Colors.white54),
+                        ),
                       ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'El nombre es obligatorio';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 16),
+
+                    // DESCRIPCIÓN
+                    TextFormField(
+                      controller: _descripcionController,
+                      style: const TextStyle(color: Colors.white),
+                      maxLines: 3,
+                      decoration: InputDecoration(
+                        labelText: 'Descripción',
+                        labelStyle: const TextStyle(color: Colors.white70),
+                        filled: true,
+                        fillColor: const Color(0xFF9B2A2A),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: const BorderSide(color: Colors.white24),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: const BorderSide(color: Colors.white24),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: const BorderSide(color: Colors.white54),
+                        ),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'La descripción es obligatoria';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 16),
+
+                    // TIEMPO
+                    TextFormField(
+                      controller: _tiempoController,
+                      style: const TextStyle(color: Colors.white),
+                      keyboardType: TextInputType.number,
+                      decoration: InputDecoration(
+                        labelText: 'Tiempo de elaboración (min)',
+                        labelStyle: const TextStyle(color: Colors.white70),
+                        filled: true,
+                        fillColor: const Color(0xFF9B2A2A),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: const BorderSide(color: Colors.white24),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: const BorderSide(color: Colors.white24),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: const BorderSide(color: Colors.white54),
+                        ),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'El tiempo es obligatorio';
+                        }
+                        if (int.tryParse(value) == null) {
+                          return 'Debe ser un número válido';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 16),
+
+                    // PRECIO
+                    TextFormField(
+                      controller: _precioController,
+                      style: const TextStyle(color: Colors.white),
+                      keyboardType: TextInputType.number,
+                      decoration: InputDecoration(
+                        labelText: 'Precio',
+                        labelStyle: const TextStyle(color: Colors.white70),
+                        filled: true,
+                        fillColor: const Color(0xFF9B2A2A),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: const BorderSide(color: Colors.white24),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: const BorderSide(color: Colors.white24),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: const BorderSide(color: Colors.white54),
+                        ),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'El precio es obligatorio';
+                        }
+                        if (double.tryParse(value) == null) {
+                          return 'Debe ser un número válido';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 16),
+
+                    // FOTOS — label
+                    const Text(
+                      'Fotos del plato',
+                      style: TextStyle(color: Colors.white70),
+                    ),
+                    const SizedBox(height: 10),
+
+                    // FOTOS — 3 slots
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: List.generate(3, (index) {
+                        final imagen = _imagenes[index];
+                        return GestureDetector(
+                          onTap: () => _seleccionarImagen(index),
+                          child: Container(
+                            width: 90,
+                            height: 90,
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF9B2A2A),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: Colors.white24),
+                            ),
+                            child:
+                                imagen == null
+                                    ? const Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Icon(
+                                          Icons.camera_alt,
+                                          color: Colors.white70,
+                                        ),
+                                        SizedBox(height: 4),
+                                        Text(
+                                          'Agregar',
+                                          style: TextStyle(
+                                            color: Colors.white70,
+                                            fontSize: 10,
+                                          ),
+                                        ),
+                                      ],
+                                    )
+                                    : ClipRRect(
+                                      borderRadius: BorderRadius.circular(12),
+                                      child: Image.file(
+                                        File(imagen.path),
+                                        fit: BoxFit.cover,
+                                      ),
+                                    ),
+                          ),
+                        );
+                      }),
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    // BOTÓN GUARDAR
+                    FilledButton(
+                      onPressed: _guardando ? null : _guardarPlato,
+                      style: FilledButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        foregroundColor: const Color(0xFF6B1010),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                      ),
+                      child:
+                          _guardando
+                              ? const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: LogoSpinner(size: 20, strokeWidth: 2),
+                              )
+                              : const Text(
+                                'Guardar',
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                    ),
+                  ],
+                ),
               ),
-            ],
+            ),
           ),
         ),
       ),
-    ),
-  ),
-),
     );
   }
 }

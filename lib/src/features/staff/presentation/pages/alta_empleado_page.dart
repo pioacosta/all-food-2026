@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../../../../shared/widgets/logo_spinner.dart';
 
 class AltaEmpleadoPage extends StatefulWidget {
   const AltaEmpleadoPage({required this.supabaseReady, super.key});
@@ -360,7 +361,9 @@ class _AltaEmpleadoPageState extends State<AltaEmpleadoPage> {
   @override
   Widget build(BuildContext context) {
     if (_validandoAcceso) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+      return const Scaffold(
+        body: Center(child: LogoSpinner(size: 88, strokeWidth: 6)),
+      );
     }
 
     if (!_puedeCrearEmpleados) {
@@ -561,7 +564,7 @@ class _AltaEmpleadoPageState extends State<AltaEmpleadoPage> {
                             ? const SizedBox(
                               width: 20,
                               height: 20,
-                              child: CircularProgressIndicator(strokeWidth: 2),
+                              child: LogoSpinner(size: 20, strokeWidth: 2),
                             )
                             : const Text('Crear empleado'),
                   ),

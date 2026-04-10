@@ -1,5 +1,6 @@
 import 'package:all_food/src/features/auth/widgets/auth_background.dart';
 import 'package:all_food/src/features/auth/widgets/auth_card.dart';
+import 'package:all_food/src/shared/widgets/logo_spinner.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../../config/demo_accounts.dart';
@@ -93,7 +94,6 @@ class _LoginPageState extends State<LoginPage> {
         _mostrarMensaje('No fue posible iniciar sesión.', esError: true);
         return;
       }
-
     } on AuthException catch (error) {
       _mostrarMensaje(error.message, esError: true);
     } catch (_) {
@@ -264,7 +264,7 @@ class _LoginPageState extends State<LoginPage> {
                             ? const SizedBox(
                               width: 20,
                               height: 20,
-                              child: CircularProgressIndicator(strokeWidth: 2),
+                              child: LogoSpinner(size: 20, strokeWidth: 2),
                             )
                             : const Text('Ingresar'),
                   ),

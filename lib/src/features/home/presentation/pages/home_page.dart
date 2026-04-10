@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../../../../shared/widgets/logo_spinner.dart';
 
 import '../../../auth/presentation/pages/login_page.dart';
 
@@ -152,7 +153,7 @@ class _HomePageState extends State<HomePage> {
           child: Center(
             child:
                 _cargandoPerfil
-                    ? const CircularProgressIndicator()
+                    ? const LogoSpinner(size: 90, strokeWidth: 6)
                     : Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
