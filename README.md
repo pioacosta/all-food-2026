@@ -71,8 +71,15 @@ En las tablas solo se guarda el enlace o path del archivo para luego cargarlo de
 5. Branch (si posee): main.
 
 (5)
-1. Apellido y nombres: Lcuiano Bordón.
+1. Apellido y nombres: Luciano Bordón.
 2. Módulos (objetivos) a desarrollar: Se agrego icono de la aplicacion personalizado
 3. Fecha de inicio de la tarea: 06/04/2026.
 4. Fecha de finalización de la tarea: 06/04/2026.
+5. Branch (si posee): main.
+
+(6)
+1. Apellido y nombres: Luciano Bordón
+2. Módulos (objetivos) a desarrollar: Creación e implementación del módulo para la gestión de platos (alta de platos con validación de datos e imágenes)
+3. Fecha de inicio de la tarea: 9/04/2026.
+4. Fecha de finalización de la tarea: 09/04/2026.
 5. Branch (si posee): main.

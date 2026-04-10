@@ -95,17 +95,11 @@ class _HomePageState extends State<HomePage> {
             colors: [Color(0xFF5B1718), Color(0xFF7A2021)],
           ),
         ),
-        child: const SafeArea(
+        child:  SafeArea(
           child: Center(
-            child: Text(
-              'Inicio (vacío)\n\nBase lista para comenzar con los módulos de All Food.',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w700,
-                color: Colors.white,
-              ),
-            ),
+            child: ElevatedButton(onPressed: () {
+              Navigator.pushNamed(context, '/crear-plato');
+            }, child: const Text('crear plato'))
           ),
         ),
       ),
