@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:all_food/src/features/home/data/repositories/home_repository.dart';
 import 'package:all_food/src/shared/errors/app_error_mapper.dart';
 import '../../../../shared/widgets/logo_spinner.dart';
-
 import '../../../auth/presentation/pages/login_page.dart';
 
 class HomePage extends StatefulWidget {
@@ -37,7 +36,6 @@ class _HomePageState extends State<HomePage> {
 
     try {
       final perfil = await _homeRepository.getCurrentUserRole();
-
       if (!mounted) return;
       setState(() {
         _perfil = perfil;
@@ -53,32 +51,26 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _cerrarSesion() async {
-    // Evita dobles taps que disparen logout multiple.
     if (_cerrandoSesion) return;
-
-    setState(() {
-      _cerrandoSesion = true;
-    });
+    setState(() => _cerrandoSesion = true);
 
     try {
       if (widget.supabaseReady) {
-        // Cierra sesion a traves de la capa de datos.
         await _homeRepository.signOut();
       }
 
       if (!mounted) return;
-      // Limpia la navegacion y vuelve al ingreso con confirmacion visual.
       Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(
-          builder:
-              (_) => LoginPage(
-                supabaseReady: widget.supabaseReady,
-                successMessage: 'Sesión cerrada correctamente.',
-              ),
+          builder: (_) => LoginPage(
+            supabaseReady: widget.supabaseReady,
+            successMessage: 'Sesión cerrada correctamente.',
+          ),
         ),
         (route) => false,
       );
     } catch (error) {
+      if (!mounted) return;
       _mostrarMensaje(
         AppErrorMapper.toUserMessage(
           error,
@@ -87,16 +79,11 @@ class _HomePageState extends State<HomePage> {
         esError: true,
       );
     } finally {
-      if (mounted) {
-        setState(() {
-          _cerrandoSesion = false;
-        });
-      }
+      if (mounted) setState(() => _cerrandoSesion = false);
     }
   }
 
   void _mostrarMensaje(String mensaje, {required bool esError}) {
-    // Mensajes reutilizables para errores/informacion.
     ScaffoldMessenger.of(context)
       ..clearSnackBars()
       ..showSnackBar(
@@ -111,6 +98,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     final puedeCrearEmpleados = _perfil == 'dueno' || _perfil == 'supervisor';
+    final puedeCrearProductos = _perfil == 'cocinero' || _perfil == 'cantinero' ;
 
     return Scaffold(
       appBar: AppBar(
@@ -118,14 +106,13 @@ class _HomePageState extends State<HomePage> {
         actions: [
           TextButton(
             onPressed: _cerrandoSesion ? null : _cerrarSesion,
-            child:
-                _cerrandoSesion
-                    ? const SizedBox(
-                      height: 18,
-                      width: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                    : const Text('Cerrar sesión'),
+            child: _cerrandoSesion
+                ? const SizedBox(
+                    height: 18,
+                    width: 18,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const Text('Cerrar sesión'),
           ),
         ],
       ),
@@ -140,28 +127,32 @@ class _HomePageState extends State<HomePage> {
         ),
         child: SafeArea(
           child: Center(
-            child:
-                _cargandoPerfil
-                    ? const LogoSpinner(size: 90, strokeWidth: 6)
-                    : Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
+            child: _cargandoPerfil
+                ? const LogoSpinner(size: 90, strokeWidth: 6)
+                : Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (puedeCrearProductos)
                         ElevatedButton(
                           onPressed: () {
-                            Navigator.pushNamed(context, '/crear-plato');
+                            Navigator.pushNamed(context, '/crear-producto');
                           },
-                          child: const Text('Crear plato'),
-                        ),
-                        const SizedBox(height: 12),
-                        if (puedeCrearEmpleados)
-                          ElevatedButton(
-                            onPressed: () {
-                              Navigator.pushNamed(context, '/alta-empleado');
-                            },
-                            child: const Text('Alta de empleados'),
+                          child: Text(
+                            _perfil == 'cocinero'
+                                ? 'Crear plato'
+                                : 'Crear bebida',
                           ),
-                      ],
-                    ),
+                        ),
+                      if (puedeCrearProductos) const SizedBox(height: 12),
+                      if (puedeCrearEmpleados)
+                        ElevatedButton(
+                          onPressed: () {
+                            Navigator.pushNamed(context, '/alta-empleado');
+                          },
+                          child: const Text('Alta de empleados'),
+                        ),
+                    ],
+                  ),
           ),
         ),
       ),

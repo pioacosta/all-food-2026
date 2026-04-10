@@ -81,9 +81,9 @@ En las tablas solo se guarda el enlace o path del archivo para luego cargarlo de
 (6)
 
 1. Apellido y nombres: Luciano Bordón
-2. Módulos (objetivos) a desarrollar: Creación e implementación del módulo para la gestión de platos (alta de platos con validación de datos e imágenes)
+2. Módulos (objetivos) a desarrollar: modularizacion y alta de producto (alta de platos y bebidas con validación de datos e imágenes)
 3. Fecha de inicio de la tarea: 9/04/2026.
-4. Fecha de finalización de la tarea: 09/04/2026.
+4. Fecha de finalización de la tarea: 12/04/2026.
 5. Branch (si posee): main.
 
 (7)
@@ -101,3 +101,5 @@ En las tablas solo se guarda el enlace o path del archivo para luego cargarlo de
 3. Fecha de inicio de la tarea: 10/04/2026.
 4. Fecha de finalización de la tarea: 10/04/2026.
 5. Branch (si posee): main.
+
+
