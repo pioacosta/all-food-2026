@@ -19,4 +19,9 @@ class DemoAccounts {
   static const cantineroNombres = 'Cantinero';
   static const cantineroApellidos = 'Restaurante';
 
+  static const supervisorEmail = 'supervisor@allfood.app';
+  static const supervisorPassword = 'Supervisor123!';
+  static const supervisorNombres = 'Supervisor';
+  static const supervisorApellidos = 'Restaurante';
+
 }
