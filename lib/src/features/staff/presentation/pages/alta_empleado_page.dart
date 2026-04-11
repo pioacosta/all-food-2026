@@ -554,6 +554,7 @@ class _AltaEmpleadoPageState extends State<AltaEmpleadoPage> {
                           _mostrarPassword
                               ? Icons.visibility_off
                               : Icons.visibility,
+                          color: Colors.white,
                         ),
                       ),
                     ),
