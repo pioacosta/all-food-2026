@@ -120,6 +120,18 @@ class _LoginPageState extends State<LoginPage> {
     _passwordController.text = DemoAccounts.duenioPassword;
     setState(() {});
   }
+  void _completarIngresoRapidoCocinero() {
+    // Precarga credenciales de prueba para agilizar demos/manual testing.
+    _emailController.text = DemoAccounts.cocineroEmail;
+    _passwordController.text = DemoAccounts.cocineroPassword;
+    setState(() {});
+  }
+  void _completarIngresoRapidoCantinero() {
+    // Precarga credenciales de prueba para agilizar demos/manual testing.
+    _emailController.text = DemoAccounts.cantineroEmail;
+    _passwordController.text = DemoAccounts.cantineroPassword;
+    setState(() {});
+  }
 
   void _mostrarMensaje(String mensaje, {required bool esError}) {
     // Centraliza mensajes de error/exito en un mismo estilo visual.
@@ -309,22 +321,55 @@ class _LoginPageState extends State<LoginPage> {
                     ],
                   ),
                   const SizedBox(height: 12),
-                  Center(
-                    child: Tooltip(
-                      message: 'Completar ingreso de duenio',
-                      child: OutlinedButton(
-                        onPressed:
-                            _isLoading ? null : _completarIngresoRapidoDuenio,
-                        style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 18,
-                            vertical: 12,
+                  Row(
+                    children: [
+                      Tooltip(
+                        message: 'Completar ingreso de duenio',
+                        child: OutlinedButton(
+                          onPressed:
+                              _isLoading ? null : _completarIngresoRapidoDuenio,
+                          style: OutlinedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 18,
+                              vertical: 12,
+                            ),
+                            shape: const CircleBorder(),
                           ),
-                          shape: const CircleBorder(),
+                          child: const Icon(Icons.badge_outlined),
                         ),
-                        child: const Icon(Icons.badge_outlined),
                       ),
-                    ),
+                      const SizedBox(width: 12),
+                      Tooltip(
+                        message: 'Completar ingreso de cocinero',
+                        child: OutlinedButton(
+                          onPressed:
+                              _isLoading ? null : _completarIngresoRapidoCocinero,
+                          style: OutlinedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 18,
+                              vertical: 12,
+                            ),
+                            shape: const CircleBorder(),
+                          ),
+                          child: const Icon(Icons.restaurant_outlined),
+                        ),
+                      ),
+                      Tooltip(
+                        message: 'Completar ingreso de cantinero',
+                        child: OutlinedButton(
+                          onPressed:
+                              _isLoading ? null : _completarIngresoRapidoCantinero,
+                          style: OutlinedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 18,
+                              vertical: 12,
+                            ),
+                            shape: const CircleBorder(),
+                          ),
+                          child: const Icon(Icons.restaurant_outlined),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
