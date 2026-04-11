@@ -1,5 +1,7 @@
 import 'package:all_food/src/features/staff/presentation/pages/alta_empleado_page.dart';
 import 'package:all_food/src/features/staff/presentation/pages/clientes_pendientes_page.dart';
+import 'package:all_food/src/features/mesas/presentation/pages/crear_mesa_page.dart';
+import 'package:all_food/src/features/mesas/presentation/pages/ver_editar_mesas_page.dart';
 import 'package:all_food/src/shared/widgets/logo_loader.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -72,11 +74,18 @@ class AllFoodApp extends StatelessWidget {
 
         '/home': (_) => HomePage(supabaseReady: supabaseReady),
 
-        '/crear-producto': (_) => CrearProductoPage(supabaseReady: supabaseReady),
+        '/crear-producto':
+            (_) => CrearProductoPage(supabaseReady: supabaseReady),
 
         '/alta-empleado': (_) => AltaEmpleadoPage(supabaseReady: supabaseReady),
 
-        '/aprobacion-clientes': (_) => ClientesPendientesPage(supabaseReady: supabaseReady),
+        '/crear-mesa': (_) => CrearMesaPage(supabaseReady: supabaseReady),
+
+        '/ver-editar-mesas':
+            (_) => VerEditarMesasPage(supabaseReady: supabaseReady),
+
+        '/aprobacion-clientes':
+            (_) => ClientesPendientesPage(supabaseReady: supabaseReady),
 
         '/login':
             (_) => LoginPage(

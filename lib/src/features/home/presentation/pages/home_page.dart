@@ -62,10 +62,11 @@ class _HomePageState extends State<HomePage> {
       if (!mounted) return;
       Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(
-          builder: (_) => LoginPage(
-            supabaseReady: widget.supabaseReady,
-            successMessage: 'Sesión cerrada correctamente.',
-          ),
+          builder:
+              (_) => LoginPage(
+                supabaseReady: widget.supabaseReady,
+                successMessage: 'Sesión cerrada correctamente.',
+              ),
         ),
         (route) => false,
       );
@@ -98,7 +99,9 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     final puedeCrearEmpleados = _perfil == 'dueno' || _perfil == 'supervisor';
-    final puedeCrearProductos = _perfil == 'cocinero' || _perfil == 'cantinero' ;
+    final puedeGestionarMesas =
+        _perfil == 'dueno' || _perfil == 'supervisor' || _perfil == 'metre';
+    final puedeCrearProductos = _perfil == 'cocinero' || _perfil == 'cantinero';
 
     return Scaffold(
       appBar: AppBar(
@@ -106,13 +109,14 @@ class _HomePageState extends State<HomePage> {
         actions: [
           TextButton(
             onPressed: _cerrandoSesion ? null : _cerrarSesion,
-            child: _cerrandoSesion
-                ? const SizedBox(
-                    height: 18,
-                    width: 18,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
-                : const Text('Cerrar sesión'),
+            child:
+                _cerrandoSesion
+                    ? const SizedBox(
+                      height: 18,
+                      width: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                    : const Text('Cerrar sesión'),
           ),
         ],
       ),
@@ -127,40 +131,60 @@ class _HomePageState extends State<HomePage> {
         ),
         child: SafeArea(
           child: Center(
-            child: _cargandoPerfil
-                ? const LogoSpinner(size: 90, strokeWidth: 6)
-                : Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      if (puedeCrearProductos)
-                        ElevatedButton(
-                          onPressed: () {
-                            Navigator.pushNamed(context, '/crear-producto');
-                          },
-                          child: Text(
-                            _perfil == 'cocinero'
-                                ? 'Crear plato'
-                                : 'Crear bebida',
+            child:
+                _cargandoPerfil
+                    ? const LogoSpinner(size: 90, strokeWidth: 6)
+                    : Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (puedeCrearProductos)
+                          ElevatedButton(
+                            onPressed: () {
+                              Navigator.pushNamed(context, '/crear-producto');
+                            },
+                            child: Text(
+                              _perfil == 'cocinero'
+                                  ? 'Crear plato'
+                                  : 'Crear bebida',
+                            ),
                           ),
-                        ),
-                      if (puedeCrearProductos) const SizedBox(height: 12),
-                      if (puedeCrearEmpleados)
-                        ElevatedButton(
-                          onPressed: () {
-                            Navigator.pushNamed(context, '/alta-empleado');
-                          },
-                          child: const Text('Alta de empleados'),
-                        ),
-                      if (puedeCrearProductos) const SizedBox(height: 12),
-                      if (puedeCrearEmpleados)
-                        ElevatedButton(
-                          onPressed: () {
-                            Navigator.pushNamed(context, '/aprobacion-clientes');
-                          },
-                          child: const Text('Gestionar clientes'),
-                        ),
-                    ],
-                  ),
+                        if (puedeCrearProductos) const SizedBox(height: 12),
+                        if (puedeCrearEmpleados)
+                          ElevatedButton(
+                            onPressed: () {
+                              Navigator.pushNamed(context, '/alta-empleado');
+                            },
+                            child: const Text('Alta de empleados'),
+                          ),
+                        if (puedeCrearEmpleados) const SizedBox(height: 12),
+                        if (puedeCrearEmpleados)
+                          ElevatedButton(
+                            onPressed: () {
+                              Navigator.pushNamed(context, '/crear-mesa');
+                            },
+                            child: const Text('Crear mesa'),
+                          ),
+                        if (puedeCrearEmpleados) const SizedBox(height: 12),
+                        if (puedeGestionarMesas)
+                          ElevatedButton(
+                            onPressed: () {
+                              Navigator.pushNamed(context, '/ver-editar-mesas');
+                            },
+                            child: const Text('Ver / editar mesas'),
+                          ),
+                        if (puedeGestionarMesas) const SizedBox(height: 12),
+                        if (puedeCrearEmpleados)
+                          ElevatedButton(
+                            onPressed: () {
+                              Navigator.pushNamed(
+                                context,
+                                '/aprobacion-clientes',
+                              );
+                            },
+                            child: const Text('Gestionar clientes'),
+                          ),
+                      ],
+                    ),
           ),
         ),
       ),
