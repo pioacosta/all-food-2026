@@ -1,11 +1,12 @@
 import 'dart:io';
 
+import 'package:all_food/src/features/staff/data/repositories/staff_repository.dart';
+import 'package:all_food/src/shared/errors/app_error_mapper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
-import 'package:all_food/src/features/staff/data/repositories/staff_repository.dart';
-import 'package:all_food/src/shared/errors/app_error_mapper.dart';
+
 import '../../../../shared/widgets/logo_spinner.dart';
 
 // Pantalla para alta de personal con validaciones y carga de foto.
@@ -143,23 +144,22 @@ class _AltaEmpleadoPageState extends State<AltaEmpleadoPage> {
       return;
     }
 
+    final faltanObligatorios =
+        _nombreController.text.trim().isEmpty ||
+        _apellidoController.text.trim().isEmpty ||
+        _dniController.text.trim().isEmpty ||
+        _cuilController.text.trim().isEmpty ||
+        _correoController.text.trim().isEmpty ||
+        _passwordController.text.isEmpty ||
+        _perfilSeleccionado == null ||
+        _foto == null;
+
+    if (faltanObligatorios) {
+      _mostrarMensaje('TODOS los campos son obligatorios.', esError: true);
+      return;
+    }
+
     if (!_formKey.currentState!.validate()) return;
-
-    if (_perfilSeleccionado == null) {
-      _mostrarMensaje(
-        'Debes seleccionar un perfil para el empleado.',
-        esError: true,
-      );
-      return;
-    }
-
-    if (_foto == null) {
-      _mostrarMensaje(
-        'Debes tomar una foto personal del empleado.',
-        esError: true,
-      );
-      return;
-    }
 
     setState(() => _guardando = true);
 
@@ -253,10 +253,7 @@ class _AltaEmpleadoPageState extends State<AltaEmpleadoPage> {
 
   String? _validarNombreOApellido(String? value, String etiqueta) {
     final text = value?.trim() ?? '';
-
-    if (text.isEmpty) {
-      return 'Debes ingresar $etiqueta.';
-    }
+    if (text.isEmpty) return null;
 
     if (text.length < 2 || text.length > 60) {
       return '$etiqueta debe tener entre 2 y 60 caracteres.';
@@ -272,10 +269,7 @@ class _AltaEmpleadoPageState extends State<AltaEmpleadoPage> {
 
   String? _validarDni(String? value) {
     final text = value?.trim() ?? '';
-
-    if (text.isEmpty) {
-      return 'Debes ingresar el DNI.';
-    }
+    if (text.isEmpty) return null;
 
     if (!RegExp(r'^\d{7,8}$').hasMatch(text)) {
       return 'El DNI debe tener 7 u 8 dígitos numéricos.';
@@ -286,10 +280,7 @@ class _AltaEmpleadoPageState extends State<AltaEmpleadoPage> {
 
   String? _validarCuil(String? value) {
     final text = value?.trim() ?? '';
-
-    if (text.isEmpty) {
-      return 'Debes ingresar el CUIL.';
-    }
+    if (text.isEmpty) return null;
 
     if (!RegExp(r'^\d{11}$').hasMatch(text)) {
       return 'El CUIL debe tener exactamente 11 dígitos.';
@@ -321,10 +312,7 @@ class _AltaEmpleadoPageState extends State<AltaEmpleadoPage> {
 
   String? _validarCorreo(String? value) {
     final text = value?.trim() ?? '';
-
-    if (text.isEmpty) {
-      return 'Debes ingresar el correo electrónico.';
-    }
+    if (text.isEmpty) return null;
 
     final pattern = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
     if (!pattern.hasMatch(text)) {
@@ -336,27 +324,20 @@ class _AltaEmpleadoPageState extends State<AltaEmpleadoPage> {
 
   String? _validarPassword(String? value) {
     final text = value ?? '';
-
-    if (text.isEmpty) {
-      return 'Debes ingresar una contraseña.';
-    }
+    if (text.isEmpty) return null;
 
     if (text.length < 8 || text.length > 32) {
       return 'La contraseña debe tener entre 8 y 32 caracteres.';
     }
-
     if (!RegExp(r'[A-Z]').hasMatch(text)) {
       return 'Debe contener al menos una letra mayúscula.';
     }
-
     if (!RegExp(r'[a-z]').hasMatch(text)) {
       return 'Debe contener al menos una letra minúscula.';
     }
-
     if (!RegExp(r'\d').hasMatch(text)) {
       return 'Debe contener al menos un número.';
     }
-
     if (!RegExp(r'[!@#\$%^&*(),.?":{}|<>_\-]').hasMatch(text)) {
       return 'Debe contener al menos un carácter especial.';
     }
@@ -402,253 +383,268 @@ class _AltaEmpleadoPageState extends State<AltaEmpleadoPage> {
         child: SafeArea(
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(18),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  const Text(
-                    'Nuevo empleado',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontFamily: 'ArchivoBlack',
-                      fontSize: 32,
-                      color: Colors.white,
-                      letterSpacing: -1.5,
-                    ),
+            child: Theme(
+              data: Theme.of(context).copyWith(
+                inputDecorationTheme: const InputDecorationTheme(
+                  labelStyle: TextStyle(color: Colors.white70),
+                  floatingLabelStyle: TextStyle(color: Colors.white),
+                  hintStyle: TextStyle(color: Colors.white54),
+                  errorMaxLines: 1,
+                  errorStyle: TextStyle(
+                    color: Colors.white,
+                    fontSize: 12,
+                    height: 1.1,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 8),
-                  const Text(
-                    'Completa todos los campos',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(color: Colors.white70),
-                  ),
-                  const SizedBox(height: 16),
-                  TextFormField(
-                    controller: _nombreController,
-                    style: const TextStyle(color: Colors.white),
-                    textCapitalization: TextCapitalization.words,
-                    decoration: const InputDecoration(
-                      labelText: 'Nombre/s',
-                      border: OutlineInputBorder(),
-                    ),
-                    validator:
-                        (value) => _validarNombreOApellido(value, 'el nombre'),
-                  ),
-                  const SizedBox(height: 12),
-                  TextFormField(
-                    controller: _apellidoController,
-                    style: const TextStyle(color: Colors.white),
-                    textCapitalization: TextCapitalization.words,
-                    decoration: const InputDecoration(
-                      labelText: 'Apellido/s',
-                      border: OutlineInputBorder(),
-                    ),
-                    validator:
-                        (value) =>
-                            _validarNombreOApellido(value, 'el apellido'),
-                  ),
-                  const SizedBox(height: 12),
-                  // Layout compacto para evitar overflow horizontal en pantallas chicas.
-                  LayoutBuilder(
-                    builder: (context, constraints) {
-                      final usarFila = constraints.maxWidth >= 360;
-
-                      final dniField = TextFormField(
-                        controller: _dniController,
-                        style: const TextStyle(color: Colors.white),
-                        keyboardType: TextInputType.number,
-                        inputFormatters: [
-                          FilteringTextInputFormatter.digitsOnly,
-                        ],
-                        decoration: const InputDecoration(
-                          labelText: 'DNI',
-                          border: OutlineInputBorder(),
-                          counterText: '',
-                        ),
-                        maxLength: 8,
-                        validator: _validarDni,
-                      );
-
-                      final cuilField = TextFormField(
-                        controller: _cuilController,
-                        style: const TextStyle(color: Colors.white),
-                        keyboardType: TextInputType.number,
-                        inputFormatters: [
-                          FilteringTextInputFormatter.digitsOnly,
-                        ],
-                        decoration: const InputDecoration(
-                          labelText: 'CUIL',
-                          border: OutlineInputBorder(),
-                          counterText: '',
-                        ),
-                        maxLength: 11,
-                        validator: _validarCuil,
-                      );
-
-                      final qrButton = FilledButton(
-                        onPressed: _abrirLectorQrDni,
-                        style: FilledButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 16,
-                          ),
-                        ),
-                        child: const Icon(Icons.qr_code_scanner),
-                      );
-
-                      if (usarFila) {
-                        return Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Expanded(flex: 4, child: dniField),
-                            const SizedBox(width: 8),
-                            Expanded(flex: 5, child: cuilField),
-                            const SizedBox(width: 8),
-                            SizedBox(height: 56, child: qrButton),
-                          ],
-                        );
-                      }
-
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          dniField,
-                          const SizedBox(height: 12),
-                          cuilField,
-                          const SizedBox(height: 12),
-                          Align(
-                            alignment: Alignment.centerRight,
-                            child: SizedBox(height: 48, child: qrButton),
-                          ),
-                        ],
-                      );
-                    },
-                  ),
-                  const SizedBox(height: 12),
-                  TextFormField(
-                    controller: _correoController,
-                    style: const TextStyle(color: Colors.white),
-                    keyboardType: TextInputType.emailAddress,
-                    decoration: const InputDecoration(
-                      labelText: 'Correo electrónico',
-                      border: OutlineInputBorder(),
-                    ),
-                    validator: _validarCorreo,
-                  ),
-                  const SizedBox(height: 12),
-                  TextFormField(
-                    controller: _passwordController,
-                    style: const TextStyle(color: Colors.white),
-                    obscureText: !_mostrarPassword,
-                    decoration: InputDecoration(
-                      labelText: 'Contraseña',
-                      border: OutlineInputBorder(),
-                      suffixIcon: IconButton(
-                        onPressed: () {
-                          setState(() {
-                            _mostrarPassword = !_mostrarPassword;
-                          });
-                        },
-                        icon: Icon(
-                          _mostrarPassword
-                              ? Icons.visibility_off
-                              : Icons.visibility,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                    validator: _validarPassword,
-                  ),
-                  const SizedBox(height: 12),
-                  DropdownButtonFormField<String>(
-                    value: _perfilSeleccionado,
-                    decoration: const InputDecoration(
-                      labelText: 'Perfil / rol',
-                      border: OutlineInputBorder(),
-                    ),
-                    dropdownColor: const Color(0xFF7A2021),
-                    style: const TextStyle(color: Colors.white),
-                    items: const [
-                      DropdownMenuItem(
-                        value: 'supervisor',
-                        child: Text('Supervisor'),
-                      ),
-                      DropdownMenuItem(
-                        value: 'cocinero',
-                        child: Text('Cocinero'),
-                      ),
-                      DropdownMenuItem(
-                        value: 'cantinero',
-                        child: Text('Cantinero'),
-                      ),
-                      DropdownMenuItem(value: 'metre', child: Text('Metre')),
-                      DropdownMenuItem(value: 'mozo', child: Text('Mozo')),
-                    ],
-                    onChanged: (value) {
-                      setState(() {
-                        _perfilSeleccionado = value;
-                      });
-                    },
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Debes seleccionar un perfil/rol.';
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 14),
-                  if (_foto == null)
-                    ElevatedButton.icon(
-                      onPressed: _tomarFoto,
-                      icon: const Icon(Icons.camera_alt),
-                      label: const Text('Tomar foto personal'),
-                    )
-                  else
-                    Center(
-                      // La foto previa funciona como accion para reemplazarla.
-                      child: InkWell(
-                        onTap: _tomarFoto,
-                        borderRadius: BorderRadius.circular(12),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(12),
-                          child: Image.file(
-                            _foto!,
-                            width: 130,
-                            height: 130,
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                      ),
-                    ),
-                  if (_foto == null)
+                ),
+              ),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
                     const Text(
-                      'Foto obligatoria. Se toma con cámara (sin galería).',
+                      'Nuevo empleado',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontFamily: 'ArchivoBlack',
+                        fontSize: 32,
+                        color: Colors.white,
+                        letterSpacing: -1.5,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    const Text(
+                      'Completa todos los campos',
                       textAlign: TextAlign.center,
                       style: TextStyle(color: Colors.white70),
                     ),
-                  if (_foto != null)
-                    const Padding(
-                      padding: EdgeInsets.only(top: 8),
-                      child: Text(
-                        'Toca la foto para cambiarla.',
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      controller: _nombreController,
+                      style: const TextStyle(color: Colors.white),
+                      textCapitalization: TextCapitalization.words,
+                      decoration: const InputDecoration(
+                        labelText: 'Nombre/s',
+                        border: OutlineInputBorder(),
+                      ),
+                      validator:
+                          (value) =>
+                              _validarNombreOApellido(value, 'el nombre'),
+                    ),
+                    const SizedBox(height: 12),
+                    TextFormField(
+                      controller: _apellidoController,
+                      style: const TextStyle(color: Colors.white),
+                      textCapitalization: TextCapitalization.words,
+                      decoration: const InputDecoration(
+                        labelText: 'Apellido/s',
+                        border: OutlineInputBorder(),
+                      ),
+                      validator:
+                          (value) =>
+                              _validarNombreOApellido(value, 'el apellido'),
+                    ),
+                    const SizedBox(height: 12),
+                    LayoutBuilder(
+                      builder: (context, constraints) {
+                        final usarFila = constraints.maxWidth >= 360;
+
+                        final dniField = TextFormField(
+                          controller: _dniController,
+                          style: const TextStyle(color: Colors.white),
+                          keyboardType: TextInputType.number,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly,
+                          ],
+                          decoration: const InputDecoration(
+                            labelText: 'DNI',
+                            border: OutlineInputBorder(),
+                            counterText: '',
+                          ),
+                          maxLength: 8,
+                          validator: _validarDni,
+                        );
+
+                        final cuilField = TextFormField(
+                          controller: _cuilController,
+                          style: const TextStyle(color: Colors.white),
+                          keyboardType: TextInputType.number,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly,
+                          ],
+                          decoration: const InputDecoration(
+                            labelText: 'CUIL',
+                            border: OutlineInputBorder(),
+                            counterText: '',
+                          ),
+                          maxLength: 11,
+                          validator: _validarCuil,
+                        );
+
+                        final qrButton = FilledButton(
+                          onPressed: _abrirLectorQrDni,
+                          style: FilledButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 16,
+                            ),
+                          ),
+                          child: const Icon(Icons.qr_code_scanner),
+                        );
+
+                        if (usarFila) {
+                          return Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(flex: 4, child: dniField),
+                              const SizedBox(width: 8),
+                              Expanded(flex: 5, child: cuilField),
+                              const SizedBox(width: 8),
+                              SizedBox(height: 56, child: qrButton),
+                            ],
+                          );
+                        }
+
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            dniField,
+                            const SizedBox(height: 12),
+                            cuilField,
+                            const SizedBox(height: 12),
+                            Align(
+                              alignment: Alignment.centerRight,
+                              child: SizedBox(height: 48, child: qrButton),
+                            ),
+                          ],
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 12),
+                    TextFormField(
+                      controller: _correoController,
+                      style: const TextStyle(color: Colors.white),
+                      keyboardType: TextInputType.emailAddress,
+                      decoration: const InputDecoration(
+                        labelText: 'Correo electrónico',
+                        border: OutlineInputBorder(),
+                      ),
+                      validator: _validarCorreo,
+                    ),
+                    const SizedBox(height: 12),
+                    TextFormField(
+                      controller: _passwordController,
+                      style: const TextStyle(color: Colors.white),
+                      obscureText: !_mostrarPassword,
+                      decoration: InputDecoration(
+                        labelText: 'Contraseña',
+                        border: OutlineInputBorder(),
+                        suffixIcon: IconButton(
+                          onPressed: () {
+                            setState(() {
+                              _mostrarPassword = !_mostrarPassword;
+                            });
+                          },
+                          icon: Icon(
+                            _mostrarPassword
+                                ? Icons.visibility_off
+                                : Icons.visibility,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                      validator: _validarPassword,
+                    ),
+                    const SizedBox(height: 12),
+                    DropdownButtonFormField<String>(
+                      value: _perfilSeleccionado,
+                      decoration: const InputDecoration(
+                        labelText: 'Perfil / rol',
+                        border: OutlineInputBorder(),
+                      ),
+                      dropdownColor: const Color(0xFF7A2021),
+                      style: const TextStyle(color: Colors.white),
+                      items: const [
+                        DropdownMenuItem(
+                          value: 'supervisor',
+                          child: Text('Supervisor'),
+                        ),
+                        DropdownMenuItem(
+                          value: 'cocinero',
+                          child: Text('Cocinero'),
+                        ),
+                        DropdownMenuItem(
+                          value: 'cantinero',
+                          child: Text('Cantinero'),
+                        ),
+                        DropdownMenuItem(value: 'metre', child: Text('Metre')),
+                        DropdownMenuItem(value: 'mozo', child: Text('Mozo')),
+                      ],
+                      onChanged: (value) {
+                        setState(() {
+                          _perfilSeleccionado = value;
+                        });
+                      },
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Debes seleccionar un perfil/rol.';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 14),
+                    if (_foto == null)
+                      ElevatedButton.icon(
+                        onPressed: _tomarFoto,
+                        icon: const Icon(Icons.camera_alt),
+                        label: const Text('Tomar foto personal'),
+                      )
+                    else
+                      Center(
+                        child: InkWell(
+                          onTap: _tomarFoto,
+                          borderRadius: BorderRadius.circular(12),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(12),
+                            child: Image.file(
+                              _foto!,
+                              width: 130,
+                              height: 130,
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        ),
+                      ),
+                    if (_foto == null)
+                      const Text(
+                        'Foto obligatoria. Se toma con cámara (sin galería).',
                         textAlign: TextAlign.center,
                         style: TextStyle(color: Colors.white70),
                       ),
+                    if (_foto != null)
+                      const Padding(
+                        padding: EdgeInsets.only(top: 8),
+                        child: Text(
+                          'Toca la foto para cambiarla.',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(color: Colors.white70),
+                        ),
+                      ),
+                    const SizedBox(height: 18),
+                    FilledButton(
+                      onPressed: _guardando ? null : _crearEmpleado,
+                      child:
+                          _guardando
+                              ? const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: LogoSpinner(size: 20, strokeWidth: 2),
+                              )
+                              : const Text('Crear empleado'),
                     ),
-                  const SizedBox(height: 18),
-                  FilledButton(
-                    onPressed: _guardando ? null : _crearEmpleado,
-                    child:
-                        _guardando
-                            ? const SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: LogoSpinner(size: 20, strokeWidth: 2),
-                            )
-                            : const Text('Crear empleado'),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
