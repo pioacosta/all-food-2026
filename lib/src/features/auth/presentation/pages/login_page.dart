@@ -36,6 +36,97 @@ class _LoginPageState extends State<LoginPage> {
 
   var _isLoading = false;
 
+  Future<void> _abrirSelectorIngresoRapido() async {
+    if (_isLoading) return;
+
+    final perfil = await showModalBottomSheet<String>(
+      context: context,
+      backgroundColor: const Color(0xFF8D2628),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const Text(
+                  'Ingreso rapido',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                ListTile(
+                  leading: const Icon(
+                    Icons.badge_outlined,
+                    color: Colors.white,
+                  ),
+                  title: const Text(
+                    'Duenio',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  onTap: () => Navigator.of(context).pop('duenio'),
+                ),
+                ListTile(
+                  leading: const Icon(Icons.support_agent, color: Colors.white),
+                  title: const Text(
+                    'Supervisor',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  onTap: () => Navigator.of(context).pop('supervisor'),
+                ),
+                ListTile(
+                  leading: const Icon(
+                    Icons.restaurant_outlined,
+                    color: Colors.white,
+                  ),
+                  title: const Text(
+                    'Cocinero',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  onTap: () => Navigator.of(context).pop('cocinero'),
+                ),
+                ListTile(
+                  leading: const Icon(
+                    Icons.local_bar_outlined,
+                    color: Colors.white,
+                  ),
+                  title: const Text(
+                    'Cantinero',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  onTap: () => Navigator.of(context).pop('cantinero'),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+
+    if (!mounted || perfil == null) return;
+
+    // Completa las credenciales demo segun perfil seleccionado desde el FAB.
+    if (perfil == 'duenio') {
+      _completarIngresoRapidoDuenio();
+    } else if (perfil == 'supervisor') {
+      _emailController.text = DemoAccounts.supervisorEmail;
+      _passwordController.text = DemoAccounts.supervisorPassword;
+      setState(() {});
+    } else if (perfil == 'cocinero') {
+      _completarIngresoRapidoCocinero();
+    } else if (perfil == 'cantinero') {
+      _completarIngresoRapidoCantinero();
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -120,12 +211,14 @@ class _LoginPageState extends State<LoginPage> {
     _passwordController.text = DemoAccounts.duenioPassword;
     setState(() {});
   }
+
   void _completarIngresoRapidoCocinero() {
     // Precarga credenciales de prueba para agilizar demos/manual testing.
     _emailController.text = DemoAccounts.cocineroEmail;
     _passwordController.text = DemoAccounts.cocineroPassword;
     setState(() {});
   }
+
   void _completarIngresoRapidoCantinero() {
     // Precarga credenciales de prueba para agilizar demos/manual testing.
     _emailController.text = DemoAccounts.cantineroEmail;
@@ -193,189 +286,219 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return AuthBackground(
-      child: Center(
-        child: AuthCard(
-          children: [
-            Form(
-              key: _formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  const Text(
-                    'All Food',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontFamily: 'ArchivoBlack',
-                      fontSize: 34,
-                      color: Colors.white,
-                      letterSpacing: -2,
-                      height: 1,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  const Text(
-                    'Inicio de sesión',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 16, color: Colors.white70),
-                  ),
-                  if (widget.initializationMessage != null) ...[
-                    const SizedBox(height: 16),
-                    MaterialBanner(
-                      backgroundColor: const Color(0xFF8D2628),
-                      content: Text(
-                        widget.initializationMessage!,
-                        style: const TextStyle(color: Colors.white),
-                      ),
-                      actions: const [SizedBox.shrink()],
-                    ),
-                  ],
-                  const SizedBox(height: 16),
-                  TextFormField(
-                    controller: _emailController,
-                    style: const TextStyle(color: Colors.white),
-                    keyboardType: TextInputType.emailAddress,
-                    decoration: const InputDecoration(
-                      labelText: 'Correo electrónico',
-                      border: OutlineInputBorder(),
-                    ),
-                    validator: (value) {
-                      final email = value?.trim() ?? '';
-                      if (email.isEmpty) {
-                        return 'Debes ingresar un correo electrónico.';
-                      }
-                      final pattern = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
-                      if (!pattern.hasMatch(email)) {
-                        return 'Correo electrónico inválido.';
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 14),
-                  TextFormField(
-                    controller: _passwordController,
-                    style: const TextStyle(color: Colors.white),
-                    obscureText: true,
-                    decoration: const InputDecoration(
-                      labelText: 'Contraseña',
-                      border: OutlineInputBorder(),
-                    ),
-                    validator: (value) {
-                      final password = value ?? '';
-                      if (password.isEmpty) {
-                        return 'Debes ingresar una contraseña.';
-                      }
-                      if (password.length < 6) {
-                        return 'La contraseña debe tener al menos 6 caracteres.';
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 20),
-                  FilledButton(
-                    onPressed: _isLoading ? null : _ingresar,
-                    child:
-                        _isLoading
-                            // Indicador visual en esperas de red.
-                            ? const SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: LogoSpinner(size: 20, strokeWidth: 2),
-                            )
-                            : const Text('Ingresar'),
-                  ),
-                  const SizedBox(height: 10),
-                  OutlinedButton(
-                    onPressed:
-                        _isLoading
-                            ? null
-                            : () {
-                              // Navega al registro para crear nueva cuenta.
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder:
-                                      (_) => RegisterPage(
-                                        supabaseReady: widget.supabaseReady,
-                                      ),
-                                ),
-                              );
-                            },
-                    child: const Text('Crear cuenta'),
-                  ),
-                  const SizedBox(height: 18),
-                  Row(
-                    children: const [
-                      Expanded(child: Divider(color: Colors.white38)),
-                      Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 10),
-                        child: Text(
-                          'INGRESOS RAPIDOS',
-                          style: TextStyle(
-                            color: Colors.white70,
-                            fontWeight: FontWeight.w700,
-                            letterSpacing: 1,
-                            fontSize: 12,
-                          ),
-                        ),
-                      ),
-                      Expanded(child: Divider(color: Colors.white38)),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      Tooltip(
-                        message: 'Completar ingreso de duenio',
-                        child: OutlinedButton(
-                          onPressed:
-                              _isLoading ? null : _completarIngresoRapidoDuenio,
-                          style: OutlinedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 18,
-                              vertical: 12,
-                            ),
-                            shape: const CircleBorder(),
-                          ),
-                          child: const Icon(Icons.badge_outlined),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Tooltip(
-                        message: 'Completar ingreso de cocinero',
-                        child: OutlinedButton(
-                          onPressed:
-                              _isLoading ? null : _completarIngresoRapidoCocinero,
-                          style: OutlinedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 18,
-                              vertical: 12,
-                            ),
-                            shape: const CircleBorder(),
-                          ),
-                          child: const Icon(Icons.restaurant_outlined),
-                        ),
-                      ),
-                      Tooltip(
-                        message: 'Completar ingreso de cantinero',
-                        child: OutlinedButton(
-                          onPressed:
-                              _isLoading ? null : _completarIngresoRapidoCantinero,
-                          style: OutlinedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 18,
-                              vertical: 12,
-                            ),
-                            shape: const CircleBorder(),
-                          ),
-                          child: const Icon(Icons.restaurant_outlined),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
+      child: Column(
+        children: [
+          const Padding(
+            padding: EdgeInsets.fromLTRB(20, 52, 20, 2),
+            child: Text(
+              'Bienvenido',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontFamily: 'ArchivoBlack',
+                fontSize: 42,
+                color: Colors.white,
+                letterSpacing: -1.5,
+                height: 1,
               ),
             ),
-          ],
-        ),
+          ),
+          Expanded(
+            child: AuthCard(
+              children: [
+                Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Image.asset(
+                        'assets/images/logo.png',
+                        height: 140,
+                        fit: BoxFit.contain,
+                      ),
+                      const SizedBox(height: 6),
+                      const Text(
+                        'All Food',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontFamily: 'ArchivoBlack',
+                          fontSize: 38,
+                          color: Colors.white,
+                          letterSpacing: -2,
+                          height: 1,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      const Text(
+                        'Inicio de sesión',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white70,
+                        ),
+                      ),
+                      if (widget.initializationMessage != null) ...[
+                        const SizedBox(height: 16),
+                        MaterialBanner(
+                          backgroundColor: const Color(0xFF8D2628),
+                          content: Text(
+                            widget.initializationMessage!,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 15,
+                            ),
+                          ),
+                          actions: const [SizedBox.shrink()],
+                        ),
+                      ],
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: _emailController,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        keyboardType: TextInputType.emailAddress,
+                        decoration: const InputDecoration(
+                          labelText: 'Correo electrónico',
+                          border: OutlineInputBorder(),
+                          labelStyle: TextStyle(
+                            color: Colors.white70,
+                            fontSize: 16,
+                          ),
+                          floatingLabelStyle: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                          ),
+                          contentPadding: EdgeInsets.symmetric(
+                            horizontal: 14,
+                            vertical: 16,
+                          ),
+                        ),
+                        validator: (value) {
+                          final email = value?.trim() ?? '';
+                          if (email.isEmpty) {
+                            return 'Debes ingresar un correo electrónico.';
+                          }
+                          final pattern = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
+                          if (!pattern.hasMatch(email)) {
+                            return 'Correo electrónico inválido.';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 14),
+                      TextFormField(
+                        controller: _passwordController,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        obscureText: true,
+                        decoration: const InputDecoration(
+                          labelText: 'Contraseña',
+                          border: OutlineInputBorder(),
+                          labelStyle: TextStyle(
+                            color: Colors.white70,
+                            fontSize: 16,
+                          ),
+                          floatingLabelStyle: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                          ),
+                          contentPadding: EdgeInsets.symmetric(
+                            horizontal: 14,
+                            vertical: 16,
+                          ),
+                        ),
+                        validator: (value) {
+                          final password = value ?? '';
+                          if (password.isEmpty) {
+                            return 'Debes ingresar una contraseña.';
+                          }
+                          if (password.length < 6) {
+                            return 'La contraseña debe tener al menos 6 caracteres.';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 20),
+                      FilledButton(
+                        onPressed: _isLoading ? null : _ingresar,
+                        style: FilledButton.styleFrom(
+                          minimumSize: const Size.fromHeight(54),
+                          textStyle: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        child:
+                            _isLoading
+                                // Indicador visual en esperas de red.
+                                ? const SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: LogoSpinner(size: 20, strokeWidth: 2),
+                                )
+                                : const Text('Ingresar'),
+                      ),
+                      const SizedBox(height: 10),
+                      OutlinedButton(
+                        onPressed:
+                            _isLoading
+                                ? null
+                                : () {
+                                  // Navega al registro para crear nueva cuenta.
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder:
+                                          (_) => RegisterPage(
+                                            supabaseReady: widget.supabaseReady,
+                                          ),
+                                    ),
+                                  );
+                                },
+                        style: OutlinedButton.styleFrom(
+                          minimumSize: const Size.fromHeight(52),
+                          foregroundColor: Colors.white,
+                          side: const BorderSide(
+                            color: Colors.white70,
+                            width: 1.4,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(28),
+                          ),
+                          textStyle: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        child: const Text('Crear cuenta'),
+                      ),
+                      const SizedBox(height: 20),
+                      Align(
+                        alignment: Alignment.center,
+                        child: FloatingActionButton.extended(
+                          onPressed:
+                              _isLoading ? null : _abrirSelectorIngresoRapido,
+                          icon: const Icon(Icons.flash_on),
+                          extendedTextStyle: const TextStyle(
+                            fontSize: 17,
+                            fontWeight: FontWeight.w700,
+                          ),
+                          label: const Text('Ingreso rapido'),
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

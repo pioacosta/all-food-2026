@@ -3,13 +3,19 @@ import 'package:flutter/material.dart';
 // Scaffold base reutilizable para pantallas de autenticacion.
 class AuthBackground extends StatelessWidget {
   final Widget child;
+  final Widget? floatingActionButton;
 
-  const AuthBackground({super.key, required this.child});
+  const AuthBackground({
+    super.key,
+    required this.child,
+    this.floatingActionButton,
+  });
 
   @override
   Widget build(BuildContext context) {
     // Aplica fondo degradado y respeta zonas seguras del dispositivo.
     return Scaffold(
+      floatingActionButton: floatingActionButton,
       body: Container(
         width: double.infinity,
         decoration: const BoxDecoration(
