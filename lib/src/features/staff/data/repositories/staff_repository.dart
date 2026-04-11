@@ -43,7 +43,7 @@ class StaffRepository {
     return _service.getAvatarPublicUrl(path);
   }
 
-  // Invoca la RPC de backend para crear usuario auth + perfil de staff.
+  // Invoca Edge Function para crear usuario auth + perfil de staff.
   Future<void> createEmployee({
     required String nombres,
     required String apellidos,
@@ -54,7 +54,7 @@ class StaffRepository {
     required String perfil,
     required String fotoUrl,
   }) {
-    return _service.createEmployeeViaRpc({
+    return _service.createEmployeeViaEdgeFunction({
       'p_nombres': nombres,
       'p_apellidos': apellidos,
       'p_dni': dni,

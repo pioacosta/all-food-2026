@@ -55,4 +55,4 @@ instrucciones_agente.md
 consigna.txt
 
 # Scripts locales de Supabase
-supabase/
+supabase/queries/
