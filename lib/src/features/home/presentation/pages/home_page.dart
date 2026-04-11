@@ -151,6 +151,14 @@ class _HomePageState extends State<HomePage> {
                           },
                           child: const Text('Alta de empleados'),
                         ),
+                      if (puedeCrearProductos) const SizedBox(height: 12),
+                      if (puedeCrearEmpleados)
+                        ElevatedButton(
+                          onPressed: () {
+                            Navigator.pushNamed(context, '/aprobacion-clientes');
+                          },
+                          child: const Text('Gestionar clientes'),
+                        ),
                     ],
                   ),
           ),

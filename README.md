@@ -80,13 +80,21 @@ En las tablas solo se guarda el enlace o path del archivo para luego cargarlo de
 
 (6)
 
+1. Apellido y nombres: Lezcano Adrián
+2. Módulos (objetivos) a desarrollar: implementación de registro cliente con todos sus respectivos datos pendiente de aprobación. 
+3. Fecha de inicio de la tarea: 6/04/2026.
+4. Fecha de finalización de la tarea: 7/04/2026.
+5. Branch (si posee): main.
+
+(7)
+
 1. Apellido y nombres: Luciano Bordón
 2. Módulos (objetivos) a desarrollar: modularizacion y alta de producto (alta de platos y bebidas con validación de datos e imágenes)
 3. Fecha de inicio de la tarea: 9/04/2026.
 4. Fecha de finalización de la tarea: 12/04/2026.
 5. Branch (si posee): main.
 
-(7)
+(8)
 
 1. Apellido y nombres: Pio Acosta
 2. Módulos (objetivos) a desarrollar: Creación de la función "alta de empleados" para roles de dueño y supervisor.
@@ -94,7 +102,7 @@ En las tablas solo se guarda el enlace o path del archivo para luego cargarlo de
 4. Fecha de finalización de la tarea: 10/04/2026.
 5. Branch (si posee): main.
 
-(7)
+(9)
 
 1. Apellido y nombres: Pio Acosta
 2. Módulos (objetivos) a desarrollar: Actualización del spinner con logo y círculo de carga
@@ -103,3 +111,10 @@ En las tablas solo se guarda el enlace o path del archivo para luego cargarlo de
 5. Branch (si posee): main.
 
 
+(10)
+
+1. Apellido y nombres: Lezcano Adrián
+2. Módulos (objetivos) a desarrollar: creación de la funcionalidad "aceptar/rechazar clientes pendientes" para roles de dueño y supervisor
+3. Fecha de inicio de la tarea: 10/04/2026.
+4. Fecha de finalización de la tarea: 10/04/2026.
+5. Branch (si posee): main.

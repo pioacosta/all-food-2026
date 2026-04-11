@@ -65,4 +65,17 @@ class StaffRepository {
       'p_foto_url': fotoUrl,
     });
   }
+
+  Future<List<Map<String, dynamic>>> PendingClients() {
+    return _service.getPendingClients();
+  }
+
+  Future<void> approveClient(String userId) {
+    return _service.updateClientStatus(userId, 'aprobado', habilitado: true);
+    
+  }
+
+  Future<void> rejectClient(String userId) {
+    return _service.updateClientStatus(userId, 'rechazado', habilitado: false);
+  }
 }
