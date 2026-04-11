@@ -66,13 +66,12 @@ class StaffRepository {
     });
   }
 
-  Future<List<Map<String, dynamic>>> PendingClients() {
+  Future<List<Map<String, dynamic>>> pendingClients() {
     return _service.getPendingClients();
   }
 
   Future<void> approveClient(String userId) {
     return _service.updateClientStatus(userId, 'aprobado', habilitado: true);
-    
   }
 
   Future<void> rejectClient(String userId) {

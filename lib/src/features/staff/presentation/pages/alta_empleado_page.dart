@@ -33,6 +33,7 @@ class _AltaEmpleadoPageState extends State<AltaEmpleadoPage> {
 
   File? _foto;
   String? _perfilSeleccionado;
+  bool _mostrarPassword = false;
   bool _guardando = false;
   bool _validandoAcceso = true;
   bool _puedeCrearEmpleados = false;
@@ -418,15 +419,9 @@ class _AltaEmpleadoPageState extends State<AltaEmpleadoPage> {
                   ),
                   const SizedBox(height: 8),
                   const Text(
-                    'Completa todos los campos y validaciones obligatorias',
+                    'Completa todos los campos',
                     textAlign: TextAlign.center,
                     style: TextStyle(color: Colors.white70),
-                  ),
-                  const SizedBox(height: 18),
-                  FilledButton.icon(
-                    onPressed: _abrirLectorQrDni,
-                    icon: const Icon(Icons.qr_code_scanner),
-                    label: const Text('Leer QR de DNI'),
                   ),
                   const SizedBox(height: 16),
                   TextFormField(
@@ -454,28 +449,81 @@ class _AltaEmpleadoPageState extends State<AltaEmpleadoPage> {
                             _validarNombreOApellido(value, 'el apellido'),
                   ),
                   const SizedBox(height: 12),
-                  TextFormField(
-                    controller: _dniController,
-                    style: const TextStyle(color: Colors.white),
-                    keyboardType: TextInputType.number,
-                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                    decoration: const InputDecoration(
-                      labelText: 'DNI',
-                      border: OutlineInputBorder(),
-                    ),
-                    validator: _validarDni,
-                  ),
-                  const SizedBox(height: 12),
-                  TextFormField(
-                    controller: _cuilController,
-                    style: const TextStyle(color: Colors.white),
-                    keyboardType: TextInputType.number,
-                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                    decoration: const InputDecoration(
-                      labelText: 'CUIL (11 dígitos)',
-                      border: OutlineInputBorder(),
-                    ),
-                    validator: _validarCuil,
+                  // Layout compacto para evitar overflow horizontal en pantallas chicas.
+                  LayoutBuilder(
+                    builder: (context, constraints) {
+                      final usarFila = constraints.maxWidth >= 360;
+
+                      final dniField = TextFormField(
+                        controller: _dniController,
+                        style: const TextStyle(color: Colors.white),
+                        keyboardType: TextInputType.number,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly,
+                        ],
+                        decoration: const InputDecoration(
+                          labelText: 'DNI',
+                          border: OutlineInputBorder(),
+                          counterText: '',
+                        ),
+                        maxLength: 8,
+                        validator: _validarDni,
+                      );
+
+                      final cuilField = TextFormField(
+                        controller: _cuilController,
+                        style: const TextStyle(color: Colors.white),
+                        keyboardType: TextInputType.number,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly,
+                        ],
+                        decoration: const InputDecoration(
+                          labelText: 'CUIL',
+                          border: OutlineInputBorder(),
+                          counterText: '',
+                        ),
+                        maxLength: 11,
+                        validator: _validarCuil,
+                      );
+
+                      final qrButton = FilledButton(
+                        onPressed: _abrirLectorQrDni,
+                        style: FilledButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 16,
+                          ),
+                        ),
+                        child: const Icon(Icons.qr_code_scanner),
+                      );
+
+                      if (usarFila) {
+                        return Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(flex: 4, child: dniField),
+                            const SizedBox(width: 8),
+                            Expanded(flex: 5, child: cuilField),
+                            const SizedBox(width: 8),
+                            SizedBox(height: 56, child: qrButton),
+                          ],
+                        );
+                      }
+
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          dniField,
+                          const SizedBox(height: 12),
+                          cuilField,
+                          const SizedBox(height: 12),
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: SizedBox(height: 48, child: qrButton),
+                          ),
+                        ],
+                      );
+                    },
                   ),
                   const SizedBox(height: 12),
                   TextFormField(
@@ -492,10 +540,22 @@ class _AltaEmpleadoPageState extends State<AltaEmpleadoPage> {
                   TextFormField(
                     controller: _passwordController,
                     style: const TextStyle(color: Colors.white),
-                    obscureText: true,
-                    decoration: const InputDecoration(
+                    obscureText: !_mostrarPassword,
+                    decoration: InputDecoration(
                       labelText: 'Contraseña',
                       border: OutlineInputBorder(),
+                      suffixIcon: IconButton(
+                        onPressed: () {
+                          setState(() {
+                            _mostrarPassword = !_mostrarPassword;
+                          });
+                        },
+                        icon: Icon(
+                          _mostrarPassword
+                              ? Icons.visibility_off
+                              : Icons.visibility,
+                        ),
+                      ),
                     ),
                     validator: _validarPassword,
                   ),
@@ -537,29 +597,43 @@ class _AltaEmpleadoPageState extends State<AltaEmpleadoPage> {
                     },
                   ),
                   const SizedBox(height: 14),
-                  ElevatedButton.icon(
-                    onPressed: _tomarFoto,
-                    icon: const Icon(Icons.camera_alt),
-                    label: const Text('Tomar foto personal'),
-                  ),
-                  const SizedBox(height: 8),
-                  if (_foto != null)
-                    Center(
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(12),
-                        child: Image.file(
-                          _foto!,
-                          width: 130,
-                          height: 130,
-                          fit: BoxFit.cover,
-                        ),
-                      ),
+                  if (_foto == null)
+                    ElevatedButton.icon(
+                      onPressed: _tomarFoto,
+                      icon: const Icon(Icons.camera_alt),
+                      label: const Text('Tomar foto personal'),
                     )
                   else
+                    Center(
+                      // La foto previa funciona como accion para reemplazarla.
+                      child: InkWell(
+                        onTap: _tomarFoto,
+                        borderRadius: BorderRadius.circular(12),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(12),
+                          child: Image.file(
+                            _foto!,
+                            width: 130,
+                            height: 130,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
+                    ),
+                  if (_foto == null)
                     const Text(
                       'Foto obligatoria. Se toma con cámara (sin galería).',
                       textAlign: TextAlign.center,
                       style: TextStyle(color: Colors.white70),
+                    ),
+                  if (_foto != null)
+                    const Padding(
+                      padding: EdgeInsets.only(top: 8),
+                      child: Text(
+                        'Toca la foto para cambiarla.',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: Colors.white70),
+                      ),
                     ),
                   const SizedBox(height: 18),
                   FilledButton(
