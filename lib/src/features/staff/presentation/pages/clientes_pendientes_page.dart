@@ -17,6 +17,8 @@ class _ClientesPendientesPageState extends State<ClientesPendientesPage> {
   bool _cargando = true;
   bool _puedeGestionarClientes = false;
   List<Map<String, dynamic>> _clientes = [];
+  int _currentIndex = 0;
+  final PageController _pageController = PageController();
 
   @override
   void initState() {
@@ -24,16 +26,20 @@ class _ClientesPendientesPageState extends State<ClientesPendientesPage> {
     _cargarTodo();
   }
 
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
   Future<void> _cargarTodo() async {
     if (!widget.supabaseReady) {
       setState(() => _cargando = false);
       return;
     }
-
     try {
       final autorizado = await _staffRepository.canCurrentUserCreateEmployees();
       if (!mounted) return;
-
       if (!autorizado) {
         setState(() {
           _cargando = false;
@@ -41,10 +47,8 @@ class _ClientesPendientesPageState extends State<ClientesPendientesPage> {
         });
         return;
       }
-
       final clientes = await _staffRepository.pendingClients();
       if (!mounted) return;
-
       setState(() {
         _cargando = false;
         _puedeGestionarClientes = true;
@@ -56,14 +60,16 @@ class _ClientesPendientesPageState extends State<ClientesPendientesPage> {
     }
   }
 
-  void _recargar() async {
-    setState(() => _cargando = true);
+  Future<void> _recargar() async {
     final clientes = await _staffRepository.pendingClients();
     if (!mounted) return;
     setState(() {
-      _cargando = false;
       _clientes = clientes;
+      _currentIndex = 0;
     });
+    if (_pageController.hasClients) {
+      _pageController.jumpToPage(0);
+    }
   }
 
   void _mostrarMensaje(String mensaje, {required bool esError}) {
@@ -90,7 +96,7 @@ class _ClientesPendientesPageState extends State<ClientesPendientesPage> {
         'Cliente ${cliente['nombres']} aprobado correctamente.',
         esError: false,
       );
-      _recargar();
+      await _recargar();
     } catch (e) {
       _mostrarMensaje('Error al aprobar: $e', esError: true);
     }
@@ -103,7 +109,7 @@ class _ClientesPendientesPageState extends State<ClientesPendientesPage> {
         'Cliente ${cliente['nombres']} rechazado.',
         esError: true,
       );
-      _recargar();
+      await _recargar();
     } catch (e) {
       _mostrarMensaje('Error al rechazar: $e', esError: true);
     }
@@ -116,6 +122,7 @@ class _ClientesPendientesPageState extends State<ClientesPendientesPage> {
         body: Center(child: LogoSpinner(size: 88, strokeWidth: 6)),
       );
     }
+
     return Scaffold(
       appBar: AppBar(title: const Text('Clientes pendientes')),
       body: Container(
@@ -129,199 +136,435 @@ class _ClientesPendientesPageState extends State<ClientesPendientesPage> {
           ),
         ),
         child: SafeArea(
-          child:
-              !_puedeGestionarClientes
-                  ? const Center(
+          child: !_puedeGestionarClientes
+              ? const Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(24),
                     child: Text(
                       'No tenés permisos para gestionar clientes.',
                       textAlign: TextAlign.center,
-                      style: TextStyle(color: Colors.white70),
+                      style: TextStyle(color: Colors.white70, fontSize: 16),
                     ),
-                  )
-                  : Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(18, 18, 18, 8),
-                        child: Column(
-                          children: [
-                            const Text(
-                              'Clientes pendientes',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontFamily: 'ArchivoBlack',
-                                fontSize: 32,
-                                color: Colors.white,
-                                letterSpacing: -1.5,
-                              ),
+                  ),
+                )
+              : Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    // ── Header ─────────────────────────────────────────
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(18, 20, 18, 8),
+                      child: Column(
+                        children: [
+                          const Text(
+                            'Clientes pendientes',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontFamily: 'ArchivoBlack',
+                              fontSize: 32,
+                              color: Colors.white,
+                              letterSpacing: -1.5,
                             ),
-                            const SizedBox(height: 6),
-                            const Text(
-                              'Revisá cada solicitud y aprobá o rechazá el acceso del cliente a la app',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(color: Colors.white70),
-                            ),
-                            const SizedBox(height: 14),
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            _clientes.isEmpty
+                                ? 'No hay solicitudes pendientes'
+                                : 'Deslizá horizontal para aprobar o rechazar',
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                                color: Colors.white70, fontSize: 20),
+                          ),
+                          const SizedBox(height: 8),
+                          if (_clientes.isNotEmpty)
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                const Icon(
-                                  Icons.access_time,
-                                  size: 15,
-                                  color: Colors.white54,
-                                ),
-                                const SizedBox(width: 6),
                                 Text(
-                                  '${_clientes.length} pendiente${_clientes.length != 1 ? 's' : ''}',
+                                  '${_clientes.length} clientes pendiente${_clientes.length != 1 ? 's' : ''}',
                                   style: const TextStyle(
-                                    fontSize: 13,
-                                    color: Colors.white54,
-                                  ),
+                                      fontSize: 18, color: Colors.white54),
                                 ),
                               ],
                             ),
-                          ],
+                            
+                        ],
+                      ),
+                    ),
+
+                    // ── Lista vertical ─────────────────────────────────
+                    Expanded(
+                      child: _clientes.isEmpty
+                          ? const Center(
+                              child: Text(
+                                'No hay pendientes',
+                                style: TextStyle(
+                                    color: Colors.white70, fontSize: 16),
+                              ),
+                            )
+                          : PageView.builder(
+                              controller: _pageController,
+                              scrollDirection: Axis.vertical, // 👈 clave
+                              itemCount: _clientes.length,
+                              onPageChanged: (i) =>
+                                  setState(() => _currentIndex = i),
+                              itemBuilder: (context, index) {
+                                final cliente = _clientes[index];
+                                return Padding(
+                                  padding: const EdgeInsets.fromLTRB(
+                                      16, 8, 16, 16),
+                                  child: _ClienteSwipeCard(
+                                    cliente: cliente,
+                                    onAprobar: () => _aprobar(cliente),
+                                    onRechazar: () => _rechazar(cliente),
+                                  ),
+                                );
+                              },
+                            ),
+                    ),
+
+                    // ── Indicador: cliente X de N ──────────────────────
+                    if (_clientes.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 16),
+                        child: Text(
+                          '${_currentIndex + 1} de ${_clientes.length}',
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                              color: Colors.white54, fontSize: 13),
                         ),
                       ),
-                      Expanded(
-                        child:
-                            _clientes.isEmpty
-                                ? const Center(
-                                  child: Text(
-                                    'No hay pendientes',
-                                    style: TextStyle(color: Colors.white70),
-                                  ),
-                                )
-                                : ListView.builder(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 12,
-                                  ),
-                                  itemCount: _clientes.length,
-                                  itemBuilder: (context, index) {
-                                    final cliente = _clientes[index];
-                                    final nombre =
-                                        '${cliente['nombres']} ${cliente['apellidos']}';
-                                    return Card(
-                                      elevation: 0,
-                                      color: Colors.white,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(12),
-                                        side: BorderSide(
-                                          color: Colors.grey.shade200,
-                                        ),
-                                      ),
-                                      margin: const EdgeInsets.only(bottom: 10),
-                                      child: Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 12,
-                                          vertical: 14,
-                                        ),
-                                        child: Row(
-                                          children: [
-                                            CircleAvatar(
-                                              radius: 30,
-                                              backgroundColor:
-                                                  Colors.grey.shade200,
-                                              backgroundImage:
-                                                  cliente['foto_url'] != null
-                                                      ? NetworkImage(
-                                                        cliente['foto_url'],
-                                                      )
-                                                      : null,
-                                              child:
-                                                  cliente['foto_url'] == null
-                                                      ? const Icon(
-                                                        Icons.person,
-                                                        color: Colors.grey,
-                                                      )
-                                                      : null,
-                                            ),
-                                            const SizedBox(width: 12),
-                                            Expanded(
-                                              child: Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  Text(
-                                                    nombre,
-                                                    style: const TextStyle(
-                                                      fontWeight:
-                                                          FontWeight.w500,
-                                                      fontSize: 13,
-                                                    ),
-                                                  ),
-                                                  Text(
-                                                    cliente['correo'] ?? '',
-                                                    style: const TextStyle(
-                                                      fontSize: 11,
-                                                      color: Colors.grey,
-                                                    ),
-                                                  ),
-                                                  if (cliente['dni'] != null)
-                                                    Text(
-                                                      'DNI: ${cliente['dni']}',
-                                                      style: const TextStyle(
-                                                        fontSize: 11,
-                                                        color: Colors.grey,
-                                                      ),
-                                                    ),
-                                                ],
-                                              ),
-                                            ),
-                                            Column(
-                                              children: [
-                                                _ActionButton(
-                                                  color: Colors.green,
-                                                  icon: Icons.check,
-                                                  onTap:
-                                                      () => _aprobar(cliente),
-                                                ),
-                                                const SizedBox(height: 6),
-                                                _ActionButton(
-                                                  color: Colors.red,
-                                                  icon: Icons.close,
-                                                  onTap:
-                                                      () => _rechazar(cliente),
-                                                ),
-                                              ],
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                ),
-                      ),
-                    ],
-                  ),
+                  ],
+                ),
         ),
       ),
     );
   }
 }
 
-class _ActionButton extends StatelessWidget {
+// ─── Card con swipe ───────────────────────────────────────────────
+class _ClienteSwipeCard extends StatefulWidget {
+  final Map<String, dynamic> cliente;
+  final VoidCallback onAprobar;
+  final VoidCallback onRechazar;
+
+  const _ClienteSwipeCard({
+    required this.cliente,
+    required this.onAprobar,
+    required this.onRechazar,
+  });
+
+  @override
+  State<_ClienteSwipeCard> createState() => _ClienteSwipeCardState();
+}
+
+class _ClienteSwipeCardState extends State<_ClienteSwipeCard>
+    with SingleTickerProviderStateMixin {
+  double _dragX = 0;
+  bool _dismissed = false;
+  late AnimationController _snapController;
+  late Animation<double> _snapAnim;
+
+  @override
+  void initState() {
+    super.initState();
+    _snapController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+    );
+  }
+
+  @override
+  void dispose() {
+    _snapController.dispose();
+    super.dispose();
+  }
+
+  void _snapBack() {
+    _snapAnim = Tween<double>(begin: _dragX, end: 0).animate(
+      CurvedAnimation(parent: _snapController, curve: Curves.elasticOut),
+    )..addListener(() => setState(() => _dragX = _snapAnim.value));
+    _snapController.forward(from: 0);
+  }
+
+  void _onDragEnd(double velocity) {
+    final threshold = MediaQuery.of(context).size.width * 0.35;
+    if (_dragX > threshold || velocity > 600) {
+      setState(() => _dismissed = true);
+      Future.delayed(const Duration(milliseconds: 200), widget.onAprobar);
+    } else if (_dragX < -threshold || velocity < -600) {
+      setState(() => _dismissed = true);
+      Future.delayed(const Duration(milliseconds: 200), widget.onRechazar);
+    } else {
+      _snapBack();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final nombre =
+        '${widget.cliente['nombres']} ${widget.cliente['apellidos']}';
+    final angle = (_dragX / 800).clamp(-0.3, 0.3);
+    final acceptOpacity = (_dragX / 150).clamp(0.0, 1.0);
+    final rejectOpacity = (-_dragX / 150).clamp(0.0, 1.0);
+
+    return GestureDetector(
+      onHorizontalDragUpdate: (d) =>
+          setState(() => _dragX += d.delta.dx),
+      onHorizontalDragEnd: (d) =>
+          _onDragEnd(d.velocity.pixelsPerSecond.dx),
+      child: AnimatedOpacity(
+        opacity: _dismissed ? 0 : 1,
+        duration: const Duration(milliseconds: 200),
+        child: Transform(
+          transform: Matrix4.identity()
+            ..translate(_dragX, 0)
+            ..rotateZ(angle),
+          alignment: Alignment.bottomCenter,
+          child: Stack(
+            children: [
+              // ── Card principal ─────────────────────────────────────
+              Container(
+                width: double.infinity,
+                height: double.infinity,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(24),
+                  border: Border.all(color: Colors.grey.shade200),
+                ),
+                child: Column(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          CircleAvatar(
+                            radius: 56,
+                            backgroundColor: Colors.grey.shade100,
+                            backgroundImage:
+                                widget.cliente['foto_url'] != null
+                                    ? NetworkImage(
+                                        widget.cliente['foto_url'])
+                                    : null,
+                            child: widget.cliente['foto_url'] == null
+                                ? Icon(Icons.person,
+                                    size: 52,
+                                    color: Colors.grey.shade400)
+                                : null,
+                          ),
+                          const SizedBox(height: 20),
+                          Text(
+                            nombre,
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xFF1A1A1A),
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            widget.cliente['correo'] ?? '',
+                            style: TextStyle(
+                                fontSize: 15,
+                                color: Colors.grey.shade500),
+                          ),
+                          if (widget.cliente['dni'] != null) ...[
+                            const SizedBox(height: 8),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 16, vertical: 6),
+                              decoration: BoxDecoration(
+                                color: Colors.grey.shade100,
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: Text(
+                                'DNI: ${widget.cliente['dni']}',
+                                style: TextStyle(
+                                    fontSize: 13,
+                                    color: Colors.grey.shade600),
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+
+                    // ── Hints de swipe ───────────────────────────────
+                    Padding(
+                      padding:
+                          const EdgeInsets.symmetric(horizontal: 24),
+                      child: Row(
+                        mainAxisAlignment:
+                            MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(children: [
+                            Icon(Icons.arrow_back_ios,
+                                size: 13,
+                                color: Colors.grey.shade400),
+                            Text('Rechazar',
+                                style: TextStyle(
+                                    fontSize: 13,
+                                    color: Colors.grey.shade400)),
+                          ]),
+                          Row(children: [
+                            Text('Aprobar',
+                                style: TextStyle(
+                                    fontSize: 13,
+                                    color: Colors.grey.shade400)),
+                            Icon(Icons.arrow_forward_ios,
+                                size: 13,
+                                color: Colors.grey.shade400),
+                          ]),
+                        ],
+                      ),
+                    ),
+
+                    const SizedBox(height: 16),
+
+                    // ── Botones grandes ──────────────────────────────
+                    Padding(
+                      padding:
+                          const EdgeInsets.fromLTRB(32, 0, 32, 28),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: _BigActionButton(
+                              color: const Color(0xFFE24B4A),
+                              backgroundColor:
+                                  const Color(0xFFFCEBEB),
+                              icon: Icons.close_rounded,
+                              label: 'Rechazar',
+                              onTap: widget.onRechazar,
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: _BigActionButton(
+                              color: const Color(0xFF639922),
+                              backgroundColor:
+                                  const Color(0xFFEAF3DE),
+                              icon: Icons.check_rounded,
+                              label: 'Aprobar',
+                              onTap: widget.onAprobar,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              // ── Overlay APROBADO ───────────────────────────────────
+              if (acceptOpacity > 0.05)
+                Positioned.fill(
+                  child: IgnorePointer(
+                    child: Opacity(
+                      opacity: acceptOpacity,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF639922)
+                              .withOpacity(0.08),
+                          borderRadius: BorderRadius.circular(24),
+                          border: Border.all(
+                              color: const Color(0xFF639922),
+                              width: 3),
+                        ),
+                        alignment: Alignment.topLeft,
+                        padding: const EdgeInsets.all(20),
+                        child: const Text(
+                          'APROBADO',
+                          style: TextStyle(
+                            fontSize: 28,
+                            fontWeight: FontWeight.w800,
+                            color: Color(0xFF3B6D11),
+                            letterSpacing: 2,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+
+              // ── Overlay RECHAZADO ──────────────────────────────────
+              if (rejectOpacity > 0.05)
+                Positioned.fill(
+                  child: IgnorePointer(
+                    child: Opacity(
+                      opacity: rejectOpacity,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFE24B4A)
+                              .withOpacity(0.08),
+                          borderRadius: BorderRadius.circular(24),
+                          border: Border.all(
+                              color: const Color(0xFFE24B4A),
+                              width: 3),
+                        ),
+                        alignment: Alignment.topRight,
+                        padding: const EdgeInsets.all(20),
+                        child: const Text(
+                          'RECHAZADO',
+                          style: TextStyle(
+                            fontSize: 28,
+                            fontWeight: FontWeight.w800,
+                            color: Color(0xFFA32D2D),
+                            letterSpacing: 2,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ─── Botón grande ─────────────────────────────────────────────────────────────
+class _BigActionButton extends StatelessWidget {
   final Color color;
+  final Color backgroundColor;
   final IconData icon;
+  final String label;
   final VoidCallback onTap;
 
-  const _ActionButton({
+  const _BigActionButton({
     required this.color,
+    required this.backgroundColor,
     required this.icon,
+    required this.label,
     required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    return MouseRegion(
-      cursor: SystemMouseCursors.click,
-      child: GestureDetector(
-        onTap: onTap,
-        child: Container(
-          width: 28,
-          height: 28,
-          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-          child: Icon(icon, color: Colors.white, size: 16),
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        decoration: BoxDecoration(
+          color: backgroundColor,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: color.withOpacity(0.4), width: 1.5),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, color: color, size: 28),
+            const SizedBox(height: 4),
+            Text(
+              label,
+              style: TextStyle(
+                color: color,
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
         ),
       ),
     );
