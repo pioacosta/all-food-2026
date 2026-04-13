@@ -167,8 +167,8 @@ class _SplashPageState extends State<SplashPage>
                   position: _logoSlide,
                   child: Image.asset(
                     'assets/images/logo.png',
-                    width: 110,
-                    height: 110,
+                    width: 250,
+                    height: 250,
                     fit: BoxFit.contain,
                   ),
                 ),
@@ -189,8 +189,8 @@ class _SplashPageState extends State<SplashPage>
                                 child: Text(
                                   name,
                                   style: GoogleFonts.nunito(
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.w700,
+                                    fontSize: 30,
+                                    fontWeight: FontWeight.w400,
                                     color: Colors.white,
                                     letterSpacing: 0.5,
                                   ),

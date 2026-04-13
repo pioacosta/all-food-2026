@@ -321,13 +321,13 @@ class _RegisterPageState extends State<RegisterPage> {
                             ),
                             const SizedBox(width: 8),
                             SizedBox(
-                              height: 48,
+                              height: 45,
                               child: FilledButton(
                                 onPressed: _abrirLectorQrDni,
                                 style: FilledButton.styleFrom(
                                   padding: const EdgeInsets.symmetric(
-                                    horizontal: 12,
-                                    vertical: 16,
+                                    horizontal: 16,
+                                    vertical: 10,
                                   ),
                                 ),
                                 child: const Icon(Icons.qr_code_scanner),
