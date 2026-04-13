@@ -338,7 +338,7 @@ class _ClienteSwipeCardState extends State<_ClienteSwipeCard>
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           CircleAvatar(
-                            radius: 56,
+                            radius: 80,
                             backgroundColor: Colors.grey.shade100,
                             backgroundImage:
                                 widget.cliente['foto_url'] != null
@@ -356,7 +356,7 @@ class _ClienteSwipeCardState extends State<_ClienteSwipeCard>
                             nombre,
                             textAlign: TextAlign.center,
                             style: const TextStyle(
-                              fontSize: 24,
+                              fontSize: 30,
                               fontWeight: FontWeight.w600,
                               color: Color(0xFF1A1A1A),
                             ),
@@ -365,7 +365,7 @@ class _ClienteSwipeCardState extends State<_ClienteSwipeCard>
                           Text(
                             widget.cliente['correo'] ?? '',
                             style: TextStyle(
-                                fontSize: 15,
+                                fontSize: 20,
                                 color: Colors.grey.shade500),
                           ),
                           if (widget.cliente['dni'] != null) ...[
@@ -380,7 +380,7 @@ class _ClienteSwipeCardState extends State<_ClienteSwipeCard>
                               child: Text(
                                 'DNI: ${widget.cliente['dni']}',
                                 style: TextStyle(
-                                    fontSize: 13,
+                                    fontSize: 17,
                                     color: Colors.grey.shade600),
                               ),
                             ),
@@ -403,13 +403,13 @@ class _ClienteSwipeCardState extends State<_ClienteSwipeCard>
                                 color: Colors.grey.shade400),
                             Text('Rechazar',
                                 style: TextStyle(
-                                    fontSize: 13,
+                                    fontSize: 15,
                                     color: Colors.grey.shade400)),
                           ]),
                           Row(children: [
                             Text('Aprobar',
                                 style: TextStyle(
-                                    fontSize: 13,
+                                    fontSize: 15,
                                     color: Colors.grey.shade400)),
                             Icon(Icons.arrow_forward_ios,
                                 size: 13,
