@@ -773,7 +773,7 @@ _DniQrData _parsearQrDni(String raw) {
   String? apellido;
   String? nombre;
   String? dni;
-  String? cuil;
+  final cuilTokens = <String>[];
 
   for (final token in tokens) {
     if (dni == null && RegExp(r'^\d{7,8}$').hasMatch(token)) {
@@ -781,11 +781,17 @@ _DniQrData _parsearQrDni(String raw) {
       continue;
     }
 
-    if (cuil == null && RegExp(r'^\d{11}$').hasMatch(token)) {
-      cuil = token;
-      continue;
+    if (RegExp(r'^\d{11}$').hasMatch(token)) {
+      cuilTokens.add(token);
     }
   }
+
+  // El CUIL válido del DNI debe cumplir: 2 dígitos + DNI (8) + verificador.
+  final cuil = _inferirCuilDesdeTokens(
+    tokens: tokens,
+    dni: dni,
+    cuilTokens: cuilTokens,
+  );
 
   final letras =
       tokens
@@ -801,4 +807,77 @@ _DniQrData _parsearQrDni(String raw) {
   }
 
   return _DniQrData(nombre: nombre, apellido: apellido, dni: dni, cuil: cuil);
+}
+
+String? _inferirCuilDesdeTokens({
+  required List<String> tokens,
+  required String? dni,
+  required List<String> cuilTokens,
+}) {
+  if (dni == null) {
+    return cuilTokens.isNotEmpty ? cuilTokens.first : null;
+  }
+
+  // Priorizamos CUIL de 11 dígitos que sea consistente con el DNI leído.
+  for (final token in cuilTokens) {
+    if (_esCuilCompatibleConDni(token, dni) &&
+        _esCuilNumericamenteValido(token)) {
+      return token;
+    }
+  }
+
+  // Si el QR trae CUIL separado (XX + DNI + X), lo reconstruimos.
+  for (var i = 0; i <= tokens.length - 3; i++) {
+    final prefijo = tokens[i];
+    final posibleDni = tokens[i + 1];
+    final sufijo = tokens[i + 2];
+
+    if (!RegExp(r'^\d{2}$').hasMatch(prefijo)) {
+      continue;
+    }
+    if (!RegExp(r'^\d{7,8}$').hasMatch(posibleDni)) {
+      continue;
+    }
+    if (!RegExp(r'^\d$').hasMatch(sufijo)) {
+      continue;
+    }
+
+    final candidato = '$prefijo${posibleDni.padLeft(8, '0')}$sufijo';
+    if (_esCuilCompatibleConDni(candidato, dni) &&
+        _esCuilNumericamenteValido(candidato)) {
+      return candidato;
+    }
+  }
+
+  return null;
+}
+
+bool _esCuilCompatibleConDni(String cuil, String dni) {
+  if (!RegExp(r'^\d{11}$').hasMatch(cuil)) {
+    return false;
+  }
+
+  return cuil.substring(2, 10) == dni.padLeft(8, '0');
+}
+
+bool _esCuilNumericamenteValido(String cuil) {
+  if (!RegExp(r'^\d{11}$').hasMatch(cuil)) {
+    return false;
+  }
+
+  const factores = [5, 4, 3, 2, 7, 6, 5, 4, 3, 2];
+  var suma = 0;
+  for (var i = 0; i < 10; i++) {
+    suma += int.parse(cuil[i]) * factores[i];
+  }
+
+  final resto = suma % 11;
+  var verificador = 11 - resto;
+  if (verificador == 11) {
+    verificador = 0;
+  } else if (verificador == 10) {
+    verificador = 9;
+  }
+
+  return verificador == int.parse(cuil[10]);
 }
