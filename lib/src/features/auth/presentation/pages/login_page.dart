@@ -5,6 +5,7 @@ import 'package:all_food/src/shared/widgets/logo_spinner.dart';
 import 'package:flutter/material.dart';
 import 'package:all_food/src/features/auth/data/repositories/auth_repository.dart';
 import '../../../../config/demo_accounts.dart';
+import 'anonymous_client_page.dart';
 import 'register_page.dart';
 
 class LoginPage extends StatefulWidget {
@@ -476,6 +477,39 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                         ),
                         child: const Text('Crear cuenta'),
+                      ),
+                      const SizedBox(height: 10),
+                      FilledButton.tonal(
+                        onPressed:
+                            _isLoading
+                                ? null
+                                : () async {
+                                  final creado = await Navigator.of(
+                                    context,
+                                  ).push<bool>(
+                                    MaterialPageRoute(
+                                      builder:
+                                          (_) => AnonymousClientPage(
+                                            supabaseReady: widget.supabaseReady,
+                                          ),
+                                    ),
+                                  );
+
+                                  if (!mounted || creado != true) return;
+
+                                  Navigator.of(context).pushNamedAndRemoveUntil(
+                                    '/session',
+                                    (route) => false,
+                                  );
+                                },
+                        style: FilledButton.styleFrom(
+                          minimumSize: const Size.fromHeight(52),
+                          textStyle: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        child: const Text('Ingresar como cliente anonimo'),
                       ),
                       const SizedBox(height: 20),
                       Align(
