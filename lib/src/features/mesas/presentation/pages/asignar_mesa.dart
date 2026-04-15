@@ -272,7 +272,10 @@ class _AsignarMesaPageState extends State<AsignarMesaPage> {
                                   child: _ResumenRow(
                                     icon: Icons.person,
                                     value:
-                                        '${_clienteSeleccionado!['nombres']} ${_clienteSeleccionado!['apellidos']}',
+                                        _clienteSeleccionado!['perfil'] ==
+                                                'cliente_anonimo'
+                                            ? '${_clienteSeleccionado!['nombres']}'
+                                            : '${_clienteSeleccionado!['nombres']} ${_clienteSeleccionado!['apellidos']}',
                                   ),
                                 ),
                               if (_clienteSeleccionado != null &&
@@ -484,6 +487,9 @@ class _ClienteCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool esAnonimo = cliente['perfil'] == 'cliente_anonimo';
+    final String etiquetaTexto = esAnonimo ? 'Anónimo' : 'Registrado';
+
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
@@ -499,84 +505,137 @@ class _ClienteCard extends StatelessWidget {
         ),
         child: LayoutBuilder(
           builder: (context, constraints) {
-            // Escala el contenido según el alto de la card
             final alto = constraints.maxHeight;
-            final avatarRadius = (alto * 0.22).clamp(18.0, 40.0);
-            final fontSize = (alto * 0.12).clamp(16.0, 18.0);
-            final subFontSize = (alto * 0.09).clamp(14.0, 14.0);
+            final avatarRadius = (alto * 0.34).clamp(24.0, 70.0);
+            final fontSize = (alto * 0.15).clamp(18.0, 22.0);
+            final subFontSize = (alto * 0.10).clamp(14.0, 16.0);
+            final tagFontSize = (alto * 0.10).clamp(12.0, 12.0);
 
-            return Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Row(
-                children: [
-                  CircleAvatar(
-                    radius: avatarRadius,
-                    backgroundColor:
-                        seleccionado
-                            ? const Color(0xFF5B1718).withOpacity(0.1)
-                            : Colors.grey.shade100,
-                    backgroundImage:
-                        cliente['foto_url'] != null
-                            ? NetworkImage(cliente['foto_url'])
-                            : null,
-                    child:
-                        cliente['foto_url'] == null
-                            ? Icon(
-                              Icons.person,
-                              size: avatarRadius,
-                              color:
-                                  seleccionado
-                                      ? const Color(0xFF5B1718)
-                                      : Colors.grey.shade400,
-                            )
-                            : null,
-                  ),
-                  const SizedBox(width: 14),
-                  Expanded(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          '${cliente['nombres']} ${cliente['apellidos']}',
-                          style: TextStyle(
-                            fontSize: fontSize,
-                            fontWeight: FontWeight.w600,
-                            color:
-                                seleccionado
-                                    ? const Color(0xFF5B1718)
-                                    : const Color(0xFF1A1A1A),
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          cliente['correo'] ?? '',
-                          style: TextStyle(
-                            fontSize: subFontSize,
-                            color: Colors.grey.shade500,
-                          ),
-                        ),
-                        if (cliente['dni'] != null) ...[
-                          const SizedBox(height: 2),
-                          Text(
-                            'DNI: ${cliente['dni']}',
-                            style: TextStyle(
-                              fontSize: subFontSize,
-                              color: Colors.grey.shade400,
+            return Stack(
+              // Usamos Stack para posicionar la etiqueta libremente
+              children: [
+                // Contenido Principal (Exactamente igual a tu diseño original)
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment:
+                        CrossAxisAlignment
+                            .center, // Mantenemos el centrado vertical
+                    children: [
+                      CircleAvatar(
+                        radius: avatarRadius,
+                        backgroundColor:
+                            seleccionado
+                                ? const Color(0xFF5B1718).withOpacity(0.1)
+                                : Colors.grey.shade100,
+                        backgroundImage:
+                            cliente['foto_url'] != null
+                                ? NetworkImage(cliente['foto_url'])
+                                : null,
+                        child:
+                            cliente['foto_url'] == null
+                                ? Icon(
+                                  Icons.person,
+                                  size: avatarRadius,
+                                  color:
+                                      seleccionado
+                                          ? const Color(0xFF5B1718)
+                                          : Colors.grey.shade400,
+                                )
+                                : null,
+                      ),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              // Si es anónimo, solo nombre. Si no, nombre y apellido.
+                              esAnonimo
+                                  ? '${cliente['nombres']}'
+                                  : '${cliente['nombres']} ${cliente['apellidos']}',
+                              style: TextStyle(
+                                fontSize: fontSize,
+                                fontWeight: FontWeight.w600,
+                                color:
+                                    seleccionado
+                                        ? const Color(0xFF5B1718)
+                                        : const Color(0xFF1A1A1A),
+                              ),
                             ),
-                          ),
-                        ],
-                      ],
+
+                            // Campos condicionales (Solo si no es anónimo)
+                            if (!esAnonimo) ...[
+                              const SizedBox(height: 4),
+                              Text(
+                                cliente['correo'] ?? '',
+                                style: TextStyle(
+                                  fontSize: subFontSize,
+                                  color: Colors.grey.shade500,
+                                ),
+                              ),
+                              if (cliente['dni'] != null) ...[
+                                const SizedBox(height: 2),
+                                Text(
+                                  'DNI: ${cliente['dni']}',
+                                  style: TextStyle(
+                                    fontSize: subFontSize,
+                                    color: Colors.grey.shade400,
+                                  ),
+                                ),
+                              ],
+                            ],
+                          ],
+                        ),
+                      ),
+                      if (seleccionado)
+                        Icon(
+                          Icons.check_circle,
+                          color: const Color(0xFF5B1718),
+                          size: (avatarRadius * 0.8).clamp(16.0, 28.0),
+                        ),
+                    ],
+                  ),
+                ),
+
+                // Etiqueta posicionada arriba a la derecha
+                Positioned(
+                  top: 12,
+                  right: 16,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 3,
+                    ),
+                    decoration: BoxDecoration(
+                      color:
+                          esAnonimo
+                              ? Colors.grey.shade100
+                              : const Color(0xFF5B1718).withOpacity(0.08),
+                      borderRadius: BorderRadius.circular(6),
+                      border: Border.all(
+                        color:
+                            esAnonimo
+                                ? Colors.grey.shade300
+                                : const Color(0xFF5B1718).withOpacity(0.2),
+                      ),
+                    ),
+                    child: Text(
+                      etiquetaTexto.toUpperCase(),
+                      style: TextStyle(
+                        fontSize: tagFontSize,
+                        fontWeight: FontWeight.bold,
+                        color:
+                            esAnonimo
+                                ? Colors.grey.shade600
+                                : const Color(0xFF5B1718),
+                      ),
                     ),
                   ),
-                  if (seleccionado)
-                    Icon(
-                      Icons.check_circle,
-                      color: const Color(0xFF5B1718),
-                      size: (avatarRadius * 0.8).clamp(16.0, 28.0),
-                    ),
-                ],
-              ),
+                ),
+              ],
             );
           },
         ),

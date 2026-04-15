@@ -146,9 +146,10 @@ class MesasService {
     final res = await _client
         .from('perfiles')
         .select()
-        .eq('perfil', 'cliente_registrado')
+        .or('perfil.eq.cliente_registrado,perfil.eq.cliente_anonimo')
         .eq('estado_registro', 'aprobado')
         .eq('habilitado', true);
+
     return List<Map<String, dynamic>>.from(res);
   }
 
