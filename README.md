@@ -61,6 +61,8 @@ flutter run
 
 8. Ingreso como cliente anónimo. | Fecha de inicio de la tarea: 14/04/2026 | Fecha de finalización de la tarea: 14/04/2026
 
+9. Generar código QR al crear una mesa. Visible en ver/editar mesa. | Fecha de inicio de la tarea: 15/04/2026 | Fecha de finalización de la tarea: 15/04/2026
+
 ---
 
 **Apellidos y nombres:** Lezcano Adrian.
