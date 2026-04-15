@@ -213,6 +213,7 @@ class _ClientesPendientesPageState extends State<ClientesPendientesPage> {
                                   padding: const EdgeInsets.fromLTRB(
                                       16, 8, 16, 16),
                                   child: _ClienteSwipeCard(
+                                    key: ValueKey(cliente['id'] ?? index),
                                     cliente: cliente,
                                     onAprobar: () => _aprobar(cliente),
                                     onRechazar: () => _rechazar(cliente),
@@ -248,6 +249,7 @@ class _ClienteSwipeCard extends StatefulWidget {
   final VoidCallback onRechazar;
 
   const _ClienteSwipeCard({
+    super.key,
     required this.cliente,
     required this.onAprobar,
     required this.onRechazar,

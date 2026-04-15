@@ -82,4 +82,82 @@ class MesasService {
   Future<void> deleteTable(String mesaId) {
     return _client.from('mesas').delete().eq('id', mesaId);
   }
+
+  // METRE
+  Future<List<Map<String, dynamic>>> getClientesSinMesa() async {
+    final res = await _client
+        .from('perfiles')
+        .select()
+        .eq('perfil', 'cliente_registrado')
+        .eq('estado_registro', 'aprobado');
+
+    final mesas = await _client.from('mesas').select('cliente_id');
+
+    final clientesConMesa =
+        mesas.map((m) => m['cliente_id']).where((id) => id != null).toSet();
+
+    return res.where((c) => !clientesConMesa.contains(c['id'])).toList();
+  }
+
+  Future<List<Map<String, dynamic>>> getMesasDisponibles() async {
+    final res = await _client
+        .from('mesas')
+        .select()
+        .isFilter('cliente_id', null);
+
+    return List<Map<String, dynamic>>.from(res);
+  }
+
+  Future<void> asignarMesa({
+    required String clienteId,
+    required String mesaId,
+  }) async {
+    await _client
+        .from('mesas')
+        .update({'cliente_id': clienteId, 'ocupada': true})
+        .eq('id', mesaId);
+  }
+
+  Future<void> liberarMesa(String mesaId) async {
+    await _client
+        .from('mesas')
+        .update({'cliente_id': null, 'ocupada': false})
+        .eq('id', mesaId);
+  }
+
+  Future<Map<String, dynamic>?> buscarMesaPorCliente(String clienteId) async {
+    final res =
+        await _client
+            .from('mesas')
+            .select()
+            .eq('cliente_id', clienteId)
+            .maybeSingle();
+
+    return res;
+  }
+
+  Future<List<Map<String, dynamic>>> getMesas() async {
+    final res = await _client.from('mesas').select();
+
+    return List<Map<String, dynamic>>.from(res);
+  }
+
+  Future<List<Map<String, dynamic>>> getClientesAprobados() async {
+    final res = await _client
+        .from('perfiles')
+        .select()
+        .eq('perfil', 'cliente_registrado')
+        .eq('estado_registro', 'aprobado')
+        .eq('habilitado', true);
+    return List<Map<String, dynamic>>.from(res);
+  }
+
+  Future<List<Map<String, dynamic>>> getMesasOcupadas() async {
+    final res = await _client
+        .from('mesas')
+        .select('*, perfiles(nombres, apellidos)')
+        .not('cliente_id', 'is', null);
+
+    return List<Map<String, dynamic>>.from(res);
+  }
 }

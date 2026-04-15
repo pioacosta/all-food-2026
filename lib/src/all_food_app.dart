@@ -1,4 +1,5 @@
 import 'package:all_food/src/features/carta/presentation/pages/carta_page.dart';
+import 'package:all_food/src/features/mesas/presentation/pages/asignar_mesa.dart';
 import 'package:all_food/src/features/staff/presentation/pages/alta_empleado_page.dart';
 import 'package:all_food/src/features/staff/presentation/pages/clientes_pendientes_page.dart';
 import 'package:all_food/src/features/mesas/presentation/pages/crear_mesa_page.dart';
@@ -89,6 +90,8 @@ class AllFoodApp extends StatelessWidget {
 
         '/ver-editar-mesas':
             (_) => VerEditarMesasPage(supabaseReady: supabaseReady),
+
+        '/asignar-mesa': (_) => AsignarMesaPage(supabaseReady: supabaseReady),
 
         '/aprobacion-clientes':
             (_) => ClientesPendientesPage(supabaseReady: supabaseReady),

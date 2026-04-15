@@ -118,4 +118,46 @@ class MesasRepository {
     final ts = DateTime.now().millisecondsSinceEpoch;
     return 'MESA-$numeroMesa-$ts';
   }
+
+  // metre
+  Future<void> asignarMesa({required Map cliente, required Map mesa}) async {
+    final puede = await canCurrentUserManageTables();
+
+    if (!puede) {
+      throw Exception('No tenés permisos para asignar mesas.');
+    }
+
+    if (mesa['cliente_id'] != null) {
+      throw Exception('La mesa ya está ocupada.');
+    }
+
+    final mesaExistente = await _service.buscarMesaPorCliente(cliente['id']);
+
+    if (mesaExistente != null) {
+      throw Exception('El cliente ya tiene una mesa asignada.');
+    }
+
+    await _service.asignarMesa(clienteId: cliente['id'], mesaId: mesa['id']);
+  }
+
+  Future<List<Map<String, dynamic>>> getClientesSinMesa() async {
+    final clientes = await _service.getClientesAprobados();
+
+    final mesas = await _service.getMesas();
+
+    final ocupados =
+        mesas.map((m) => m['cliente_id']).where((id) => id != null).toSet();
+
+    return clientes.where((c) => !ocupados.contains(c['id'])).toList();
+  }
+
+  Future<List<Map<String, dynamic>>> getMesasDisponibles() async {
+    final mesas = await _service.getMesas();
+
+    return mesas.where((m) => m['cliente_id'] == null).toList();
+  }
+
+  Future<List<Map<String, dynamic>>> getMesasOcupadas() async {
+    return await _service.getMesasOcupadas();
+  }
 }

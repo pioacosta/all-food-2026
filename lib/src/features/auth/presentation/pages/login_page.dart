@@ -105,6 +105,17 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   onTap: () => Navigator.of(context).pop('cantinero'),
                 ),
+                ListTile(
+                  leading: const Icon(
+                    Icons.room_service_outlined,
+                    color: Colors.white,
+                  ),
+                  title: const Text(
+                    'Metre',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  onTap: () => Navigator.of(context).pop('metre'),
+                )
               ],
             ),
           ),
@@ -125,6 +136,8 @@ class _LoginPageState extends State<LoginPage> {
       _completarIngresoRapidoCocinero();
     } else if (perfil == 'cantinero') {
       _completarIngresoRapidoCantinero();
+    } else if (perfil == 'metre') {
+      _completarIngresoRapidoMetre();
     }
   }
 
@@ -224,6 +237,13 @@ class _LoginPageState extends State<LoginPage> {
     // Precarga credenciales de prueba para agilizar demos/manual testing.
     _emailController.text = DemoAccounts.cantineroEmail;
     _passwordController.text = DemoAccounts.cantineroPassword;
+    setState(() {});
+  }
+
+  void _completarIngresoRapidoMetre() {
+    // Precarga credenciales de prueba para agilizar demos/manual testing.
+    _emailController.text = DemoAccounts.metreEmail;
+    _passwordController.text = DemoAccounts.metrePassword;
     setState(() {});
   }
 

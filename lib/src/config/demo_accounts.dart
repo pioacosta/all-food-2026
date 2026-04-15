@@ -24,4 +24,9 @@ class DemoAccounts {
   static const supervisorNombres = 'Supervisor';
   static const supervisorApellidos = 'Restaurante';
 
+  static const metreEmail = 'metre@allfood.app';
+  static const metrePassword = 'Pruebametre!1';
+  static const metreNombres = 'Metre';
+  static const metreApellidos = 'Restaurante';
+
 }
