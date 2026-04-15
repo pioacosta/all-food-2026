@@ -1,3 +1,4 @@
+import 'package:all_food/src/features/carta/presentation/pages/carta_page.dart';
 import 'package:all_food/src/features/staff/presentation/pages/alta_empleado_page.dart';
 import 'package:all_food/src/features/staff/presentation/pages/clientes_pendientes_page.dart';
 import 'package:all_food/src/features/mesas/presentation/pages/crear_mesa_page.dart';
@@ -76,6 +77,11 @@ class AllFoodApp extends StatelessWidget {
 
         '/crear-producto':
             (_) => CrearProductoPage(supabaseReady: supabaseReady),
+
+        '/carta': (context) {
+          final tipo = ModalRoute.of(context)!.settings.arguments as String;
+          return CartaPage(tipo: tipo);
+        },
 
         '/alta-empleado': (_) => AltaEmpleadoPage(supabaseReady: supabaseReady),
 

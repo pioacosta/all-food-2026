@@ -149,6 +149,23 @@ class _HomePageState extends State<HomePage> {
                             ),
                           ),
                         if (puedeCrearProductos) const SizedBox(height: 12),
+                        if (puedeCrearProductos)
+                          ElevatedButton(
+                            onPressed: () {
+                              Navigator.pushNamed(
+                                context,
+                                '/carta',
+                                arguments:
+                                    _perfil == 'cocinero' ? 'plato' : 'bebida',
+                              );
+                            },
+                            child: Text(
+                              _perfil == 'cocinero'
+                                  ? 'Ver carta de platos'
+                                  : 'Ver carta de bebidas',
+                            ),
+                          ),
+                        if (puedeCrearProductos) const SizedBox(height: 12),
                         if (puedeCrearEmpleados)
                           ElevatedButton(
                             onPressed: () {

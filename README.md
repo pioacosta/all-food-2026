@@ -82,3 +82,5 @@ flutter run
 1. Icono de la aplicación personalizado. | Fecha de inicio de la tarea: 06/04/2026 | Fecha de finalización de la tarea: 06/04/2026
 
 2. Modularización y alta de producto (alta de platos y bebidas con validación de datos e imágenes). | Fecha de inicio de la tarea: 09/04/2026 | Fecha de finalización de la tarea: 12/04/2026
+
+3. Implementación de carta para cantinero y cocinero junto con su detalle de producto, incluyendo modelos, repositorio y servicios. | Fecha de inicio de la tarea: 13/04/2026 | Fecha de finalización de la tarea: 14/04/2026
