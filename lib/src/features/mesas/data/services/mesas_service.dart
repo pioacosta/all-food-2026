@@ -51,7 +51,7 @@ class MesasService {
   Future<List<Map<String, dynamic>>> fetchTables() async {
     final response = await _client
         .from('mesas')
-        .select('id, numero, cantidad_lugares, tipo, foto_url')
+        .select('id, numero, cantidad_lugares, tipo, foto_url, qr_codigo')
         .order('numero');
 
     return List<Map<String, dynamic>>.from(response as List);
@@ -70,6 +70,17 @@ class MesasService {
 
   Future<void> insertTable(Map<String, dynamic> payload) {
     return _client.from('mesas').insert(payload);
+  }
+
+  Future<Map<String, dynamic>?> getMesaByQrCodigo(String qrCodigo) async {
+    final res =
+        await _client
+            .from('mesas')
+            .select('id, numero, qr_codigo, cliente_id, ocupada')
+            .eq('qr_codigo', qrCodigo)
+            .maybeSingle();
+
+    return res;
   }
 
   Future<void> updateTable({

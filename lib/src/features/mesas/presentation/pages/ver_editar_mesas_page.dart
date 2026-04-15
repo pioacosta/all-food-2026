@@ -1,8 +1,12 @@
+import 'dart:typed_data';
+import 'dart:ui' as ui;
+
 import 'package:all_food/src/features/mesas/data/repositories/mesas_repository.dart';
 import 'package:all_food/src/shared/errors/app_error_mapper.dart';
 import 'package:all_food/src/shared/widgets/logo_spinner.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 
 class VerEditarMesasPage extends StatefulWidget {
   const VerEditarMesasPage({required this.supabaseReady, super.key});
@@ -203,6 +207,88 @@ class _VerEditarMesasPageState extends State<VerEditarMesasPage> {
     }
   }
 
+  Future<void> _mostrarQrMesa(_MesaDraft mesa) async {
+    final qrCodigo = mesa.qrCodigo?.trim() ?? '';
+
+    if (qrCodigo.isEmpty) {
+      _mostrarMensaje('La mesa no tiene un QR generado.', esError: true);
+      return;
+    }
+
+    final qrBytes = await _generarQrComoPng(qrCodigo);
+
+    await showDialog<void>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('QR de mesa'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'Mesa ${mesa.numeroController.text.trim()}',
+                style: const TextStyle(fontWeight: FontWeight.w700),
+              ),
+              const SizedBox(height: 12),
+              Container(
+                color: Colors.white,
+                padding: const EdgeInsets.all(10),
+                child:
+                    qrBytes != null
+                        ? Image.memory(
+                          qrBytes,
+                          width: 190,
+                          height: 190,
+                          fit: BoxFit.contain,
+                          filterQuality: FilterQuality.none,
+                        )
+                        : QrImageView(
+                          data: qrCodigo,
+                          version: QrVersions.auto,
+                          size: 190,
+                          backgroundColor: Colors.white,
+                        ),
+              ),
+              const SizedBox(height: 10),
+              SelectableText(
+                qrCodigo,
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontSize: 12),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cerrar'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<Uint8List?> _generarQrComoPng(String qrCodigo) async {
+    try {
+      final painter = QrPainter(
+        data: qrCodigo,
+        version: QrVersions.auto,
+        color: Colors.black,
+        emptyColor: Colors.white,
+        gapless: false,
+      );
+
+      final imageData = await painter.toImageData(
+        512,
+        format: ui.ImageByteFormat.png,
+      );
+
+      return imageData?.buffer.asUint8List();
+    } catch (_) {
+      return null;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_cargando) {
@@ -291,6 +377,7 @@ class _VerEditarMesasPageState extends State<VerEditarMesasPage> {
                                   setState(() {});
                                 },
                                 onEliminar: () => _eliminarMesa(mesa),
+                                onVerQr: () => _mostrarQrMesa(mesa),
                               ),
                             );
                           },
@@ -314,6 +401,7 @@ class _MesaEditorCard extends StatelessWidget {
     required this.onEditar,
     required this.onCancelar,
     required this.onEliminar,
+    required this.onVerQr,
   });
 
   final _MesaDraft mesa;
@@ -324,6 +412,7 @@ class _MesaEditorCard extends StatelessWidget {
   final VoidCallback onEditar;
   final VoidCallback onCancelar;
   final VoidCallback onEliminar;
+  final VoidCallback onVerQr;
 
   @override
   Widget build(BuildContext context) {
@@ -410,6 +499,22 @@ class _MesaEditorCard extends StatelessWidget {
                       icon: const Icon(Icons.close, size: 22),
                       label: const Text('Cancelar'),
                     ),
+                  const SizedBox(width: 8),
+                  IconButton(
+                    onPressed:
+                        mesa.guardando || mesa.eliminando ? null : onVerQr,
+                    tooltip: 'Ver QR de mesa',
+                    style: IconButton.styleFrom(
+                      backgroundColor: const Color(0xFFE9EFFA),
+                      minimumSize: const Size(56, 56),
+                      padding: const EdgeInsets.all(14),
+                    ),
+                    icon: const Icon(
+                      Icons.qr_code_2,
+                      size: 28,
+                      color: Color(0xFF1C4B8F),
+                    ),
+                  ),
                   const SizedBox(width: 8),
                   IconButton(
                     onPressed:
@@ -703,6 +808,7 @@ class _MesaDraft {
     required int cantidadLugares,
     required this.tipo,
     this.fotoUrl,
+    this.qrCodigo,
   }) : _originalNumero = numero,
        _originalLugares = cantidadLugares,
        _originalTipo = tipo,
@@ -718,11 +824,13 @@ class _MesaDraft {
       cantidadLugares: (data['cantidad_lugares'] as num).toInt(),
       tipo: data['tipo'] as String,
       fotoUrl: data['foto_url'] as String?,
+      qrCodigo: data['qr_codigo'] as String?,
     );
   }
 
   final String id;
   final String? fotoUrl;
+  final String? qrCodigo;
 
   final TextEditingController numeroController;
   final TextEditingController comensalesController;

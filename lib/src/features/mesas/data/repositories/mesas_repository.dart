@@ -62,7 +62,7 @@ class MesasRepository {
     return _service.getTablePhotoPublicUrl(path);
   }
 
-  Future<void> createTable({
+  Future<String> createTable({
     required int numeroMesa,
     required int cantidadComensales,
     required String tipoMesa,
@@ -83,6 +83,8 @@ class MesasRepository {
       'qr_codigo': qrCode,
       'ocupada': false,
     });
+
+    return qrCode;
   }
 
   Future<void> updateTable({
@@ -117,6 +119,35 @@ class MesasRepository {
   String _buildQrCode(int numeroMesa) {
     final ts = DateTime.now().millisecondsSinceEpoch;
     return 'MESA-$numeroMesa-$ts';
+  }
+
+  Future<Map<String, dynamic>> validarAccesoClientePorQrMesa(
+    String qrCodigo,
+  ) async {
+    final clienteId = _service.currentUserId;
+    if (clienteId == null) {
+      throw const MesasFlowException('No hay un usuario autenticado.');
+    }
+
+    final mesa = await _service.getMesaByQrCodigo(qrCodigo.trim());
+    if (mesa == null) {
+      throw const MesasFlowException('El QR no corresponde a una mesa válida.');
+    }
+
+    final clienteAsignado = mesa['cliente_id'] as String?;
+    if (clienteAsignado == null) {
+      throw const MesasFlowException(
+        'La mesa no tiene un cliente asignado. Solicita asignación al metre.',
+      );
+    }
+
+    if (clienteAsignado != clienteId) {
+      throw const MesasFlowException(
+        'No puedes ingresar con este QR. Esta mesa está asignada a otro cliente.',
+      );
+    }
+
+    return mesa;
   }
 
   // metre

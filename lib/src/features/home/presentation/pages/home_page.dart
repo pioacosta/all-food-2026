@@ -1,4 +1,5 @@
 import 'package:all_food/src/features/mesas/data/repositories/mesas_repository.dart';
+import 'package:all_food/src/features/mesas/presentation/pages/mesa_qr_scanner_page.dart';
 import 'package:flutter/material.dart';
 import 'package:all_food/src/features/home/data/repositories/home_repository.dart';
 import 'package:all_food/src/shared/errors/app_error_mapper.dart';
@@ -122,6 +123,8 @@ class _HomePageState extends State<HomePage> {
         _perfil == 'dueno' || _perfil == 'supervisor' || _perfil == 'metre';
     final puedeCrearProductos = _perfil == 'cocinero' || _perfil == 'cantinero';
     final esMetre = _perfil == 'metre';
+    final esCliente =
+        _perfil == 'cliente_registrado' || _perfil == 'cliente_anonimo';
 
     return Scaffold(
       appBar: AppBar(
@@ -257,6 +260,19 @@ class _HomePageState extends State<HomePage> {
                               Navigator.pushNamed(context, '/asignar-mesa');
                             },
                             child: const Text('Asignar mesa'),
+                          ),
+                        if (esCliente) const SizedBox(height: 12),
+                        if (esCliente)
+                          ElevatedButton.icon(
+                            onPressed: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (_) => const MesaQrScannerPage(),
+                                ),
+                              );
+                            },
+                            icon: const Icon(Icons.qr_code_scanner),
+                            label: const Text('Escanear QR de mesa'),
                           ),
                       ],
                     ),
