@@ -73,6 +73,8 @@ flutter run
 
 3. Funcionalidad "aceptar/rechazar clientes pendientes" para roles de dueño y supervisor. | Fecha de inicio de la tarea: 10/04/2026 | Fecha de finalización de la tarea: 10/04/2026
 
+4. Modulo de asignar mesa, creación del modulo en donde el metre tiene una lista de clientes aprobados y puede asignarle una mesa que no está en uso | Fecha de finalización de la tarea: 15/04/2026
+
 ---
 
 **Apellidos y nombres:** Bordón Luciano.
