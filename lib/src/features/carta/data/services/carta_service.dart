@@ -26,4 +26,15 @@ class CartaService {
     final data = await query.order('created_at', ascending: false);
     return List<Map<String, dynamic>>.from(data);
   }
+
+  /// Trae un producto por su ID.
+  Future<Map<String, dynamic>?> getProductoById(String id) async {
+    final data = await _client
+        .from('productos')
+        .select()
+        .eq('id', id)
+        .eq('habilitado', true)
+        .maybeSingle();
+    return data;
+  }
 }

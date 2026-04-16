@@ -22,4 +22,13 @@ class CartaRepository {
 
     return _service.getProductos(tipo: tipo, nombre: nombre);
   }
+
+  /// Devuelve un producto por ID. Lanza [CartaFlowException] si no existe.
+  Future<Map<String, dynamic>> getProductoById(String id) async {
+    final data = await _service.getProductoById(id);
+    if (data == null) {
+      throw const CartaFlowException('El producto no fue encontrado.');
+    }
+    return data;
+  }
 }

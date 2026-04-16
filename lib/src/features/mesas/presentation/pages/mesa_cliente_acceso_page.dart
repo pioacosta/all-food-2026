@@ -62,7 +62,7 @@ class MesaClienteAccesoPage extends StatelessWidget {
                   onTap:
                       () => Navigator.pushNamed(
                         context,
-                        '/carta',
+                        '/carta-cliente',
                         arguments: 'plato',
                       ),
                 ),
@@ -75,7 +75,7 @@ class MesaClienteAccesoPage extends StatelessWidget {
                   onTap:
                       () => Navigator.pushNamed(
                         context,
-                        '/carta',
+                        '/carta-cliente',
                         arguments: 'bebida',
                       ),
                 ),
