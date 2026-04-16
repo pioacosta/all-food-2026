@@ -1,4 +1,4 @@
-import 'package:all_food/src/features/staff/data/repositories/staff_repository.dart';
+import 'package:all_food/src/features/clientes/data/repository/cliente_repository.dart';
 import 'package:all_food/src/shared/widgets/logo_spinner.dart';
 import 'package:flutter/material.dart';
 
@@ -12,7 +12,7 @@ class ClientesPendientesPage extends StatefulWidget {
 }
 
 class _ClientesPendientesPageState extends State<ClientesPendientesPage> {
-  final _staffRepository = StaffRepository();
+  final _clienteRepository = ClientesRepository();
 
   bool _cargando = true;
   bool _puedeGestionarClientes = false;
@@ -38,7 +38,8 @@ class _ClientesPendientesPageState extends State<ClientesPendientesPage> {
       return;
     }
     try {
-      final autorizado = await _staffRepository.canCurrentUserCreateEmployees();
+      final autorizado =
+          await _clienteRepository.canCurrentUserCreateClients();
       if (!mounted) return;
       if (!autorizado) {
         setState(() {
@@ -47,7 +48,7 @@ class _ClientesPendientesPageState extends State<ClientesPendientesPage> {
         });
         return;
       }
-      final clientes = await _staffRepository.pendingClients();
+      final clientes = await _clienteRepository.getPendingClients();
       if (!mounted) return;
       setState(() {
         _cargando = false;
@@ -61,7 +62,7 @@ class _ClientesPendientesPageState extends State<ClientesPendientesPage> {
   }
 
   Future<void> _recargar() async {
-    final clientes = await _staffRepository.pendingClients();
+    final clientes = await _clienteRepository.getPendingClients();
     if (!mounted) return;
     setState(() {
       _clientes = clientes;
@@ -91,7 +92,7 @@ class _ClientesPendientesPageState extends State<ClientesPendientesPage> {
 
   Future<void> _aprobar(Map<String, dynamic> cliente) async {
     try {
-      await _staffRepository.approveClient(cliente['id']);
+      await _clienteRepository.approveClient(cliente['id']);
       _mostrarMensaje(
         'Cliente ${cliente['nombres']} aprobado correctamente.',
         esError: false,
@@ -104,7 +105,7 @@ class _ClientesPendientesPageState extends State<ClientesPendientesPage> {
 
   Future<void> _rechazar(Map<String, dynamic> cliente) async {
     try {
-      await _staffRepository.rejectClient(cliente['id']);
+      await _clienteRepository.rejectClient(cliente['id']);
       _mostrarMensaje(
         'Cliente ${cliente['nombres']} rechazado.',
         esError: true,
@@ -466,7 +467,7 @@ class _ClienteSwipeCardState extends State<_ClienteSwipeCard>
                       child: Container(
                         decoration: BoxDecoration(
                           color: const Color(0xFF639922)
-                              .withOpacity(0.08),
+                              .withValues(alpha: 0.08),
                           borderRadius: BorderRadius.circular(24),
                           border: Border.all(
                               color: const Color(0xFF639922),
@@ -497,7 +498,7 @@ class _ClienteSwipeCardState extends State<_ClienteSwipeCard>
                       child: Container(
                         decoration: BoxDecoration(
                           color: const Color(0xFFE24B4A)
-                              .withOpacity(0.08),
+                              .withValues(alpha: 0.08),
                           borderRadius: BorderRadius.circular(24),
                           border: Border.all(
                               color: const Color(0xFFE24B4A),
@@ -551,7 +552,7 @@ class _BigActionButton extends StatelessWidget {
         decoration: BoxDecoration(
           color: backgroundColor,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: color.withOpacity(0.4), width: 1.5),
+          border: Border.all(color: color.withValues(alpha: 0.4), width: 1.5),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,

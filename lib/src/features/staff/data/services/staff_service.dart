@@ -65,23 +65,4 @@ class StaffService {
     }
   }
 
-  // Logica para aceptar clientes.
-  Future<List<Map<String, dynamic>>> getPendingClients() async {
-    final response = await _client
-        .from('perfiles')
-        .select()
-        .eq('estado_registro', 'pendiente_aprobacion')
-        .eq('perfil', 'cliente_registrado');
-
-    return List<Map<String, dynamic>>.from(response);
-  }
-
-  Future<void> updateClientStatus(String userId, String status, {bool? habilitado}) {
-    final data = <String, dynamic>{'estado_registro': status};
-    if (habilitado != null) data['habilitado'] = habilitado;
-    return _client
-        .from('perfiles')
-        .update(data)
-        .eq('id', userId);
-  }
 }

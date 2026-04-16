@@ -1,13 +1,14 @@
 import 'dart:io';
 import 'package:all_food/src/features/auth/widgets/auth_background.dart';
 import 'package:all_food/src/features/auth/widgets/auth_card.dart';
+import 'package:all_food/src/shared/dni_qr/dni_qr_data.dart';
+import 'package:all_food/src/shared/dni_qr/dni_qr_scanner_page.dart';
 import 'package:all_food/src/shared/errors/app_error_mapper.dart';
 import 'package:all_food/src/shared/widgets/logo_spinner.dart';
 import 'package:all_food/src/features/auth/data/repositories/auth_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:mobile_scanner/mobile_scanner.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({required this.supabaseReady, super.key});
@@ -157,28 +158,17 @@ class _RegisterPageState extends State<RegisterPage> {
 
   // Abre scanner QR/PDF417 para autocompletar datos del DNI.
   Future<void> _abrirLectorQrDni() async {
-    final resultado = await Navigator.of(context).push<_DniQrData>(
-      MaterialPageRoute(builder: (_) => const _DniQrScannerPage()),
+    final resultado = await Navigator.of(context).push<DniQrData>(
+      MaterialPageRoute(builder: (_) => const DniQrScannerPage()),
     );
 
     if (!mounted || resultado == null) return;
 
-    if (resultado.apellido != null && resultado.apellido!.trim().isNotEmpty) {
-      _apellidoController.text = resultado.apellido!.trim();
-    }
+    _apellidoController.text = resultado.apellido ?? '';
+    _nombreController.text = resultado.nombre ?? '';
+    _dniController.text = resultado.dni ?? '';
 
-    if (resultado.nombre != null && resultado.nombre!.trim().isNotEmpty) {
-      _nombreController.text = resultado.nombre!.trim();
-    }
-
-    if (resultado.dni != null && resultado.dni!.trim().isNotEmpty) {
-      _dniController.text = resultado.dni!.trim();
-    }
-
-    _mostrarMensaje(
-      'Lectura de QR de DNI verificada y aplicada.',
-      esError: false,
-    );
+    _mostrarMensaje('QR aplicado correctamente', esError: false);
   }
 
   void _mostrarMensaje(String mensaje, {required bool esError}) {
@@ -513,146 +503,4 @@ class _RegisterPageState extends State<RegisterPage> {
       ),
     );
   }
-}
-
-class _DniQrScannerPage extends StatefulWidget {
-  const _DniQrScannerPage();
-
-  @override
-  State<_DniQrScannerPage> createState() => _DniQrScannerPageState();
-}
-
-class _DniQrScannerPageState extends State<_DniQrScannerPage> {
-  final MobileScannerController _controller = MobileScannerController(
-    formats: [BarcodeFormat.qrCode, BarcodeFormat.pdf417],
-  );
-
-  bool _leyendo = false;
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  Future<void> _onDetect(BarcodeCapture capture) async {
-    if (_leyendo) return;
-
-    final barcode = capture.barcodes.isNotEmpty ? capture.barcodes.first : null;
-    final raw = barcode?.rawValue?.trim();
-
-    if (raw == null || raw.isEmpty) return;
-
-    _leyendo = true;
-
-    final data = _parsearQrDni(raw);
-
-    if (data.dni == null) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context)
-        ..clearSnackBars()
-        ..showSnackBar(
-          const SnackBar(
-            content: Text(
-              'QR leído, pero no se pudo identificar un DNI válido.',
-            ),
-            backgroundColor: Color(0xFF992E2E),
-          ),
-        );
-      _leyendo = false;
-      return;
-    }
-
-    if (!mounted) return;
-
-    Navigator.of(context).pop(data);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Escanear QR del DNI')),
-      body: Stack(
-        children: [
-          MobileScanner(controller: _controller, onDetect: _onDetect),
-          Positioned.fill(
-            child: IgnorePointer(
-              child: Center(
-                child: Container(
-                  width: 280,
-                  height: 160,
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.white, width: 2),
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                ),
-              ),
-            ),
-          ),
-          const Positioned(
-            left: 16,
-            right: 16,
-            bottom: 24,
-            child: Text(
-              'Apunta al QR/PDF417 del DNI. Se completarán automáticamente los campos disponibles.',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.w600,
-                shadows: [Shadow(color: Colors.black, blurRadius: 6)],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _DniQrData {
-  const _DniQrData({this.nombre, this.apellido, this.dni});
-
-  final String? nombre;
-  final String? apellido;
-  final String? dni;
-}
-
-_DniQrData _parsearQrDni(String raw) {
-  final limpio = raw.replaceAll('\u0000', '').replaceAll('"', '').trim();
-
-  final separadorPrincipal =
-      limpio.contains('@') ? '@' : (limpio.contains('|') ? '|' : '\n');
-
-  final tokens =
-      limpio
-          .split(separadorPrincipal)
-          .map((t) => t.trim())
-          .where((t) => t.isNotEmpty)
-          .toList();
-
-  String? apellido;
-  String? nombre;
-  String? dni;
-
-  for (final token in tokens) {
-    if (dni == null && RegExp(r'^\d{7,8}$').hasMatch(token)) {
-      dni = token;
-      continue;
-    }
-  }
-
-  final letras =
-      tokens
-          .where((t) => RegExp(r'^[A-Za-zÁÉÍÓÚáéíóúÑñÜü ]{2,}$').hasMatch(t))
-          .toList();
-
-  if (letras.isNotEmpty) {
-    apellido = letras.first;
-  }
-
-  if (letras.length > 1) {
-    nombre = letras[1];
-  }
-
-  return _DniQrData(nombre: nombre, apellido: apellido, dni: dni);
 }

@@ -184,7 +184,7 @@ class _AsignarMesaPageState extends State<AsignarMesaPage> {
                           Container(
                             width: 32,
                             height: 2,
-                            color: Colors.white.withOpacity(0.3),
+                            color: Colors.white.withValues(alpha: 0.3),
                           ),
                           Expanded(
                             child: _PasoIndicador(
@@ -259,10 +259,10 @@ class _AsignarMesaPageState extends State<AsignarMesaPage> {
                             vertical: 10,
                           ),
                           decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.12),
+                            color: Colors.white.withValues(alpha: 0.12),
                             borderRadius: BorderRadius.circular(14),
                             border: Border.all(
-                              color: Colors.white.withOpacity(0.2),
+                              color: Colors.white.withValues(alpha: 0.2),
                             ),
                           ),
                           child: Row(
@@ -322,7 +322,7 @@ class _AsignarMesaPageState extends State<AsignarMesaPage> {
                             color:
                                 _botonHabilitado
                                     ? Colors.white
-                                    : Colors.white.withOpacity(0.25),
+                                    : Colors.white.withValues(alpha: 0.25),
                             borderRadius: BorderRadius.circular(16),
                           ),
                           child: Center(
@@ -445,7 +445,7 @@ class _ListaPaginada extends StatelessWidget {
                       vertical: 4,
                     ),
                     decoration: BoxDecoration(
-                      color: Colors.black.withOpacity(0.25),
+                      color: Colors.black.withValues(alpha: 0.25),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Row(
@@ -512,22 +512,20 @@ class _ClienteCard extends StatelessWidget {
             final tagFontSize = (alto * 0.10).clamp(12.0, 12.0);
 
             return Stack(
-              // Usamos Stack para posicionar la etiqueta libremente
               children: [
-                // Contenido Principal (Exactamente igual a tu diseño original)
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment:
                         CrossAxisAlignment
-                            .center, // Mantenemos el centrado vertical
+                            .center, 
                     children: [
                       CircleAvatar(
                         radius: avatarRadius,
                         backgroundColor:
                             seleccionado
-                                ? const Color(0xFF5B1718).withOpacity(0.1)
+                                ? const Color(0xFF5B1718).withValues(alpha: 0.1)
                                 : Colors.grey.shade100,
                         backgroundImage:
                             cliente['foto_url'] != null
@@ -600,7 +598,6 @@ class _ClienteCard extends StatelessWidget {
                   ),
                 ),
 
-                // Etiqueta posicionada arriba a la derecha
                 Positioned(
                   top: 12,
                   right: 16,
@@ -613,13 +610,13 @@ class _ClienteCard extends StatelessWidget {
                       color:
                           esAnonimo
                               ? Colors.grey.shade100
-                              : const Color(0xFF5B1718).withOpacity(0.08),
+                              : const Color(0xFF5B1718).withValues(alpha: 0.08),
                       borderRadius: BorderRadius.circular(6),
                       border: Border.all(
                         color:
                             esAnonimo
                                 ? Colors.grey.shade300
-                                : const Color(0xFF5B1718).withOpacity(0.2),
+                                : const Color(0xFF5B1718).withValues(alpha: 0.2),
                       ),
                     ),
                     child: Text(
@@ -688,7 +685,7 @@ class _MesaCard extends StatelessWidget {
                     decoration: BoxDecoration(
                       color:
                           seleccionado
-                              ? Colors.white.withOpacity(0.15)
+                              ? Colors.white.withValues(alpha: 0.15)
                               : Colors.grey.shade100,
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -777,13 +774,13 @@ class _PasoIndicador extends StatelessWidget {
                   completo
                       ? Colors.white
                       : activo
-                      ? Colors.white.withOpacity(0.3)
-                      : Colors.white.withOpacity(0.1),
+                      ? Colors.white.withValues(alpha: 0.3)
+                      : Colors.white.withValues(alpha: 0.1),
               border: Border.all(
                 color:
                     activo || completo
                         ? Colors.white
-                        : Colors.white.withOpacity(0.3),
+                        : Colors.white.withValues(alpha: 0.3),
                 width: 2,
               ),
             ),

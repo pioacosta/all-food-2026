@@ -1,4 +1,4 @@
-import 'package:all_food/src/features/mesas/data/repositories/mesas_repository.dart';
+// import 'package:all_food/src/features/mesas/data/repositories/mesas_repository.dart';
 import 'package:all_food/src/features/mesas/presentation/pages/mesa_qr_scanner_page.dart';
 import 'package:flutter/material.dart';
 import 'package:all_food/src/features/home/data/repositories/home_repository.dart';
@@ -20,15 +20,15 @@ class _HomePageState extends State<HomePage> {
   bool _cargandoPerfil = true;
   String? _perfil;
   final _homeRepository = HomeRepository();
-  final _mesasRepository = MesasRepository();
+  // final _mesasRepository = MesasRepository();
 
-  List<Map<String, dynamic>> _mesasOcupadas = [];
+  // List<Map<String, dynamic>> _mesasOcupadas = [];
 
   @override
   void initState() {
     super.initState();
     _cargarPerfil();
-    _cargarMesasOcupadas();
+    // _cargarMesasOcupadas();
   }
 
   Future<void> _cargarPerfil() async {
@@ -56,19 +56,19 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  Future<void> _cargarMesasOcupadas() async {
-    try {
-      final mesas = await _mesasRepository.getMesasOcupadas();
+  // Future<void> _cargarMesasOcupadas() async {
+  //   try {
+  //     final mesas = await _mesasRepository.getMesasOcupadas();
 
-      if (!mounted) return;
+  //     if (!mounted) return;
 
-      setState(() {
-        _mesasOcupadas = mesas;
-      });
-    } catch (_) {
-      // opcional: mostrar error
-    }
-  }
+  //     setState(() {
+  //       _mesasOcupadas = mesas;
+  //     });
+  //   } catch (_) {
+  //     // opcional: mostrar error
+  //   }
+  // }
 
   Future<void> _cerrarSesion() async {
     if (_cerrandoSesion) return;
@@ -204,37 +204,37 @@ class _HomePageState extends State<HomePage> {
                             },
                             child: const Text('Crear mesa'),
                           ),
-                        if (_perfil == 'metre') ...[
-                          const SizedBox(height: 16),
+                        // if (_perfil == 'metre') ...[
+                        //   const SizedBox(height: 16),
 
-                          const Text(
-                            'Mesas ocupadas',
-                            style: TextStyle(color: Colors.white),
-                          ),
+                        //   const Text(
+                        //     'Mesas ocupadas',
+                        //     style: TextStyle(color: Colors.white),
+                        //   ),
 
-                          const SizedBox(height: 8),
+                        //   const SizedBox(height: 8),
 
-                          if (_mesasOcupadas.isEmpty)
-                            const Text(
-                              'No hay mesas ocupadas',
-                              style: TextStyle(color: Colors.white70),
-                            ),
+                          // if (_mesasOcupadas.isEmpty)
+                          //   const Text(
+                          //     'No hay mesas ocupadas',
+                          //     style: TextStyle(color: Colors.white70),
+                          //   ),
 
-                          ..._mesasOcupadas.map((mesa) {
-                            final cliente = mesa['perfiles'];
+                          // ..._mesasOcupadas.map((mesa) {
+                          //   final cliente = mesa['perfiles'];
 
-                            return ListTile(
-                              title: Text(
-                                'Mesa ${mesa['numero']}',
-                                style: const TextStyle(color: Colors.white),
-                              ),
-                              subtitle: Text(
-                                '${cliente['nombres']} ${cliente['apellidos']}',
-                                style: const TextStyle(color: Colors.white70),
-                              ),
-                            );
-                          }),
-                        ],
+                          //   return ListTile(
+                          //     title: Text(
+                          //       'Mesa ${mesa['numero']}',
+                          //       style: const TextStyle(color: Colors.white),
+                          //     ),
+                          //     subtitle: Text(
+                          //       '${cliente['nombres']} ${cliente['apellidos']}',
+                          //       style: const TextStyle(color: Colors.white70),
+                          //     ),
+                          //   );
+                          // }),
+                        // ],
                         if (puedeCrearEmpleados) const SizedBox(height: 12),
                         if (puedeGestionarMesas)
                           ElevatedButton(
@@ -260,6 +260,14 @@ class _HomePageState extends State<HomePage> {
                               Navigator.pushNamed(context, '/asignar-mesa');
                             },
                             child: const Text('Asignar mesa'),
+                          ),
+                          if(esMetre) const SizedBox(height: 12),
+                          if(esMetre)
+                          ElevatedButton(
+                            onPressed: () {
+                              Navigator.pushNamed(context, '/alta-clientes');
+                            },
+                            child: const Text('Alta cliente'),
                           ),
                         if (esCliente) const SizedBox(height: 12),
                         if (esCliente)
