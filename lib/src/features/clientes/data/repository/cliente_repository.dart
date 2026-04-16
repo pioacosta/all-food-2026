@@ -25,6 +25,17 @@ class ClientesRepository {
     return habilitado && rol == 'metre';
   }
 
+  Future<bool> canManageClients() async {
+    final userId = _service.currentUserId;
+    if (userId == null) return false;
+
+    final profile = await _service.getProfileById(userId);
+    final rol = (profile['perfil'] as String?) ?? '';
+    final habilitado = profile['habilitado'] == true;
+
+    return habilitado && (rol == 'dueno' || rol == 'supervisor');
+  }
+
   Future<String> uploadClientPhoto(File foto) async {
     final uid = _service.currentUserId;
 

@@ -39,7 +39,7 @@ class _ClientesPendientesPageState extends State<ClientesPendientesPage> {
     }
     try {
       final autorizado =
-          await _clienteRepository.canCurrentUserCreateClients();
+          await _clienteRepository.canManageClients();
       if (!mounted) return;
       if (!autorizado) {
         setState(() {
