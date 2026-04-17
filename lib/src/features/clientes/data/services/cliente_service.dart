@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:all_food/src/shared/errors/app_exception.dart';
+import 'package:all_food/src/features/clientes/data/services/email_service.dart';
 
 class ClientesServiceException extends AppException {
   const ClientesServiceException(super.message);
@@ -35,9 +36,7 @@ class ClientesService {
   }
 
   // ─────────────── EDGE FUNCTION ───────────────
-  Future<void> createClientViaEdgeFunction(
-    Map<String, dynamic> params,
-  ) async {
+  Future<void> createClientViaEdgeFunction(Map<String, dynamic> params) async {
     final response = await _client.functions.invoke(
       'crear-cliente-metre',
       body: params,
@@ -65,13 +64,24 @@ class ClientesService {
     String userId,
     String status, {
     bool? habilitado,
-  }) {
+    String? correo,
+    String? nombres,           // ✅ eliminado el "required nombre" sin tipo
+  }) async {
     final data = <String, dynamic>{'estado_registro': status};
 
     if (habilitado != null) {
       data['habilitado'] = habilitado;
     }
 
-    return _client.from('perfiles').update(data).eq('id', userId);
+    await _client.from('perfiles').update(data).eq('id', userId);
+
+    // Enviar email si tenemos los datos
+    if (correo != null && nombres != null) {
+      await EmailService.enviarEstadoCuenta(
+        email: correo,
+        nombre: nombres,
+        estado: status,
+      );
+    }
   }
 }

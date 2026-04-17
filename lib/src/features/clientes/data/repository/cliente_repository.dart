@@ -79,11 +79,23 @@ class ClientesRepository {
     return _service.getPendingClients();
   }
 
-  Future<void> approveClient(String userId) {
-    return _service.updateClientStatus(userId, 'aprobado', habilitado: true);
-  }
+Future<void> approveClient(Map<String, dynamic> cliente) {
+  return _service.updateClientStatus(
+    cliente['id'],
+    'aprobado',
+    habilitado: true,
+    correo: cliente['correo'],
+    nombres: cliente['nombres'],
+  );
+}
 
-  Future<void> rejectClient(String userId) {
-    return _service.updateClientStatus(userId, 'rechazado', habilitado: false);
-  }
+Future<void> rejectClient(Map<String, dynamic> cliente) {
+  return _service.updateClientStatus(
+    cliente['id'],
+    'rechazado',
+    habilitado: false,
+    correo: cliente['correo'],
+    nombres: cliente['nombres'],
+  );
+}
 }

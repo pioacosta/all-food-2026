@@ -90,31 +90,31 @@ class _ClientesPendientesPageState extends State<ClientesPendientesPage> {
       );
   }
 
-  Future<void> _aprobar(Map<String, dynamic> cliente) async {
-    try {
-      await _clienteRepository.approveClient(cliente['id']);
-      _mostrarMensaje(
-        'Cliente ${cliente['nombres']} aprobado correctamente.',
-        esError: false,
-      );
-      await _recargar();
-    } catch (e) {
-      _mostrarMensaje('Error al aprobar: $e', esError: true);
-    }
+Future<void> _aprobar(Map<String, dynamic> cliente) async {
+  try {
+    await _clienteRepository.approveClient(cliente); // 👈 pasás el cliente completo
+    _mostrarMensaje(
+      'Cliente ${cliente['nombres']} aprobado correctamente.',
+      esError: false,
+    );
+    await _recargar();
+  } catch (e) {
+    _mostrarMensaje('Error al aprobar: $e', esError: true);
   }
+}
 
-  Future<void> _rechazar(Map<String, dynamic> cliente) async {
-    try {
-      await _clienteRepository.rejectClient(cliente['id']);
-      _mostrarMensaje(
-        'Cliente ${cliente['nombres']} rechazado.',
-        esError: true,
-      );
-      await _recargar();
-    } catch (e) {
-      _mostrarMensaje('Error al rechazar: $e', esError: true);
-    }
+Future<void> _rechazar(Map<String, dynamic> cliente) async {
+  try {
+    await _clienteRepository.rejectClient(cliente); // 👈 pasás el cliente completo
+    _mostrarMensaje(
+      'Cliente ${cliente['nombres']} rechazado.',
+      esError: true,
+    );
+    await _recargar();
+  } catch (e) {
+    _mostrarMensaje('Error al rechazar: $e', esError: true);
   }
+}
 
   @override
   Widget build(BuildContext context) {

@@ -1,6 +1,7 @@
+![Logo](./assets/images/logo.png)
 # All Food
-
 Aplicación móvil para la gestión de restaurante.
+
 
 ## Stack tecnológico
 
@@ -90,3 +91,5 @@ flutter run
 3. Implementación de carta para cantinero y cocinero junto con su detalle de producto, incluyendo modelos, repositorio y servicios. | Fecha de inicio de la tarea: 13/04/2026 | Fecha de finalización de la tarea: 14/04/2026
 
 4. Se implemento la carta de cliente donde podra realizar pedidos | Fecha de inicio de la tarea: 15/04/2026 | Fecha de finalización de la tarea: 15/04/2026
+
+5. Implementación de lógica para el envío automático de correos electrónicos al aceptar o rechazar una cuenta con perfil de dueño o supervisor. | Fecha de inicio de la tarea: 16/04/2026 | Fecha de finalización de la tarea: 16/04/2026
