@@ -1,6 +1,7 @@
 import 'package:all_food/src/features/carta/presentation/pages/carta_cliente.dart';
 import 'package:all_food/src/features/carta/presentation/pages/carta_page.dart';
 import 'package:all_food/src/features/clientes/presentation/pages/alta_clientes_page.dart';
+import 'package:all_food/src/features/consultas/presentation/pages/consultas_page.dart';
 import 'package:all_food/src/features/mesas/presentation/pages/asignar_mesa.dart';
 import 'package:all_food/src/features/pedidos/presentation/pages/cliente_pedido_page.dart';
 import 'package:all_food/src/features/pedidos/presentation/pages/pedidos_mozo_page.dart';
@@ -8,7 +9,6 @@ import 'package:all_food/src/features/pedidos/presentation/pages/pedidos_sector_
 import 'package:all_food/src/features/staff/presentation/pages/alta_empleado_page.dart';
 import 'package:all_food/src/features/clientes/presentation/pages/clientes_pendientes_page.dart';
 import 'package:all_food/src/features/mesas/presentation/pages/crear_mesa_page.dart';
-import 'package:all_food/src/features/mesas/presentation/pages/chat_mozo_page.dart';
 import 'package:all_food/src/features/mesas/presentation/pages/ver_editar_mesas_page.dart';
 import 'package:all_food/src/shared/widgets/logo_loader.dart';
 import 'package:flutter/material.dart';
@@ -115,7 +115,6 @@ class AllFoodApp extends StatelessWidget {
         },
 
         '/pedidos-mozo': (_) => const PedidosMozoPage(),
-        '/chat-mozo': (_) => const ChatMozoPage(),
         '/pedidos-cocina': (_) => const PedidosSectorPage(sector: 'cocina'),
         '/pedidos-bar': (_) => const PedidosSectorPage(sector: 'bar'),
 
@@ -132,6 +131,8 @@ class AllFoodApp extends StatelessWidget {
             (_) => ClientesPendientesPage(supabaseReady: supabaseReady),
 
         '/alta-clientes': (_) => AltaClientePage(supabaseReady: supabaseReady),
+
+        '/consultas': (_) => ConsultasPage(supabaseReady: supabaseReady),
 
         '/login':
             (_) => LoginPage(

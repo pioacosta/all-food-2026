@@ -14,8 +14,13 @@ class AppErrorMapper {
 
     // Errores de autenticacion de Supabase.
     if (error is AuthException) {
-      final detail = error.message.trim();
-      return detail.isEmpty ? fallbackMessage : detail;
+      final message = error.message.toLowerCase();
+      // Personalización del mensaje del Bug 1
+      if (message.contains('already registered') ||
+          message.contains('user_already_exists')) {
+        return 'Este correo electrónico ya se encuentra registrado.';
+      }
+      return error.message;
     }
 
     // Errores de base de datos (queries/RPC).

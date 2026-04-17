@@ -127,6 +127,17 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   onTap: () => Navigator.of(context).pop('cliente'),
                 ),
+                ListTile(
+                  leading: const Icon(
+                    Icons.restaurant_menu_outlined,
+                    color: Colors.white,
+                  ),
+                  title: const Text(
+                    'Mozo',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  onTap: () => Navigator.of(context).pop('mozo'),
+                ),
               ],
             ),
           ),
@@ -151,6 +162,8 @@ class _LoginPageState extends State<LoginPage> {
       _completarIngresoRapidoMetre();
     } else if (perfil == 'cliente') {
       _completarIngresoRapidoCliente();
+    } else if (perfil == 'mozo') {
+      _completarIngresoRapidoMozo();
     }
   }
 
@@ -243,6 +256,12 @@ class _LoginPageState extends State<LoginPage> {
     // Precarga credenciales de prueba para agilizar demos/manual testing.
     _emailController.text = DemoAccounts.cocineroEmail;
     _passwordController.text = DemoAccounts.cocineroPassword;
+    setState(() {});
+  }
+
+  void _completarIngresoRapidoMozo(){
+    _emailController.text = DemoAccounts.mozoEmail;
+    _passwordController.text = DemoAccounts.mozoPassword;
     setState(() {});
   }
 

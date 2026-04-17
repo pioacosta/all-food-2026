@@ -31,6 +31,23 @@ class AuthRepository {
     required String password,
     required File foto,
   }) async {
+    
+    final existingData =
+        await Supabase.instance.client
+            .from('perfiles')
+            .select('dni, correo')
+            .or('dni.eq.$dni,correo.eq.$correo')
+            .maybeSingle();
+
+    if (existingData != null) {
+      if (existingData['dni'] == dni) {
+        throw const AuthFlowException('El DNI ya está registrado.');
+      }
+      if (existingData['correo'] == correo) {
+        throw const AuthFlowException('El correo ya está registrado.');
+      }
+    }
+
     // 1) Crear usuario en Supabase Auth.
     final response = await _service.signUp(email: correo, password: password);
     final user = response.user;

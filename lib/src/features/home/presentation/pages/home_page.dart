@@ -385,6 +385,15 @@ class _HomePageState extends State<HomePage> {
                             },
                             child: const Text('Chat con clientes'),
                           ),
+
+                        if (esMozo) const SizedBox(height: 12),
+                        if (esMozo)
+                          ElevatedButton(
+                            onPressed: () {
+                              Navigator.pushNamed(context, '/consultas');
+                            },
+                            child: const Text('Consultas'),
+                          ),
                         if (esCocinero) const SizedBox(height: 12),
                         if (esCocinero)
                           ElevatedButton(

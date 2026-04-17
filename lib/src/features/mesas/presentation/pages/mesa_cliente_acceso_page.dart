@@ -1,5 +1,6 @@
-import 'package:all_food/src/features/mesas/presentation/pages/consulta_mozo_page.dart';
+import 'package:all_food/src/features/chat/presentation/pages/chat_page.dart';
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class MesaClienteAccesoPage extends StatelessWidget {
   const MesaClienteAccesoPage({required this.mesa, super.key});
@@ -90,21 +91,26 @@ class MesaClienteAccesoPage extends StatelessWidget {
                 ),
                 const SizedBox(height: 10),
                 _AccesoCard(
-                  titulo: 'Chat con mozo',
-                  detalle:
-                      'Sala de conversación en tiempo real para consultas con el mozo.',
+                  titulo: 'Consulta al mozo',
+                  detalle: 'Realizar una consulta rápida al mozo.',
                   icono: Icons.support_agent,
-                  onTap:
-                      () => Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder:
-                              (_) => ConsultaMozoPage(
-                                mesaId: mesa['id'] as String,
-                                numeroMesa: (mesa['numero'] as num).toInt(),
-                              ),
-                        ),
+                  onTap: () {
+                    final clienteId =
+                        Supabase.instance.client.auth.currentUser!.id;
+
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder:
+                            (_) => ChatPage(
+                              mesaId: mesa['id'],
+                              clienteId: clienteId,
+                            ),
                       ),
+                    );
+                  },
                 ),
+
                 const SizedBox(height: 10),
                 _AccesoCard(
                   titulo: 'Estado de pedido y juegos',

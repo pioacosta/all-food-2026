@@ -6,12 +6,14 @@ class LogoSpinner extends StatelessWidget {
     this.size = 64,
     this.strokeWidth = 4,
     this.logoScale = 0.62,
+    this.color = Colors.white,
     super.key,
   });
 
   final double size;
   final double strokeWidth;
   final double logoScale;
+  final Color color;
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +29,7 @@ class LogoSpinner extends StatelessWidget {
             height: size,
             child: CircularProgressIndicator(
               strokeWidth: strokeWidth,
-              valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
+              valueColor: AlwaysStoppedAnimation<Color>(color),
             ),
           ),
           Container(

@@ -78,6 +78,10 @@ flutter run
 
 4. Modulo de asignar mesa, creación del modulo en donde el metre tiene una lista de clientes aprobados y puede asignarle una mesa que no está en uso | Fecha de finalización de la tarea: 15/04/2026
 
+6. Formulario de alta de clientes para el perfil metre | Fecha de inicio de la tarea: 16/04/2026 | Fecha de finalización de la tarea: 16/04/2026
+
+7. Implementacion de consultas por chat entre cliente y mozos | Fecha de inicio de la tarea: 16/04/2026 | Fecha de finalización de la tarea: 17/04/2026
+
 ---
 
 **Apellidos y nombres:** Bordón Luciano.

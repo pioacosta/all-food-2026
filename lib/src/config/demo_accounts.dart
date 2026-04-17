@@ -33,4 +33,9 @@ class DemoAccounts {
   static const clientePassword = 'Cliente123!';
   static const clienteNombres = 'Cliente';
   static const clienteApellidos = 'Test';
+
+  static const mozoEmail = 'mozo@allfood.app';
+  static const mozoPassword = 'Mozo123!';
+  static const mozoNombres = 'Mozo';
+  static const mozoApellidos = 'Restaurante';
 }
