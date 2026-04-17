@@ -439,6 +439,68 @@ class PedidosRepository {
     };
   }
 
+  Future<List<Map<String, dynamic>>> getSerieSatisfaccionDiaria({
+    int maxDias = 7,
+  }) async {
+    final encuestas = await _service.getEncuestas();
+    if (encuestas.isEmpty) return const [];
+
+    final agrupado = <String, Map<String, dynamic>>{};
+
+    for (final e in encuestas) {
+      final createdAt = DateTime.tryParse(e['created_at']?.toString() ?? '');
+      if (createdAt == null) continue;
+
+      final fechaLocal = createdAt.toLocal();
+      final key =
+          '${fechaLocal.year.toString().padLeft(4, '0')}-${fechaLocal.month.toString().padLeft(2, '0')}-${fechaLocal.day.toString().padLeft(2, '0')}';
+
+      final item = agrupado.putIfAbsent(
+        key,
+        () => {
+          'fecha': key,
+          'sumaComida': 0.0,
+          'sumaServicio': 0.0,
+          'cantidad': 0,
+        },
+      );
+
+      item['sumaComida'] =
+          ((item['sumaComida'] as num?) ?? 0).toDouble() +
+          ((e['puntuacion_comida'] as num?) ?? 0).toDouble();
+      item['sumaServicio'] =
+          ((item['sumaServicio'] as num?) ?? 0).toDouble() +
+          ((e['puntuacion_servicio'] as num?) ?? 0).toDouble();
+      item['cantidad'] = ((item['cantidad'] as num?) ?? 0).toInt() + 1;
+    }
+
+    final serie =
+        agrupado.values.map((item) {
+          final cantidad = ((item['cantidad'] as num?) ?? 0).toInt();
+          final comida =
+              cantidad == 0
+                  ? 0.0
+                  : ((item['sumaComida'] as num?) ?? 0).toDouble() / cantidad;
+          final servicio =
+              cantidad == 0
+                  ? 0.0
+                  : ((item['sumaServicio'] as num?) ?? 0).toDouble() / cantidad;
+
+          return <String, dynamic>{
+            'fecha': item['fecha'],
+            'comida': comida,
+            'servicio': servicio,
+          };
+        }).toList();
+
+    serie.sort(
+      (a, b) => (a['fecha'] as String).compareTo(b['fecha'] as String),
+    );
+    if (serie.length <= maxDias) return serie;
+
+    return serie.sublist(serie.length - maxDias);
+  }
+
   int _calcularTiempoTotal(List<Map<String, dynamic>> items) {
     var total = 0;
     for (final item in items) {
