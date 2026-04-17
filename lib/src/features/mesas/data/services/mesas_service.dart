@@ -83,6 +83,113 @@ class MesasService {
     return res;
   }
 
+  Future<Map<String, dynamic>?> getMesaByClienteId(String clienteId) async {
+    final res =
+        await _client
+            .from('mesas')
+            .select('id, numero, tipo, qr_codigo, cliente_id, ocupada')
+            .eq('cliente_id', clienteId)
+            .maybeSingle();
+
+    return res;
+  }
+
+  Future<Map<String, dynamic>> getProfileById(String userId) {
+    return _client
+        .from('perfiles')
+        .select('id, nombres, apellidos, perfil, correo, foto_url')
+        .eq('id', userId)
+        .single();
+  }
+
+  Future<Map<String, dynamic>?> getPendienteSolicitudMesaByCliente(
+    String clienteId,
+  ) async {
+    final res =
+        await _client
+            .from('solicitudes_mesa')
+            .select('id, estado, created_at, mesa_id')
+            .eq('cliente_id', clienteId)
+            .eq('estado', 'pendiente')
+            .order('created_at', ascending: false)
+            .limit(1)
+            .maybeSingle();
+
+    return res;
+  }
+
+  Future<void> createSolicitudMesa({
+    required String clienteId,
+    required String nombres,
+    required String? apellidos,
+    required String perfil,
+    required String? fotoUrl,
+  }) {
+    return _client.from('solicitudes_mesa').insert({
+      'cliente_id': clienteId,
+      'nombres_snapshot': nombres,
+      'apellidos_snapshot': apellidos,
+      'perfil_snapshot': perfil,
+      'foto_url_snapshot': fotoUrl,
+      'estado': 'pendiente',
+    });
+  }
+
+  Future<List<Map<String, dynamic>>> getClientesEnEspera() async {
+    final res = await _client
+        .from('solicitudes_mesa')
+        .select(
+          'id, cliente_id, nombres_snapshot, apellidos_snapshot, perfil_snapshot, foto_url_snapshot, created_at',
+        )
+        .eq('estado', 'pendiente')
+        .order('created_at');
+
+    return List<Map<String, dynamic>>.from(res);
+  }
+
+  Future<void> marcarSolicitudesAsignadas({
+    required String clienteId,
+    required String mesaId,
+  }) {
+    return _client
+        .from('solicitudes_mesa')
+        .update({'estado': 'asignada', 'mesa_id': mesaId})
+        .eq('cliente_id', clienteId)
+        .eq('estado', 'pendiente');
+  }
+
+  Future<void> crearConsultaMozo({
+    required String mesaId,
+    required String clienteId,
+    required int numeroMesa,
+    required String mensaje,
+  }) {
+    return _client.from('consultas_mozo').insert({
+      'mesa_id': mesaId,
+      'cliente_id': clienteId,
+      'numero_mesa': numeroMesa,
+      'mensaje': mensaje,
+      'estado': 'pendiente',
+    });
+  }
+
+  Future<List<Map<String, dynamic>>> getConsultasByClienteMesa({
+    required String mesaId,
+    required String clienteId,
+  }) async {
+    final res = await _client
+        .from('consultas_mozo')
+        .select(
+          'id, numero_mesa, mensaje, estado, respuesta_mensaje, created_at, respondido_at',
+        )
+        .eq('mesa_id', mesaId)
+        .eq('cliente_id', clienteId)
+        .order('created_at', ascending: false)
+        .limit(20);
+
+    return List<Map<String, dynamic>>.from(res);
+  }
+
   Future<void> updateTable({
     required String mesaId,
     required Map<String, dynamic> payload,

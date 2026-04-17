@@ -13,7 +13,6 @@ class DemoAccounts {
   static const cocineroNombres = 'Cocinero';
   static const cocineroApellidos = 'Restaurante';
 
-
   static const cantineroEmail = 'cantinero@allfood.app';
   static const cantineroPassword = 'Cantinero123!';
   static const cantineroNombres = 'Cantinero';
@@ -29,4 +28,9 @@ class DemoAccounts {
   static const metreNombres = 'Metre';
   static const metreApellidos = 'Restaurante';
 
+  // Cuenta de acceso rapido para pruebas de cliente registrado.
+  static const clienteEmail = 'cliente@allfood.app';
+  static const clientePassword = 'Cliente123!';
+  static const clienteNombres = 'Cliente';
+  static const clienteApellidos = 'Test';
 }

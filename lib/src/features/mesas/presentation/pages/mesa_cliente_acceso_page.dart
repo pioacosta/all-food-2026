@@ -1,3 +1,4 @@
+import 'package:all_food/src/features/mesas/presentation/pages/consulta_mozo_page.dart';
 import 'package:flutter/material.dart';
 
 class MesaClienteAccesoPage extends StatelessWidget {
@@ -80,12 +81,21 @@ class MesaClienteAccesoPage extends StatelessWidget {
                       ),
                 ),
                 const SizedBox(height: 10),
-                const _AccesoCard(
+                _AccesoCard(
                   titulo: 'Consulta al mozo',
                   detalle:
-                      'Habilitado al confirmar implementacion de chat/notificaciones.',
+                      'Envia consultas rapidas al mozo con fecha y hora de registro.',
                   icono: Icons.support_agent,
-                  habilitado: false,
+                  onTap:
+                      () => Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder:
+                              (_) => ConsultaMozoPage(
+                                mesaId: mesa['id'] as String,
+                                numeroMesa: (mesa['numero'] as num).toInt(),
+                              ),
+                        ),
+                      ),
                 ),
                 const SizedBox(height: 10),
                 const _AccesoCard(

@@ -1,6 +1,7 @@
 import 'package:all_food/src/features/mesas/data/repositories/mesas_repository.dart';
 import 'package:all_food/src/features/mesas/presentation/pages/mesa_cliente_acceso_page.dart';
 import 'package:all_food/src/shared/errors/app_error_mapper.dart';
+import 'package:all_food/src/shared/widgets/logo_spinner.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
@@ -91,7 +92,7 @@ class _MesaQrScannerPageState extends State<MesaQrScannerPage> {
             Container(
               color: Colors.black54,
               alignment: Alignment.center,
-              child: const CircularProgressIndicator(color: Colors.white),
+              child: const LogoSpinner(size: 72, strokeWidth: 4),
             ),
         ],
       ),

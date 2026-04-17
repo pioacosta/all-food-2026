@@ -150,6 +150,95 @@ class MesasRepository {
     return mesa;
   }
 
+  Future<Map<String, dynamic>> getEstadoMesaClienteActual() async {
+    final clienteId = _service.currentUserId;
+    if (clienteId == null) {
+      throw const MesasFlowException('No hay un usuario autenticado.');
+    }
+
+    final mesa = await _service.getMesaByClienteId(clienteId);
+    if (mesa != null) {
+      return {'estado': 'mesa_asignada', 'mesa': mesa};
+    }
+
+    final solicitud = await _service.getPendienteSolicitudMesaByCliente(
+      clienteId,
+    );
+    if (solicitud != null) {
+      return {'estado': 'esperando_metre', 'solicitud': solicitud};
+    }
+
+    return {'estado': 'sin_solicitud'};
+  }
+
+  Future<void> solicitarMesaClienteActual() async {
+    final clienteId = _service.currentUserId;
+    if (clienteId == null) {
+      throw const MesasFlowException('No hay un usuario autenticado.');
+    }
+
+    final mesa = await _service.getMesaByClienteId(clienteId);
+    if (mesa != null) {
+      throw const MesasFlowException('Ya tienes una mesa asignada.');
+    }
+
+    final pendiente = await _service.getPendienteSolicitudMesaByCliente(
+      clienteId,
+    );
+    if (pendiente != null) {
+      throw const MesasFlowException(
+        'Ya solicitaste una mesa. Espera la asignación del metre.',
+      );
+    }
+
+    final perfil = await _service.getProfileById(clienteId);
+
+    await _service.createSolicitudMesa(
+      clienteId: clienteId,
+      nombres: (perfil['nombres'] as String?) ?? 'Cliente',
+      apellidos: perfil['apellidos'] as String?,
+      perfil: (perfil['perfil'] as String?) ?? 'cliente_registrado',
+      fotoUrl: perfil['foto_url'] as String?,
+    );
+  }
+
+  Future<void> enviarConsultaRapidaMozo({
+    required String mesaId,
+    required int numeroMesa,
+    required String mensaje,
+  }) async {
+    final clienteId = _service.currentUserId;
+    if (clienteId == null) {
+      throw const MesasFlowException('No hay un usuario autenticado.');
+    }
+
+    final texto = mensaje.trim();
+    if (texto.isEmpty) {
+      throw const MesasFlowException('Debes ingresar una consulta.');
+    }
+
+    await _service.crearConsultaMozo(
+      mesaId: mesaId,
+      clienteId: clienteId,
+      numeroMesa: numeroMesa,
+      mensaje: texto,
+    );
+  }
+
+  Future<List<Map<String, dynamic>>> getConsultasRapidasDeMiMesa({
+    required String mesaId,
+  }) async {
+    final clienteId = _service.currentUserId;
+    if (clienteId == null) {
+      throw const MesasFlowException('No hay un usuario autenticado.');
+    }
+
+    return _service.getConsultasByClienteMesa(
+      mesaId: mesaId,
+      clienteId: clienteId,
+    );
+  }
+
   // metre
   Future<void> asignarMesa({required Map cliente, required Map mesa}) async {
     final puede = await canCurrentUserManageTables();
@@ -169,17 +258,30 @@ class MesasRepository {
     }
 
     await _service.asignarMesa(clienteId: cliente['id'], mesaId: mesa['id']);
+    await _service.marcarSolicitudesAsignadas(
+      clienteId: cliente['id'] as String,
+      mesaId: mesa['id'] as String,
+    );
   }
 
   Future<List<Map<String, dynamic>>> getClientesSinMesa() async {
-    final clientes = await _service.getClientesAprobados();
+    final clientesEnEspera = await _service.getClientesEnEspera();
 
-    final mesas = await _service.getMesas();
-
-    final ocupados =
-        mesas.map((m) => m['cliente_id']).where((id) => id != null).toSet();
-
-    return clientes.where((c) => !ocupados.contains(c['id'])).toList();
+    return clientesEnEspera
+        .map(
+          (solicitud) => <String, dynamic>{
+            'id': solicitud['cliente_id'],
+            'nombres': solicitud['nombres_snapshot'],
+            'apellidos': solicitud['apellidos_snapshot'],
+            'perfil': solicitud['perfil_snapshot'],
+            'foto_url': solicitud['foto_url_snapshot'],
+            'correo': null,
+            'dni': null,
+            'solicitud_id': solicitud['id'],
+            'created_at': solicitud['created_at'],
+          },
+        )
+        .toList();
   }
 
   Future<List<Map<String, dynamic>>> getMesasDisponibles() async {
