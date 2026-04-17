@@ -32,9 +32,11 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
   @override
   void initState() {
     super.initState();
+    // Al entrar, sincroniza el estado actual del pedido de la mesa.
     _cargar();
   }
 
+  // Carga pedido + ítems + tiempo estimado acumulado.
   Future<void> _cargar() async {
     setState(() => _cargando = true);
     try {
@@ -61,6 +63,7 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
     }
   }
 
+  // Abre carta por tipo y refresca para reflejar cambios de ítems.
   Future<void> _abrirCarta(String tipo) async {
     await Navigator.of(context).push(
       MaterialPageRoute(
@@ -75,6 +78,7 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
     await _cargar();
   }
 
+  // Incrementa/decrementa cantidad en un ítem del pedido actual.
   Future<void> _cambiarCantidad(Map<String, dynamic> item, int delta) async {
     final pedido = _pedido;
     if (pedido == null) return;
@@ -104,6 +108,7 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
     }
   }
 
+  // Envía el pedido para validación del mozo.
   Future<void> _enviarPedido() async {
     final pedido = _pedido;
     if (pedido == null) return;
@@ -131,6 +136,7 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
     }
   }
 
+  // Cliente confirma recepción luego de entrega del mozo.
   Future<void> _confirmarRecepcion() async {
     final pedido = _pedido;
     if (pedido == null) return;
@@ -155,6 +161,7 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
     }
   }
 
+  // Cliente solicita cuenta al mozo (paso previo al pago simulado).
   Future<void> _solicitarCuenta() async {
     final pedido = _pedido;
     if (pedido == null) return;
@@ -179,6 +186,7 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
     }
   }
 
+  // Simula escaneo de QR de propina con opciones cerradas por consigna.
   Future<void> _simularPagoConPropina() async {
     final pedido = _pedido;
     if (pedido == null) return;
@@ -243,6 +251,7 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
     }
   }
 
+  // Muestra desglose completo de cuenta: ítems, descuento, propina y total.
   Future<void> _mostrarDetalleCuenta() async {
     setState(() => _procesando = true);
     try {

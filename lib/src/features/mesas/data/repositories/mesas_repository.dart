@@ -8,7 +8,8 @@ class MesasFlowException extends AppException {
   const MesasFlowException(super.message);
 }
 
-// Reglas de negocio para crear mesas.
+// Reglas de negocio de mesas y atención en salón.
+// Este repositorio aplica validaciones de permisos, estados y notificaciones.
 class MesasRepository {
   MesasRepository({MesasService? service})
     : _service = service ?? MesasService();
@@ -16,6 +17,7 @@ class MesasRepository {
   final MesasService _service;
   final NotificacionesService _notificacionesService = NotificacionesService();
 
+  // ----- Permisos por rol -----
   Future<bool> canCurrentUserCreateTables() async {
     final profile = await _service.getCurrentUserProfile();
     final rol = (profile['perfil'] as String?) ?? '';
@@ -126,6 +128,7 @@ class MesasRepository {
   Future<Map<String, dynamic>> validarAccesoClientePorQrMesa(
     String qrCodigo,
   ) async {
+    // El cliente solo puede operar sobre su mesa asignada por el metre.
     final clienteId = _service.currentUserId;
     if (clienteId == null) {
       throw const MesasFlowException('No hay un usuario autenticado.');
@@ -415,6 +418,7 @@ class MesasRepository {
     String? referenciaId,
     Map<String, dynamic>? payload,
   }) async {
+    // Helper central para no duplicar resolución de destinatarios por perfil.
     final destinatarios = await _notificacionesService.getUserIdsByPerfiles(
       perfiles,
     );

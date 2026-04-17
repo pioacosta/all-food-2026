@@ -2,7 +2,8 @@ import 'dart:io';
 
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-// Capa de acceso a datos para alta y validacion de mesas.
+// Capa de acceso a datos para mesas.
+// Incluye CRUD de mesas, lista de espera, consulta rápida y chat cliente-mozo.
 class MesasService {
   MesasService({SupabaseClient? client})
     : _client = client ?? Supabase.instance.client;
@@ -24,6 +25,7 @@ class MesasService {
         .single();
   }
 
+  // ----- Mesas (ABM) -----
   Future<bool> tableNumberExists(int numeroMesa) async {
     final response = await _client
         .from('mesas')
@@ -102,6 +104,7 @@ class MesasService {
         .single();
   }
 
+  // ----- Lista de espera y asignación -----
   Future<Map<String, dynamic>?> getPendienteSolicitudMesaByCliente(
     String clienteId,
   ) async {
@@ -158,6 +161,7 @@ class MesasService {
         .eq('estado', 'pendiente');
   }
 
+  // ----- Consulta rápida (punto 11) -----
   Future<void> crearConsultaMozo({
     required String mesaId,
     required String clienteId,
@@ -190,6 +194,7 @@ class MesasService {
     return List<Map<String, dynamic>>.from(res);
   }
 
+  // ----- Chat cliente-mozo (punto 11) -----
   Future<List<Map<String, dynamic>>> getMensajesChatMesa({
     required String mesaId,
     String? clienteId,
@@ -240,6 +245,7 @@ class MesasService {
 
     final rows = List<Map<String, dynamic>>.from(res);
     final uniqueByMesa = <String, Map<String, dynamic>>{};
+    // Conserva el último mensaje por mesa para mostrar la bandeja de chats del mozo.
     for (final row in rows) {
       final mesaId = row['mesa_id'] as String?;
       if (mesaId == null || uniqueByMesa.containsKey(mesaId)) continue;
@@ -260,7 +266,7 @@ class MesasService {
     return _client.from('mesas').delete().eq('id', mesaId);
   }
 
-  // METRE
+  // ----- Operación de metre -----
   Future<List<Map<String, dynamic>>> getClientesSinMesa() async {
     final res = await _client
         .from('perfiles')

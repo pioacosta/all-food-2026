@@ -1,5 +1,7 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+// Servicio transversal para notificaciones internas en tiempo real.
+// Inserta eventos en la tabla `notificaciones` y los clientes escuchan por Realtime.
 class NotificacionesService {
   NotificacionesService({SupabaseClient? client})
     : _client = client ?? Supabase.instance.client;
@@ -8,6 +10,7 @@ class NotificacionesService {
 
   String? get currentUserId => _client.auth.currentUser?.id;
 
+  // Resuelve destinatarios por perfil de negocio (mozo, metre, dueno, etc.).
   Future<List<String>> getUserIdsByPerfiles(List<String> perfiles) async {
     if (perfiles.isEmpty) return const [];
 
@@ -30,6 +33,7 @@ class NotificacionesService {
     String? referenciaId,
     Map<String, dynamic>? payload,
   }) async {
+    // Si no hay sesión o no hay destinatarios, no se emite notificación.
     final emisorId = currentUserId;
     if (emisorId == null || destinatarios.isEmpty) return;
 

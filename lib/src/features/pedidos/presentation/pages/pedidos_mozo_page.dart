@@ -22,9 +22,11 @@ class _PedidosMozoPageState extends State<PedidosMozoPage> {
   @override
   void initState() {
     super.initState();
+    // Carga las tres bandejas operativas del mozo.
     _cargar();
   }
 
+  // Sincroniza pedidos pendientes, listos para entregar y pagos pendientes.
   Future<void> _cargar() async {
     setState(() => _cargando = true);
     try {
@@ -51,6 +53,7 @@ class _PedidosMozoPageState extends State<PedidosMozoPage> {
     }
   }
 
+  // Confirmación inicial del mozo para derivar pedido a sectores.
   Future<void> _confirmarPedido(String pedidoId) async {
     setState(() => _procesando = true);
     try {
@@ -75,6 +78,7 @@ class _PedidosMozoPageState extends State<PedidosMozoPage> {
     }
   }
 
+  // Rechaza pedido y devuelve al cliente para corrección.
   Future<void> _rechazarPedido(String pedidoId) async {
     final motivoController = TextEditingController();
     final confirmar = await showDialog<bool>(
@@ -132,6 +136,7 @@ class _PedidosMozoPageState extends State<PedidosMozoPage> {
     }
   }
 
+  // Marca pedido completo como entregado al cliente.
   Future<void> _marcarEntregado(Map<String, dynamic> pedido) async {
     setState(() => _procesando = true);
     try {
@@ -153,6 +158,7 @@ class _PedidosMozoPageState extends State<PedidosMozoPage> {
     }
   }
 
+  // Confirma pago final y libera la mesa para reutilización.
   Future<void> _confirmarPago(Map<String, dynamic> pedido) async {
     final mesa = pedido['mesas'] as Map<String, dynamic>?;
     final numeroMesa = mesa?['numero']?.toString() ?? '-';
@@ -203,6 +209,7 @@ class _PedidosMozoPageState extends State<PedidosMozoPage> {
     }
   }
 
+  // Modal de control para validar importes antes de cerrar cobro.
   Future<void> _mostrarDetalleCuenta(Map<String, dynamic> pedido) async {
     final mesaId = pedido['mesa_id'] as String?;
     if (mesaId == null) return;

@@ -7,6 +7,8 @@ class PedidosFlowException extends AppException {
   const PedidosFlowException(super.message);
 }
 
+// Reglas de negocio del flujo completo de pedidos (puntos 12-22).
+// Centraliza transiciones de estado, cálculos de cuenta y notificaciones.
 class PedidosRepository {
   PedidosRepository({PedidosService? service})
     : _service = service ?? PedidosService();
@@ -16,6 +18,7 @@ class PedidosRepository {
 
   static const List<int> propinasPermitidas = [0, 5, 10, 15, 20];
 
+  // ----- Armado y edición de pedido -----
   Future<Map<String, dynamic>?> getPedidoActivoMesa(String mesaId) {
     return _service.getPedidoActivo(mesaId: mesaId);
   }
@@ -138,6 +141,7 @@ class PedidosRepository {
         ((pedido['propina_porcentaje'] as num?) ?? 0).toDouble();
     final montoPropina = subtotalConDescuento * (propinaPorcentaje / 100);
 
+    // Prioriza el total persistido por backend para mantener consistencia final.
     final totalPersistido = ((pedido['total'] as num?) ?? 0).toDouble();
     final totalCalculado = subtotalConDescuento + montoPropina;
     final total = totalPersistido > 0 ? totalPersistido : totalCalculado;
@@ -263,6 +267,7 @@ class PedidosRepository {
     }
   }
 
+  // ----- Sectores (cocina/bar) -----
   Future<List<Map<String, dynamic>>> getItemsPendientesCocina() {
     return _service.getItemsSector(tipoProducto: 'plato');
   }
@@ -314,6 +319,7 @@ class PedidosRepository {
     }
   }
 
+  // ----- Entrega, cuenta y pago -----
   Future<void> marcarPedidoEntregado(String pedidoId) {
     return _service
         .updatePedido(
@@ -393,6 +399,7 @@ class PedidosRepository {
     final baseConDescuento = subtotal * (1 - descuento / 100);
     final totalFinal = baseConDescuento * (1 + propinaPorcentaje / 100);
 
+    // Simula QR de propina con porcentajes cerrados según consigna.
     await _service.updatePedido(
       pedidoId: pedidoId,
       payload: {
@@ -450,6 +457,7 @@ class PedidosRepository {
     );
   }
 
+  // ----- Encuestas y métricas -----
   Future<void> guardarEncuesta({
     required String pedidoId,
     required int puntuacionComida,
@@ -568,6 +576,7 @@ class PedidosRepository {
     return serie.sublist(serie.length - maxDias);
   }
 
+  // ----- Helpers internos -----
   int _calcularTiempoTotal(List<Map<String, dynamic>> items) {
     var total = 0;
     for (final item in items) {
