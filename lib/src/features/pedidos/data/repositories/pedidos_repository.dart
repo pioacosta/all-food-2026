@@ -90,6 +90,69 @@ class PedidosRepository {
     return {'pedido': pedido, 'items': items, 'tiempoTotalMin': tiempo};
   }
 
+  Future<Map<String, dynamic>> getDetalleCuenta(String mesaId) async {
+    final pedido = await _service.getPedidoActivo(mesaId: mesaId);
+    if (pedido == null) {
+      return {
+        'pedidoId': null,
+        'lineas': <Map<String, dynamic>>[],
+        'subtotal': 0.0,
+        'descuentoPorcentaje': 0.0,
+        'montoDescuento': 0.0,
+        'subtotalConDescuento': 0.0,
+        'propinaPorcentaje': 0.0,
+        'montoPropina': 0.0,
+        'total': 0.0,
+      };
+    }
+
+    final pedidoId = pedido['id'] as String;
+    final items = await _service.getItemsPedido(pedidoId);
+
+    final lineas = <Map<String, dynamic>>[];
+    double subtotal = 0;
+
+    for (final item in items) {
+      final cantidad = (item['cantidad'] as num?)?.toInt() ?? 0;
+      final precioUnitario =
+          ((item['precio_unitario'] as num?) ?? 0).toDouble();
+      final importe = precioUnitario * cantidad;
+      subtotal += importe;
+
+      lineas.add({
+        'nombre': item['nombre_snapshot']?.toString() ?? '-',
+        'cantidad': cantidad,
+        'precioUnitario': precioUnitario,
+        'importe': importe,
+      });
+    }
+
+    final descuentoPorcentaje =
+        ((pedido['descuento_juego_porcentaje'] as num?) ?? 0).toDouble();
+    final montoDescuento = subtotal * (descuentoPorcentaje / 100);
+    final subtotalConDescuento = subtotal - montoDescuento;
+
+    final propinaPorcentaje =
+        ((pedido['propina_porcentaje'] as num?) ?? 0).toDouble();
+    final montoPropina = subtotalConDescuento * (propinaPorcentaje / 100);
+
+    final totalPersistido = ((pedido['total'] as num?) ?? 0).toDouble();
+    final totalCalculado = subtotalConDescuento + montoPropina;
+    final total = totalPersistido > 0 ? totalPersistido : totalCalculado;
+
+    return {
+      'pedidoId': pedidoId,
+      'lineas': lineas,
+      'subtotal': subtotal,
+      'descuentoPorcentaje': descuentoPorcentaje,
+      'montoDescuento': montoDescuento,
+      'subtotalConDescuento': subtotalConDescuento,
+      'propinaPorcentaje': propinaPorcentaje,
+      'montoPropina': montoPropina,
+      'total': total,
+    };
+  }
+
   Future<void> cambiarCantidadItem({
     required String pedidoId,
     required String itemId,

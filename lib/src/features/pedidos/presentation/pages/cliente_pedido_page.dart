@@ -243,6 +243,147 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
     }
   }
 
+  Future<void> _mostrarDetalleCuenta() async {
+    setState(() => _procesando = true);
+    try {
+      final detalle = await _repo.getDetalleCuenta(widget.mesaId);
+      if (!mounted) return;
+
+      final lineas = List<Map<String, dynamic>>.from(
+        detalle['lineas'] as List<Map<String, dynamic>>? ?? const [],
+      );
+      final subtotal = ((detalle['subtotal'] as num?) ?? 0).toDouble();
+      final descuentoPorcentaje =
+          ((detalle['descuentoPorcentaje'] as num?) ?? 0).toDouble();
+      final montoDescuento =
+          ((detalle['montoDescuento'] as num?) ?? 0).toDouble();
+      final propinaPorcentaje =
+          ((detalle['propinaPorcentaje'] as num?) ?? 0).toDouble();
+      final montoPropina = ((detalle['montoPropina'] as num?) ?? 0).toDouble();
+      final total = ((detalle['total'] as num?) ?? 0).toDouble();
+
+      await showModalBottomSheet<void>(
+        context: context,
+        backgroundColor: const Color(0xFF7A2021),
+        isScrollControlled: true,
+        builder: (context) {
+          return SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(14, 14, 14, 14),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const Text(
+                    'Detalle de la cuenta',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 18,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  if (lineas.isEmpty)
+                    const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 14),
+                      child: Text(
+                        'No hay ítems en la cuenta.',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: Colors.white70),
+                      ),
+                    )
+                  else
+                    SizedBox(
+                      height: 220,
+                      child: ListView.separated(
+                        itemCount: lineas.length,
+                        separatorBuilder: (_, __) => const SizedBox(height: 6),
+                        itemBuilder: (context, index) {
+                          final linea = lineas[index];
+                          return Container(
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.12),
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(color: Colors.white24),
+                            ),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    '${linea['nombre']} x${linea['cantidad']}',
+                                    style: const TextStyle(color: Colors.white),
+                                  ),
+                                ),
+                                Text(
+                                  '\$${((linea['importe'] as num?) ?? 0).toStringAsFixed(2)}',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  const SizedBox(height: 10),
+                  _FilaCuenta(titulo: 'Subtotal', valor: subtotal),
+                  _FilaCuenta(
+                    titulo:
+                        'Descuento por juego (${descuentoPorcentaje.toStringAsFixed(0)}%)',
+                    valor: -montoDescuento,
+                    color: const Color(0xFFB8F5C3),
+                  ),
+                  _FilaCuenta(
+                    titulo:
+                        'Propina (${propinaPorcentaje.toStringAsFixed(0)}%)',
+                    valor: montoPropina,
+                  ),
+                  const SizedBox(height: 8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 14,
+                    ),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF2D6A4F),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      'TOTAL A ABONAR: \$${total.toStringAsFixed(2)}',
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w800,
+                        fontSize: 20,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      );
+    } catch (error) {
+      if (!mounted) return;
+      _mostrarMensaje(
+        AppErrorMapper.toUserMessage(
+          error,
+          fallbackMessage: 'No se pudo cargar el detalle de la cuenta.',
+        ),
+        esError: true,
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _procesando = false);
+      }
+    }
+  }
+
   Widget _propinaTile(BuildContext context, int porcentaje, String texto) {
     return ListTile(
       title: Text(
@@ -508,6 +649,13 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
                                 estado == 'cuenta_solicitada' ||
                                 estado == 'pago_pendiente_confirmacion') ...[
                               _AccionPrincipal(
+                                texto: 'Ver detalle de cuenta',
+                                onPressed:
+                                    _procesando ? null : _mostrarDetalleCuenta,
+                                loading: false,
+                              ),
+                              const SizedBox(height: 8),
+                              _AccionPrincipal(
                                 texto:
                                     estado == 'recibido_cliente'
                                         ? 'Solicitar cuenta'
@@ -675,6 +823,36 @@ class _AccionPrincipal extends StatelessWidget {
         onPressed: onPressed,
         child:
             loading ? const LogoSpinner(size: 18, strokeWidth: 2) : Text(texto),
+      ),
+    );
+  }
+}
+
+class _FilaCuenta extends StatelessWidget {
+  const _FilaCuenta({
+    required this.titulo,
+    required this.valor,
+    this.color = Colors.white,
+  });
+
+  final String titulo;
+  final double valor;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 2),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(titulo, style: const TextStyle(color: Colors.white70)),
+          ),
+          Text(
+            '${valor < 0 ? '-' : ''}\$${valor.abs().toStringAsFixed(2)}',
+            style: TextStyle(color: color, fontWeight: FontWeight.w700),
+          ),
+        ],
       ),
     );
   }
