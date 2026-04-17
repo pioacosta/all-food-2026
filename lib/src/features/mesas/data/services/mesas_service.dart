@@ -190,6 +190,65 @@ class MesasService {
     return List<Map<String, dynamic>>.from(res);
   }
 
+  Future<List<Map<String, dynamic>>> getMensajesChatMesa({
+    required String mesaId,
+    String? clienteId,
+  }) async {
+    final queryBase = _client
+        .from('chat_mensajes')
+        .select(
+          'id, mesa_id, numero_mesa, cliente_id, enviado_por_id, remitente_perfil, mensaje, created_at',
+        )
+        .eq('mesa_id', mesaId);
+
+    final res =
+        clienteId == null
+            ? await queryBase.order('created_at')
+            : await queryBase.eq('cliente_id', clienteId).order('created_at');
+
+    return List<Map<String, dynamic>>.from(res);
+  }
+
+  Future<void> enviarMensajeChat({
+    required String mesaId,
+    required int numeroMesa,
+    required String clienteId,
+    required String remitentePerfil,
+    required String mensaje,
+  }) {
+    final emisor = currentUserId;
+    if (emisor == null) {
+      throw const AuthException('No hay un usuario autenticado.');
+    }
+
+    return _client.from('chat_mensajes').insert({
+      'mesa_id': mesaId,
+      'numero_mesa': numeroMesa,
+      'cliente_id': clienteId,
+      'enviado_por_id': emisor,
+      'remitente_perfil': remitentePerfil,
+      'mensaje': mensaje,
+    });
+  }
+
+  Future<List<Map<String, dynamic>>> getChatsActivosMozo() async {
+    final res = await _client
+        .from('chat_mensajes')
+        .select('mesa_id, numero_mesa, cliente_id, mensaje, created_at')
+        .order('created_at', ascending: false)
+        .limit(300);
+
+    final rows = List<Map<String, dynamic>>.from(res);
+    final uniqueByMesa = <String, Map<String, dynamic>>{};
+    for (final row in rows) {
+      final mesaId = row['mesa_id'] as String?;
+      if (mesaId == null || uniqueByMesa.containsKey(mesaId)) continue;
+      uniqueByMesa[mesaId] = row;
+    }
+
+    return uniqueByMesa.values.toList();
+  }
+
   Future<void> updateTable({
     required String mesaId,
     required Map<String, dynamic> payload,

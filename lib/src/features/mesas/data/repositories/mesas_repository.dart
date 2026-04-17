@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:all_food/src/features/mesas/data/services/mesas_service.dart';
+import 'package:all_food/src/shared/services/notificaciones_service.dart';
 import 'package:all_food/src/shared/errors/app_exception.dart';
 
 class MesasFlowException extends AppException {
@@ -13,6 +14,7 @@ class MesasRepository {
     : _service = service ?? MesasService();
 
   final MesasService _service;
+  final NotificacionesService _notificacionesService = NotificacionesService();
 
   Future<bool> canCurrentUserCreateTables() async {
     final profile = await _service.getCurrentUserProfile();
@@ -200,6 +202,15 @@ class MesasRepository {
       perfil: (perfil['perfil'] as String?) ?? 'cliente_registrado',
       fotoUrl: perfil['foto_url'] as String?,
     );
+
+    await _notificarPorPerfiles(
+      perfiles: const ['metre', 'dueno', 'supervisor'],
+      titulo: 'Nueva solicitud de mesa',
+      mensaje:
+          'Un cliente se registró en la lista de espera y solicita asignación.',
+      tipo: 'solicitud_mesa',
+      payload: {'clienteId': clienteId},
+    );
   }
 
   Future<void> enviarConsultaRapidaMozo({
@@ -222,6 +233,15 @@ class MesasRepository {
       clienteId: clienteId,
       numeroMesa: numeroMesa,
       mensaje: texto,
+    );
+
+    await _notificarPorPerfiles(
+      perfiles: const ['mozo'],
+      titulo: 'Consulta rápida de cliente',
+      mensaje: 'Mesa $numeroMesa: $texto',
+      tipo: 'consulta_mozo',
+      referenciaId: mesaId,
+      payload: {'mesaId': mesaId, 'numeroMesa': numeroMesa},
     );
   }
 
@@ -262,6 +282,15 @@ class MesasRepository {
       clienteId: cliente['id'] as String,
       mesaId: mesa['id'] as String,
     );
+
+    await _notificacionesService.enviarNotificaciones(
+      destinatarios: [cliente['id'] as String],
+      titulo: 'Mesa asignada',
+      mensaje: 'Te asignaron la mesa ${mesa['numero']}.',
+      tipo: 'mesa_asignada',
+      referenciaId: mesa['id'] as String,
+      payload: {'mesaId': mesa['id'], 'numeroMesa': mesa['numero']},
+    );
   }
 
   Future<List<Map<String, dynamic>>> getClientesSinMesa() async {
@@ -292,5 +321,110 @@ class MesasRepository {
 
   Future<List<Map<String, dynamic>>> getMesasOcupadas() async {
     return await _service.getMesasOcupadas();
+  }
+
+  Future<List<Map<String, dynamic>>> getMensajesChatMesaCliente({
+    required String mesaId,
+  }) async {
+    final clienteId = _service.currentUserId;
+    if (clienteId == null) {
+      throw const MesasFlowException('No hay un usuario autenticado.');
+    }
+
+    return _service.getMensajesChatMesa(mesaId: mesaId, clienteId: clienteId);
+  }
+
+  Future<List<Map<String, dynamic>>> getChatsActivosMozo() {
+    return _service.getChatsActivosMozo();
+  }
+
+  Future<List<Map<String, dynamic>>> getMensajesChatMesaMozo({
+    required String mesaId,
+    required String clienteId,
+  }) {
+    return _service.getMensajesChatMesa(mesaId: mesaId, clienteId: clienteId);
+  }
+
+  Future<void> enviarMensajeChatCliente({
+    required String mesaId,
+    required int numeroMesa,
+    required String mensaje,
+  }) async {
+    final clienteId = _service.currentUserId;
+    if (clienteId == null) {
+      throw const MesasFlowException('No hay un usuario autenticado.');
+    }
+
+    final texto = mensaje.trim();
+    if (texto.length < 2) {
+      throw const MesasFlowException('El mensaje es demasiado corto.');
+    }
+
+    await _service.enviarMensajeChat(
+      mesaId: mesaId,
+      numeroMesa: numeroMesa,
+      clienteId: clienteId,
+      remitentePerfil: 'cliente',
+      mensaje: texto,
+    );
+
+    await _notificarPorPerfiles(
+      perfiles: const ['mozo'],
+      titulo: 'Mensaje de cliente',
+      mensaje: 'Mesa $numeroMesa: $texto',
+      tipo: 'chat_cliente_mozo',
+      referenciaId: mesaId,
+      payload: {'mesaId': mesaId, 'numeroMesa': numeroMesa},
+    );
+  }
+
+  Future<void> enviarMensajeChatMozo({
+    required String mesaId,
+    required int numeroMesa,
+    required String clienteId,
+    required String mensaje,
+  }) async {
+    final texto = mensaje.trim();
+    if (texto.length < 2) {
+      throw const MesasFlowException('El mensaje es demasiado corto.');
+    }
+
+    await _service.enviarMensajeChat(
+      mesaId: mesaId,
+      numeroMesa: numeroMesa,
+      clienteId: clienteId,
+      remitentePerfil: 'mozo',
+      mensaje: texto,
+    );
+
+    await _notificacionesService.enviarNotificaciones(
+      destinatarios: [clienteId],
+      titulo: 'Respuesta del mozo',
+      mensaje: 'Mesa $numeroMesa: $texto',
+      tipo: 'chat_mozo_cliente',
+      referenciaId: mesaId,
+      payload: {'mesaId': mesaId, 'numeroMesa': numeroMesa},
+    );
+  }
+
+  Future<void> _notificarPorPerfiles({
+    required List<String> perfiles,
+    required String titulo,
+    required String mensaje,
+    required String tipo,
+    String? referenciaId,
+    Map<String, dynamic>? payload,
+  }) async {
+    final destinatarios = await _notificacionesService.getUserIdsByPerfiles(
+      perfiles,
+    );
+    await _notificacionesService.enviarNotificaciones(
+      destinatarios: destinatarios,
+      titulo: titulo,
+      mensaje: mensaje,
+      tipo: tipo,
+      referenciaId: referenciaId,
+      payload: payload,
+    );
   }
 }

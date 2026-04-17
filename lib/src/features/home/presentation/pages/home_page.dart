@@ -3,6 +3,7 @@ import 'package:all_food/src/features/mesas/presentation/pages/mesa_qr_scanner_p
 import 'package:flutter/material.dart';
 import 'package:all_food/src/features/home/data/repositories/home_repository.dart';
 import 'package:all_food/src/shared/errors/app_error_mapper.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../../shared/widgets/logo_spinner.dart';
 import '../../../auth/presentation/pages/login_page.dart';
 
@@ -23,6 +24,8 @@ class _HomePageState extends State<HomePage> {
   String? _perfil;
   String _estadoMesaCliente = 'sin_solicitud';
   Map<String, dynamic>? _mesaAsignada;
+  RealtimeChannel? _notificacionesChannel;
+  String? _ultimaNotificacionId;
   final _homeRepository = HomeRepository();
   final _mesasRepository = MesasRepository();
 
@@ -50,6 +53,9 @@ class _HomePageState extends State<HomePage> {
         _perfil = perfil;
         _cargandoPerfil = false;
       });
+
+      _iniciarEscuchaNotificaciones();
+
       if (_esPerfilCliente(perfil)) {
         await _refrescarEstadoMesaCliente();
       }
@@ -126,6 +132,7 @@ class _HomePageState extends State<HomePage> {
     setState(() => _cerrandoSesion = true);
 
     try {
+      await _detenerEscuchaNotificaciones();
       if (widget.supabaseReady) {
         await _homeRepository.signOut();
       }
@@ -153,6 +160,57 @@ class _HomePageState extends State<HomePage> {
     } finally {
       if (mounted) setState(() => _cerrandoSesion = false);
     }
+  }
+
+  void _iniciarEscuchaNotificaciones() {
+    if (!widget.supabaseReady) return;
+
+    final client = Supabase.instance.client;
+    final uid = client.auth.currentUser?.id;
+    if (uid == null) return;
+
+    _notificacionesChannel?.unsubscribe();
+
+    _notificacionesChannel =
+        client
+            .channel('notificaciones_$uid')
+            .onPostgresChanges(
+              event: PostgresChangeEvent.insert,
+              schema: 'public',
+              table: 'notificaciones',
+              filter: PostgresChangeFilter(
+                type: PostgresChangeFilterType.eq,
+                column: 'destinatario_id',
+                value: uid,
+              ),
+              callback: (payload) {
+                final row = payload.newRecord;
+                final notificacionId = row['id']?.toString();
+                if (notificacionId == null) return;
+                if (notificacionId == _ultimaNotificacionId) return;
+                _ultimaNotificacionId = notificacionId;
+
+                if (!mounted) return;
+                final titulo = row['titulo']?.toString() ?? 'Notificación';
+                final mensaje = row['mensaje']?.toString() ?? '';
+                _mostrarMensaje('$titulo: $mensaje', esError: false);
+              },
+            )
+            .subscribe();
+  }
+
+  Future<void> _detenerEscuchaNotificaciones() async {
+    final channel = _notificacionesChannel;
+    _notificacionesChannel = null;
+    if (channel != null) {
+      await channel.unsubscribe();
+    }
+  }
+
+  @override
+  void dispose() {
+    _detenerEscuchaNotificaciones();
+    super.dispose();
   }
 
   void _mostrarMensaje(String mensaje, {required bool esError}) {
@@ -318,6 +376,14 @@ class _HomePageState extends State<HomePage> {
                               Navigator.pushNamed(context, '/pedidos-mozo');
                             },
                             child: const Text('Gestionar pedidos y pagos'),
+                          ),
+                        if (esMozo) const SizedBox(height: 12),
+                        if (esMozo)
+                          ElevatedButton(
+                            onPressed: () {
+                              Navigator.pushNamed(context, '/chat-mozo');
+                            },
+                            child: const Text('Chat con clientes'),
                           ),
                         if (esCocinero) const SizedBox(height: 12),
                         if (esCocinero)

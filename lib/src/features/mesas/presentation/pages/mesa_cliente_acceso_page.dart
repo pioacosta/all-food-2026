@@ -90,9 +90,9 @@ class MesaClienteAccesoPage extends StatelessWidget {
                 ),
                 const SizedBox(height: 10),
                 _AccesoCard(
-                  titulo: 'Consulta al mozo',
+                  titulo: 'Chat con mozo',
                   detalle:
-                      'Envia consultas rapidas al mozo con fecha y hora de registro.',
+                      'Sala de conversación en tiempo real para consultas con el mozo.',
                   icono: Icons.support_agent,
                   onTap:
                       () => Navigator.of(context).push(
@@ -151,22 +151,20 @@ class _AccesoCard extends StatelessWidget {
     required this.titulo,
     required this.detalle,
     required this.icono,
-    this.habilitado = true,
     this.onTap,
   });
 
   final String titulo;
   final String detalle;
   final IconData icono;
-  final bool habilitado;
   final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
-    final colorTitulo = habilitado ? Colors.white : Colors.white60;
+    const colorTitulo = Colors.white;
 
     return InkWell(
-      onTap: habilitado ? onTap : null,
+      onTap: onTap,
       borderRadius: BorderRadius.circular(14),
       child: Ink(
         decoration: BoxDecoration(

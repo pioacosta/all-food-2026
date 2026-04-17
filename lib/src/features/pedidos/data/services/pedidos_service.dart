@@ -34,6 +34,10 @@ class PedidosService {
         .maybeSingle();
   }
 
+  Future<Map<String, dynamic>?> getPedidoById(String pedidoId) async {
+    return _client.from('pedidos').select('*').eq('id', pedidoId).maybeSingle();
+  }
+
   Future<Map<String, dynamic>> createPedido({
     required String mesaId,
     required String clienteId,

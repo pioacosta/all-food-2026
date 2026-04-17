@@ -1,6 +1,7 @@
 import 'package:all_food/src/features/carta/data/models/producto_model.dart';
 import 'package:all_food/src/features/pedidos/data/services/pedidos_service.dart';
 import 'package:all_food/src/shared/errors/app_exception.dart';
+import 'package:all_food/src/shared/services/notificaciones_service.dart';
 
 class PedidosFlowException extends AppException {
   const PedidosFlowException(super.message);
@@ -11,6 +12,7 @@ class PedidosRepository {
     : _service = service ?? PedidosService();
 
   final PedidosService _service;
+  final NotificacionesService _notificacionesService = NotificacionesService();
 
   static const List<int> propinasPermitidas = [0, 5, 10, 15, 20];
 
@@ -116,6 +118,14 @@ class PedidosRepository {
       pedidoId: pedidoId,
       payload: {'estado': 'pendiente_mozo', 'observaciones_rechazo': null},
     );
+
+    await _notificarPerfiles(
+      perfiles: const ['mozo'],
+      titulo: 'Pedido pendiente de confirmación',
+      mensaje: 'Hay un pedido nuevo para revisar.',
+      tipo: 'pedido_pendiente_mozo',
+      referenciaId: pedidoId,
+    );
   }
 
   Future<List<Map<String, dynamic>>> getPedidosPendientesMozo() {
@@ -145,6 +155,18 @@ class PedidosRepository {
       pedidoId: pedidoId,
       payload: {'estado': 'rechazado_mozo', 'observaciones_rechazo': texto},
     );
+
+    final pedido = await _service.getPedidoById(pedidoId);
+    final clienteId = pedido?['cliente_id'] as String?;
+    if (clienteId != null) {
+      await _notificacionesService.enviarNotificaciones(
+        destinatarios: [clienteId],
+        titulo: 'Pedido rechazado por mozo',
+        mensaje: 'Debes modificar el pedido. Motivo: $texto',
+        tipo: 'pedido_rechazado',
+        referenciaId: pedidoId,
+      );
+    }
   }
 
   Future<void> confirmarPedido(String pedidoId) async {
@@ -152,6 +174,26 @@ class PedidosRepository {
       pedidoId: pedidoId,
       payload: {'estado': 'confirmado_mozo', 'observaciones_rechazo': null},
     );
+
+    await _notificarPerfiles(
+      perfiles: const ['cocinero', 'cantinero'],
+      titulo: 'Nuevo pedido confirmado',
+      mensaje: 'Hay productos pendientes para elaborar.',
+      tipo: 'pedido_confirmado',
+      referenciaId: pedidoId,
+    );
+
+    final pedido = await _service.getPedidoById(pedidoId);
+    final clienteId = pedido?['cliente_id'] as String?;
+    if (clienteId != null) {
+      await _notificacionesService.enviarNotificaciones(
+        destinatarios: [clienteId],
+        titulo: 'Pedido confirmado',
+        mensaje: 'Tu pedido fue confirmado y enviado a cocina/bar.',
+        tipo: 'pedido_confirmado_cliente',
+        referenciaId: pedidoId,
+      );
+    }
   }
 
   Future<List<Map<String, dynamic>>> getItemsPendientesCocina() {
@@ -181,27 +223,83 @@ class PedidosRepository {
         'estado': todosListos ? 'listo_para_entrega' : 'en_preparacion',
       },
     );
+
+    if (todosListos) {
+      await _notificarPerfiles(
+        perfiles: const ['mozo'],
+        titulo: 'Pedido listo para entrega',
+        mensaje: 'El pedido está completo y listo para entregar.',
+        tipo: 'pedido_listo_entrega',
+        referenciaId: pedidoId,
+      );
+
+      final pedido = await _service.getPedidoById(pedidoId);
+      final clienteId = pedido?['cliente_id'] as String?;
+      if (clienteId != null) {
+        await _notificacionesService.enviarNotificaciones(
+          destinatarios: [clienteId],
+          titulo: 'Tu pedido está listo',
+          mensaje: 'El mozo lo entregará en breve.',
+          tipo: 'pedido_listo_cliente',
+          referenciaId: pedidoId,
+        );
+      }
+    }
   }
 
   Future<void> marcarPedidoEntregado(String pedidoId) {
-    return _service.updatePedido(
-      pedidoId: pedidoId,
-      payload: {'estado': 'entregado_por_mozo'},
-    );
+    return _service
+        .updatePedido(
+          pedidoId: pedidoId,
+          payload: {'estado': 'entregado_por_mozo'},
+        )
+        .then((_) async {
+          final pedido = await _service.getPedidoById(pedidoId);
+          final clienteId = pedido?['cliente_id'] as String?;
+          if (clienteId != null) {
+            await _notificacionesService.enviarNotificaciones(
+              destinatarios: [clienteId],
+              titulo: 'Pedido entregado',
+              mensaje: 'Confirma la recepción de tu pedido.',
+              tipo: 'pedido_entregado',
+              referenciaId: pedidoId,
+            );
+          }
+        });
   }
 
   Future<void> confirmarRecepcionCliente(String pedidoId) {
-    return _service.updatePedido(
-      pedidoId: pedidoId,
-      payload: {'estado': 'recibido_cliente'},
-    );
+    return _service
+        .updatePedido(
+          pedidoId: pedidoId,
+          payload: {'estado': 'recibido_cliente'},
+        )
+        .then((_) async {
+          await _notificarPerfiles(
+            perfiles: const ['mozo'],
+            titulo: 'Cliente recibió el pedido',
+            mensaje: 'El cliente confirmó recepción del pedido.',
+            tipo: 'pedido_recibido_cliente',
+            referenciaId: pedidoId,
+          );
+        });
   }
 
   Future<void> solicitarCuenta(String pedidoId) {
-    return _service.updatePedido(
-      pedidoId: pedidoId,
-      payload: {'estado': 'cuenta_solicitada'},
-    );
+    return _service
+        .updatePedido(
+          pedidoId: pedidoId,
+          payload: {'estado': 'cuenta_solicitada'},
+        )
+        .then((_) async {
+          await _notificarPerfiles(
+            perfiles: const ['mozo'],
+            titulo: 'Cliente solicita la cuenta',
+            mensaje: 'Un cliente solicitó la cuenta de su mesa.',
+            tipo: 'cuenta_solicitada',
+            referenciaId: pedidoId,
+          );
+        });
   }
 
   Future<Map<String, dynamic>> prepararPagoConPropina({
@@ -237,6 +335,15 @@ class PedidosRepository {
       },
     );
 
+    await _notificarPerfiles(
+      perfiles: const ['mozo', 'dueno', 'supervisor'],
+      titulo: 'Pago pendiente de confirmación',
+      mensaje:
+          'El cliente realizó el pago simulado. Falta confirmación del mozo.',
+      tipo: 'pago_pendiente_confirmacion',
+      referenciaId: pedidoId,
+    );
+
     return {
       'subtotal': subtotal,
       'descuentoPorcentaje': descuento,
@@ -254,6 +361,26 @@ class PedidosRepository {
       payload: {'estado': 'cerrado'},
     );
     await _service.liberarMesa(mesaId);
+
+    final pedido = await _service.getPedidoById(pedidoId);
+    final clienteId = pedido?['cliente_id'] as String?;
+    if (clienteId != null) {
+      await _notificacionesService.enviarNotificaciones(
+        destinatarios: [clienteId],
+        titulo: 'Pago confirmado',
+        mensaje: 'Tu pago fue confirmado. La mesa quedó liberada.',
+        tipo: 'pago_confirmado_cliente',
+        referenciaId: pedidoId,
+      );
+    }
+
+    await _notificarPerfiles(
+      perfiles: const ['dueno', 'supervisor'],
+      titulo: 'Pago confirmado por mozo',
+      mensaje: 'Se confirmó pago y se liberó una mesa.',
+      tipo: 'pago_confirmado_staff',
+      referenciaId: pedidoId,
+    );
   }
 
   Future<void> guardarEncuesta({
@@ -335,6 +462,25 @@ class PedidosRepository {
     await _service.updatePedido(
       pedidoId: pedidoId,
       payload: {'subtotal': subtotal, 'total': subtotal},
+    );
+  }
+
+  Future<void> _notificarPerfiles({
+    required List<String> perfiles,
+    required String titulo,
+    required String mensaje,
+    required String tipo,
+    String? referenciaId,
+  }) async {
+    final destinatarios = await _notificacionesService.getUserIdsByPerfiles(
+      perfiles,
+    );
+    await _notificacionesService.enviarNotificaciones(
+      destinatarios: destinatarios,
+      titulo: titulo,
+      mensaje: mensaje,
+      tipo: tipo,
+      referenciaId: referenciaId,
     );
   }
 }

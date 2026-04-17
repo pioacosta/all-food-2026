@@ -8,6 +8,7 @@ import 'package:all_food/src/features/pedidos/presentation/pages/pedidos_sector_
 import 'package:all_food/src/features/staff/presentation/pages/alta_empleado_page.dart';
 import 'package:all_food/src/features/clientes/presentation/pages/clientes_pendientes_page.dart';
 import 'package:all_food/src/features/mesas/presentation/pages/crear_mesa_page.dart';
+import 'package:all_food/src/features/mesas/presentation/pages/chat_mozo_page.dart';
 import 'package:all_food/src/features/mesas/presentation/pages/ver_editar_mesas_page.dart';
 import 'package:all_food/src/shared/widgets/logo_loader.dart';
 import 'package:flutter/material.dart';
@@ -114,6 +115,7 @@ class AllFoodApp extends StatelessWidget {
         },
 
         '/pedidos-mozo': (_) => const PedidosMozoPage(),
+        '/chat-mozo': (_) => const ChatMozoPage(),
         '/pedidos-cocina': (_) => const PedidosSectorPage(sector: 'cocina'),
         '/pedidos-bar': (_) => const PedidosSectorPage(sector: 'bar'),
 

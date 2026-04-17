@@ -2,6 +2,7 @@ import 'package:all_food/src/features/mesas/data/repositories/mesas_repository.d
 import 'package:all_food/src/shared/errors/app_error_mapper.dart';
 import 'package:all_food/src/shared/widgets/logo_spinner.dart';
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ConsultaMozoPage extends StatefulWidget {
   const ConsultaMozoPage({
@@ -20,39 +21,43 @@ class ConsultaMozoPage extends StatefulWidget {
 class _ConsultaMozoPageState extends State<ConsultaMozoPage> {
   final _repo = MesasRepository();
   final _controller = TextEditingController();
+  final _scrollController = ScrollController();
 
   bool _cargando = true;
   bool _enviando = false;
-  List<Map<String, dynamic>> _consultas = [];
+  RealtimeChannel? _channel;
+  List<Map<String, dynamic>> _mensajes = [];
 
   @override
   void initState() {
     super.initState();
-    _cargarConsultas();
+    _cargarMensajes();
+    _iniciarSuscripcion();
   }
 
   @override
   void dispose() {
+    _channel?.unsubscribe();
+    _scrollController.dispose();
     _controller.dispose();
     super.dispose();
   }
 
-  Future<void> _cargarConsultas() async {
+  Future<void> _cargarMensajes() async {
     setState(() => _cargando = true);
     try {
-      final data = await _repo.getConsultasRapidasDeMiMesa(
+      final data = await _repo.getMensajesChatMesaCliente(
         mesaId: widget.mesaId,
       );
       if (!mounted) return;
-      setState(() {
-        _consultas = data;
-      });
+      setState(() => _mensajes = data);
+      _scrollAlFinal();
     } catch (error) {
       if (!mounted) return;
       _mostrarMensaje(
         AppErrorMapper.toUserMessage(
           error,
-          fallbackMessage: 'No se pudieron cargar las consultas al mozo.',
+          fallbackMessage: 'No se pudieron cargar los mensajes del chat.',
         ),
         esError: true,
       );
@@ -63,16 +68,51 @@ class _ConsultaMozoPageState extends State<ConsultaMozoPage> {
     }
   }
 
-  Future<void> _enviarConsulta() async {
+  void _iniciarSuscripcion() {
+    final client = Supabase.instance.client;
+    final uid = client.auth.currentUser?.id;
+    if (uid == null) return;
+
+    _channel =
+        client
+            .channel('chat_cliente_${widget.mesaId}_$uid')
+            .onPostgresChanges(
+              event: PostgresChangeEvent.insert,
+              schema: 'public',
+              table: 'chat_mensajes',
+              filter: PostgresChangeFilter(
+                type: PostgresChangeFilterType.eq,
+                column: 'mesa_id',
+                value: widget.mesaId,
+              ),
+              callback: (_) {
+                _cargarMensajes();
+              },
+            )
+            .subscribe();
+  }
+
+  void _scrollAlFinal() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!_scrollController.hasClients) return;
+      _scrollController.animateTo(
+        _scrollController.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 180),
+        curve: Curves.easeOut,
+      );
+    });
+  }
+
+  Future<void> _enviarMensaje() async {
     final mensaje = _controller.text.trim();
     if (mensaje.isEmpty) {
-      _mostrarMensaje('Escribe tu consulta antes de enviarla.', esError: true);
+      _mostrarMensaje('Escribe un mensaje antes de enviarlo.', esError: true);
       return;
     }
 
     setState(() => _enviando = true);
     try {
-      await _repo.enviarConsultaRapidaMozo(
+      await _repo.enviarMensajeChatCliente(
         mesaId: widget.mesaId,
         numeroMesa: widget.numeroMesa,
         mensaje: mensaje,
@@ -80,14 +120,13 @@ class _ConsultaMozoPageState extends State<ConsultaMozoPage> {
 
       if (!mounted) return;
       _controller.clear();
-      _mostrarMensaje('Consulta enviada al mozo.', esError: false);
-      await _cargarConsultas();
+      await _cargarMensajes();
     } catch (error) {
       if (!mounted) return;
       _mostrarMensaje(
         AppErrorMapper.toUserMessage(
           error,
-          fallbackMessage: 'No se pudo enviar la consulta.',
+          fallbackMessage: 'No se pudo enviar el mensaje al mozo.',
         ),
         esError: true,
       );
@@ -120,9 +159,7 @@ class _ConsultaMozoPageState extends State<ConsultaMozoPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Consulta al mozo - Mesa ${widget.numeroMesa}'),
-      ),
+      appBar: AppBar(title: Text('Chat con mozo - Mesa ${widget.numeroMesa}')),
       body: Container(
         width: double.infinity,
         decoration: const BoxDecoration(
@@ -137,53 +174,36 @@ class _ConsultaMozoPageState extends State<ConsultaMozoPage> {
             children: [
               Container(
                 margin: const EdgeInsets.fromLTRB(16, 14, 16, 10),
-                padding: const EdgeInsets.all(14),
+                padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
                   color: Colors.white.withOpacity(0.12),
-                  borderRadius: BorderRadius.circular(14),
+                  borderRadius: BorderRadius.circular(12),
                   border: Border.all(color: Colors.white24),
                 ),
-                child: Column(
+                child: Row(
                   children: [
-                    TextField(
-                      controller: _controller,
-                      maxLines: 2,
-                      style: const TextStyle(color: Colors.white),
-                      decoration: const InputDecoration(
-                        hintText:
-                            'Ejemplo: Necesito servilletas en la mesa, por favor.',
-                        hintStyle: TextStyle(color: Colors.white54),
-                        border: OutlineInputBorder(),
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed:
+                            _enviando
+                                ? null
+                                : () => _cargarMensajeRapido(
+                                  '¿Podrías acercarte a la mesa cuando puedas?',
+                                ),
+                        child: const Text('Llamar al mozo'),
                       ),
                     ),
-                    const SizedBox(height: 10),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: OutlinedButton(
-                            onPressed:
-                                _enviando
-                                    ? null
-                                    : () => _cargarMensajeRapido(
-                                      '¿Podrías acercarte a la mesa cuando puedas?',
-                                    ),
-                            child: const Text('Llamar al mozo'),
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: FilledButton(
-                            onPressed: _enviando ? null : _enviarConsulta,
-                            child:
-                                _enviando
-                                    ? const LogoSpinner(
-                                      size: 20,
-                                      strokeWidth: 2,
-                                    )
-                                    : const Text('Enviar consulta'),
-                          ),
-                        ),
-                      ],
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed:
+                            _enviando
+                                ? null
+                                : () => _cargarMensajeRapido(
+                                  'Necesito cubiertos y servilletas, por favor.',
+                                ),
+                        child: const Text('Pedido rápido'),
+                      ),
                     ),
                   ],
                 ),
@@ -194,24 +214,24 @@ class _ConsultaMozoPageState extends State<ConsultaMozoPage> {
                         ? const Center(
                           child: LogoSpinner(size: 64, strokeWidth: 4),
                         )
-                        : _consultas.isEmpty
+                        : _mensajes.isEmpty
                         ? const Center(
                           child: Text(
-                            'Todavía no enviaste consultas al mozo.',
+                            'Todavía no hay mensajes en el chat.',
                             style: TextStyle(
                               color: Colors.white70,
                               fontSize: 16,
                             ),
                           ),
                         )
-                        : ListView.separated(
-                          padding: const EdgeInsets.fromLTRB(16, 6, 16, 14),
-                          itemCount: _consultas.length,
-                          separatorBuilder:
-                              (_, __) => const SizedBox(height: 8),
+                        : ListView.builder(
+                          controller: _scrollController,
+                          padding: const EdgeInsets.fromLTRB(14, 4, 14, 10),
+                          itemCount: _mensajes.length,
                           itemBuilder: (context, index) {
-                            final item = _consultas[index];
-                            final respondida = item['estado'] == 'respondida';
+                            final item = _mensajes[index];
+                            final esCliente =
+                                item['remitente_perfil'] == 'cliente';
                             final fecha = DateTime.tryParse(
                               item['created_at']?.toString() ?? '',
                             );
@@ -220,69 +240,88 @@ class _ConsultaMozoPageState extends State<ConsultaMozoPage> {
                                     ? '--:--'
                                     : '${fecha.toLocal().hour.toString().padLeft(2, '0')}:${fecha.toLocal().minute.toString().padLeft(2, '0')}';
 
-                            return Container(
-                              padding: const EdgeInsets.all(12),
-                              decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.1),
-                                borderRadius: BorderRadius.circular(12),
-                                border: Border.all(color: Colors.white24),
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    children: [
-                                      Text(
-                                        'Mesa ${item['numero_mesa'] ?? widget.numeroMesa}',
-                                        style: const TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.w700,
-                                        ),
-                                      ),
-                                      const Spacer(),
-                                      Text(
-                                        hora,
-                                        style: const TextStyle(
-                                          color: Colors.white70,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 6),
-                                  Text(
-                                    item['mensaje']?.toString() ?? '',
-                                    style: const TextStyle(color: Colors.white),
-                                  ),
-                                  const SizedBox(height: 6),
-                                  Text(
-                                    respondida
-                                        ? 'Respondida'
-                                        : 'Pendiente de respuesta',
-                                    style: TextStyle(
-                                      color:
-                                          respondida
-                                              ? const Color(0xFFB8F5C3)
-                                              : const Color(0xFFFFE08A),
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                  if ((item['respuesta_mensaje'] as String?)
-                                          ?.isNotEmpty ==
-                                      true)
-                                    Padding(
-                                      padding: const EdgeInsets.only(top: 6),
-                                      child: Text(
-                                        'Mozo: ${item['respuesta_mensaje']}',
-                                        style: const TextStyle(
-                                          color: Colors.white70,
-                                        ),
+                            return Align(
+                              alignment:
+                                  esCliente
+                                      ? Alignment.centerRight
+                                      : Alignment.centerLeft,
+                              child: Container(
+                                margin: const EdgeInsets.symmetric(vertical: 4),
+                                padding: const EdgeInsets.fromLTRB(
+                                  12,
+                                  9,
+                                  12,
+                                  8,
+                                ),
+                                constraints: const BoxConstraints(
+                                  maxWidth: 320,
+                                ),
+                                decoration: BoxDecoration(
+                                  color:
+                                      esCliente
+                                          ? const Color(0xFF2D6A4F)
+                                          : Colors.white.withOpacity(0.18),
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(color: Colors.white24),
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      item['mensaje']?.toString() ?? '',
+                                      style: const TextStyle(
+                                        color: Colors.white,
                                       ),
                                     ),
-                                ],
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      esCliente ? 'Tú - $hora' : 'Mozo - $hora',
+                                      style: const TextStyle(
+                                        color: Colors.white70,
+                                        fontSize: 11,
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
                             );
                           },
                         ),
+              ),
+              Container(
+                margin: const EdgeInsets.fromLTRB(10, 0, 10, 10),
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.12),
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(color: Colors.white24),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: _controller,
+                        maxLines: 2,
+                        minLines: 1,
+                        style: const TextStyle(color: Colors.white),
+                        decoration: const InputDecoration(
+                          hintText: 'Escribe tu mensaje...',
+                          hintStyle: TextStyle(color: Colors.white54),
+                          border: OutlineInputBorder(),
+                          isDense: true,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    FilledButton(
+                      onPressed: _enviando ? null : _enviarMensaje,
+                      child:
+                          _enviando
+                              ? const LogoSpinner(size: 18, strokeWidth: 2)
+                              : const Text('Enviar'),
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
