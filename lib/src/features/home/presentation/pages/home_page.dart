@@ -175,6 +175,9 @@ class _HomePageState extends State<HomePage> {
     final puedeCrearProductos = _perfil == 'cocinero' || _perfil == 'cantinero';
     final esMetre = _perfil == 'metre';
     final esCliente = _esPerfilCliente(_perfil);
+    final esMozo = _perfil == 'mozo';
+    final esCocinero = _perfil == 'cocinero';
+    final esCantinero = _perfil == 'cantinero';
 
     return Scaffold(
       appBar: AppBar(
@@ -307,6 +310,30 @@ class _HomePageState extends State<HomePage> {
                               Navigator.pushNamed(context, '/alta-clientes');
                             },
                             child: const Text('Alta cliente'),
+                          ),
+                        if (esMozo) const SizedBox(height: 12),
+                        if (esMozo)
+                          ElevatedButton(
+                            onPressed: () {
+                              Navigator.pushNamed(context, '/pedidos-mozo');
+                            },
+                            child: const Text('Gestionar pedidos y pagos'),
+                          ),
+                        if (esCocinero) const SizedBox(height: 12),
+                        if (esCocinero)
+                          ElevatedButton(
+                            onPressed: () {
+                              Navigator.pushNamed(context, '/pedidos-cocina');
+                            },
+                            child: const Text('Pedidos de cocina'),
+                          ),
+                        if (esCantinero) const SizedBox(height: 12),
+                        if (esCantinero)
+                          ElevatedButton(
+                            onPressed: () {
+                              Navigator.pushNamed(context, '/pedidos-bar');
+                            },
+                            child: const Text('Pedidos de bar'),
                           ),
                         if (!esCliente) const Spacer(),
                       ],

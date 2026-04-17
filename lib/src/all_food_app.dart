@@ -2,6 +2,9 @@ import 'package:all_food/src/features/carta/presentation/pages/carta_cliente.dar
 import 'package:all_food/src/features/carta/presentation/pages/carta_page.dart';
 import 'package:all_food/src/features/clientes/presentation/pages/alta_clientes_page.dart';
 import 'package:all_food/src/features/mesas/presentation/pages/asignar_mesa.dart';
+import 'package:all_food/src/features/pedidos/presentation/pages/cliente_pedido_page.dart';
+import 'package:all_food/src/features/pedidos/presentation/pages/pedidos_mozo_page.dart';
+import 'package:all_food/src/features/pedidos/presentation/pages/pedidos_sector_page.dart';
 import 'package:all_food/src/features/staff/presentation/pages/alta_empleado_page.dart';
 import 'package:all_food/src/features/clientes/presentation/pages/clientes_pendientes_page.dart';
 import 'package:all_food/src/features/mesas/presentation/pages/crear_mesa_page.dart';
@@ -87,9 +90,32 @@ class AllFoodApp extends StatelessWidget {
         },
 
         '/carta-cliente': (context) {
-          final tipo = ModalRoute.of(context)!.settings.arguments as String;
-          return CartaClientePage(tipo: tipo);
+          final rawArgs = ModalRoute.of(context)!.settings.arguments;
+          if (rawArgs is String) {
+            return CartaClientePage(tipo: rawArgs);
+          }
+
+          final args = rawArgs as Map<String, dynamic>;
+          return CartaClientePage(
+            tipo: args['tipo'] as String,
+            mesaId: args['mesaId'] as String?,
+            numeroMesa: (args['numeroMesa'] as num?)?.toInt(),
+          );
         },
+
+        '/pedido-cliente': (context) {
+          final args =
+              ModalRoute.of(context)!.settings.arguments
+                  as Map<String, dynamic>;
+          return ClientePedidoPage(
+            mesaId: args['mesaId'] as String,
+            numeroMesa: (args['numeroMesa'] as num).toInt(),
+          );
+        },
+
+        '/pedidos-mozo': (_) => const PedidosMozoPage(),
+        '/pedidos-cocina': (_) => const PedidosSectorPage(sector: 'cocina'),
+        '/pedidos-bar': (_) => const PedidosSectorPage(sector: 'bar'),
 
         '/alta-empleado': (_) => AltaEmpleadoPage(supabaseReady: supabaseReady),
 

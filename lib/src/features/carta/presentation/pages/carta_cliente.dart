@@ -1,5 +1,6 @@
 import 'package:all_food/src/features/carta/data/repositories/carta_repository.dart';
 import 'package:all_food/src/features/carta/data/models/producto_model.dart';
+import 'package:all_food/src/features/pedidos/data/repositories/pedidos_repository.dart';
 import 'package:all_food/src/shared/errors/app_error_mapper.dart';
 import 'package:all_food/src/shared/widgets/logo_spinner.dart';
 import 'package:flutter/material.dart';
@@ -10,9 +11,16 @@ import 'package:flutter/material.dart';
 //  de modo que el flujo puede instanciarla para cada sección.
 // ─────────────────────────────────────────────────────────────
 class CartaClientePage extends StatefulWidget {
-  const CartaClientePage({required this.tipo, super.key});
+  const CartaClientePage({
+    required this.tipo,
+    this.mesaId,
+    this.numeroMesa,
+    super.key,
+  });
 
   final String tipo;
+  final String? mesaId;
+  final int? numeroMesa;
 
   @override
   State<CartaClientePage> createState() => _CartaClientePageState();
@@ -20,12 +28,15 @@ class CartaClientePage extends StatefulWidget {
 
 class _CartaClientePageState extends State<CartaClientePage> {
   final _repository = CartaRepository();
+  final _pedidosRepository = PedidosRepository();
   final _pageController = PageController();
   final _searchController = TextEditingController();
 
   List<ProductoModel> _productos = [];
   bool _cargando = true;
+  bool _agregando = false;
   String? _error;
+  Map<String, dynamic>? _resumenPedido;
 
   @override
   void initState() {
@@ -57,6 +68,10 @@ class _CartaClientePageState extends State<CartaClientePage> {
         _productos = data.map(ProductoModel.fromMap).toList();
         _cargando = false;
       });
+
+      if (widget.mesaId != null) {
+        await _cargarResumenPedido();
+      }
     } catch (e) {
       if (!mounted) return;
       setState(() {
@@ -69,19 +84,73 @@ class _CartaClientePageState extends State<CartaClientePage> {
     }
   }
 
+  Future<void> _cargarResumenPedido() async {
+    final mesaId = widget.mesaId;
+    if (mesaId == null) return;
+
+    final detalle = await _pedidosRepository.getDetallePedido(mesaId);
+    final pedido = detalle['pedido'] as Map<String, dynamic>?;
+
+    if (!mounted) return;
+    setState(() {
+      if (pedido == null) {
+        _resumenPedido = null;
+      } else {
+        _resumenPedido = {
+          'estado': pedido['estado'],
+          'subtotal': pedido['subtotal'],
+          'tiempoTotalMin': detalle['tiempoTotalMin'],
+        };
+      }
+    });
+  }
+
   void _onBuscar(String valor) {
     _cargar(nombre: valor.isEmpty ? null : valor);
   }
 
-  // ── Placeholder: se implementará cuando continúes el flujo de pedidos ──
-  void _onAgregarAlPedido(ProductoModel producto) {
-    // TODO: integrar con el bloc/provider de pedidos
+  Future<void> _onAgregarAlPedido(ProductoModel producto) async {
+    if (widget.mesaId == null) {
+      _mostrarMensaje(
+        'No hay mesa vinculada. Escaneá el QR de mesa para pedir.',
+        esError: true,
+      );
+      return;
+    }
+
+    setState(() => _agregando = true);
+    try {
+      await _pedidosRepository.agregarProducto(
+        mesaId: widget.mesaId!,
+        producto: producto,
+      );
+      if (!mounted) return;
+      await _cargarResumenPedido();
+      _mostrarMensaje('${producto.nombre} agregado al pedido.', esError: false);
+    } catch (error) {
+      if (!mounted) return;
+      _mostrarMensaje(
+        AppErrorMapper.toUserMessage(
+          error,
+          fallbackMessage: 'No se pudo agregar el producto al pedido.',
+        ),
+        esError: true,
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _agregando = false);
+      }
+    }
+  }
+
+  void _mostrarMensaje(String mensaje, {required bool esError}) {
     ScaffoldMessenger.of(context)
       ..clearSnackBars()
       ..showSnackBar(
         SnackBar(
-          content: Text('${producto.nombre} agregado al pedido.'),
-          backgroundColor: const Color(0xFF2D6A4F),
+          content: Text(mensaje),
+          backgroundColor:
+              esError ? const Color(0xFF992E2E) : const Color(0xFF2D6A4F),
           duration: const Duration(seconds: 2),
         ),
       );
@@ -136,20 +205,20 @@ class _CartaClientePageState extends State<CartaClientePage> {
                     fillColor: const Color(0xFF8D2628),
                     hintText: 'Buscar por nombre...',
                     hintStyle: const TextStyle(color: Colors.white54),
-                    prefixIcon:
-                        const Icon(Icons.search, color: Colors.white54),
-                    suffixIcon: _searchController.text.isNotEmpty
-                        ? IconButton(
-                            icon: const Icon(
-                              Icons.clear,
-                              color: Colors.white54,
-                            ),
-                            onPressed: () {
-                              _searchController.clear();
-                              _onBuscar('');
-                            },
-                          )
-                        : null,
+                    prefixIcon: const Icon(Icons.search, color: Colors.white54),
+                    suffixIcon:
+                        _searchController.text.isNotEmpty
+                            ? IconButton(
+                              icon: const Icon(
+                                Icons.clear,
+                                color: Colors.white54,
+                              ),
+                              onPressed: () {
+                                _searchController.clear();
+                                _onBuscar('');
+                              },
+                            )
+                            : null,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(14),
                       borderSide: BorderSide.none,
@@ -168,63 +237,105 @@ class _CartaClientePageState extends State<CartaClientePage> {
                   ),
                 ),
 
+              if (widget.mesaId != null)
+                Container(
+                  margin: const EdgeInsets.fromLTRB(12, 0, 12, 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 10,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.12),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.white24),
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          _resumenPedido == null
+                              ? 'Pedido vacío'
+                              : 'Total: \$${((_resumenPedido!['subtotal'] as num?) ?? 0).toStringAsFixed(2)}',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        child: Text(
+                          _resumenPedido == null
+                              ? 'Tiempo: 0 min'
+                              : 'Tiempo: ${_resumenPedido!['tiempoTotalMin']} min',
+                          textAlign: TextAlign.end,
+                          style: const TextStyle(color: Colors.white70),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
               // ── Contenido ─────────────────────────────────────────────
               Expanded(
-                child: _cargando
-                    ? const Center(
-                        child: LogoSpinner(size: 60, strokeWidth: 4),
-                      )
-                    : _error != null
+                child:
+                    _cargando
+                        ? const Center(
+                          child: LogoSpinner(size: 60, strokeWidth: 4),
+                        )
+                        : _error != null
                         ? Center(
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(
-                                  _error!,
-                                  style:
-                                      const TextStyle(color: Colors.white70),
-                                  textAlign: TextAlign.center,
-                                ),
-                                const SizedBox(height: 12),
-                                FilledButton(
-                                  style: FilledButton.styleFrom(
-                                    backgroundColor: const Color(0xFF2D6A4F),
-                                  ),
-                                  onPressed: () => _cargar(),
-                                  child: const Text('Reintentar'),
-                                ),
-                              ],
-                            ),
-                          )
-                        : _productos.isEmpty
-                            ? const Center(
-                                child: Text(
-                                  'No hay productos disponibles.',
-                                  style: TextStyle(color: Colors.white70),
-                                ),
-                              )
-                            : PageView.builder(
-                                controller: _pageController,
-                                scrollDirection: Axis.vertical,
-                                itemCount: _productos.length,
-                                itemBuilder: (context, index) {
-                                  final producto = _productos[index];
-                                  return Padding(
-                                    padding: const EdgeInsets.fromLTRB(
-                                        12, 8, 12, 16),
-                                    child: _ProductoClienteCard(
-                                      producto: producto,
-                                      index: index,
-                                      total: _productos.length,
-                                      onAgregarAlPedido: () =>
-                                          _onAgregarAlPedido(producto),
-                                      onVerDetalle: () =>
-                                          _onVerDetalle(producto),
-                                    ),
-                                  );
-                                },
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                _error!,
+                                style: const TextStyle(color: Colors.white70),
+                                textAlign: TextAlign.center,
                               ),
+                              const SizedBox(height: 12),
+                              FilledButton(
+                                style: FilledButton.styleFrom(
+                                  backgroundColor: const Color(0xFF2D6A4F),
+                                ),
+                                onPressed: () => _cargar(),
+                                child: const Text('Reintentar'),
+                              ),
+                            ],
+                          ),
+                        )
+                        : _productos.isEmpty
+                        ? const Center(
+                          child: Text(
+                            'No hay productos disponibles.',
+                            style: TextStyle(color: Colors.white70),
+                          ),
+                        )
+                        : PageView.builder(
+                          controller: _pageController,
+                          scrollDirection: Axis.vertical,
+                          itemCount: _productos.length,
+                          itemBuilder: (context, index) {
+                            final producto = _productos[index];
+                            return Padding(
+                              padding: const EdgeInsets.fromLTRB(12, 8, 12, 16),
+                              child: _ProductoClienteCard(
+                                producto: producto,
+                                index: index,
+                                total: _productos.length,
+                                onAgregarAlPedido:
+                                    () => _onAgregarAlPedido(producto),
+                                onVerDetalle: () => _onVerDetalle(producto),
+                              ),
+                            );
+                          },
+                        ),
               ),
+
+              if (_agregando)
+                const Padding(
+                  padding: EdgeInsets.only(bottom: 10),
+                  child: LogoSpinner(size: 26, strokeWidth: 2),
+                ),
             ],
           ),
         ),
@@ -315,28 +426,31 @@ class _ProductoClienteCardState extends State<_ProductoClienteCard> {
                       controller: _fotoController,
                       itemCount: p.fotos.length,
                       onPageChanged: (i) => setState(() => _fotoActual = i),
-                      itemBuilder: (_, i) => Image.network(
-                        p.fotos[i],
-                        fit: BoxFit.cover,
-                        width: double.infinity,
-                        loadingBuilder: (_, child, progress) =>
-                            progress == null
-                                ? child
-                                : const Center(
-                                    child: CircularProgressIndicator(
-                                      color: Color(0xFF7A2021),
-                                    ),
+                      itemBuilder:
+                          (_, i) => Image.network(
+                            p.fotos[i],
+                            fit: BoxFit.cover,
+                            width: double.infinity,
+                            loadingBuilder:
+                                (_, child, progress) =>
+                                    progress == null
+                                        ? child
+                                        : const Center(
+                                          child: CircularProgressIndicator(
+                                            color: Color(0xFF7A2021),
+                                          ),
+                                        ),
+                            errorBuilder:
+                                (_, __, ___) => Container(
+                                  color: const Color(0xFFF0F0F0),
+                                  alignment: Alignment.center,
+                                  child: const Icon(
+                                    Icons.broken_image,
+                                    color: Color(0xFF8A8A8A),
+                                    size: 48,
                                   ),
-                        errorBuilder: (_, __, ___) => Container(
-                          color: const Color(0xFFF0F0F0),
-                          alignment: Alignment.center,
-                          child: const Icon(
-                            Icons.broken_image,
-                            color: Color(0xFF8A8A8A),
-                            size: 48,
+                                ),
                           ),
-                        ),
-                      ),
                     ),
 
                     // Indicadores del carrusel
@@ -349,14 +463,14 @@ class _ProductoClienteCardState extends State<_ProductoClienteCard> {
                         children: List.generate(p.fotos.length, (i) {
                           return AnimatedContainer(
                             duration: const Duration(milliseconds: 200),
-                            margin:
-                                const EdgeInsets.symmetric(horizontal: 3),
+                            margin: const EdgeInsets.symmetric(horizontal: 3),
                             width: _fotoActual == i ? 18 : 8,
                             height: 8,
                             decoration: BoxDecoration(
-                              color: _fotoActual == i
-                                  ? Colors.white
-                                  : Colors.white60,
+                              color:
+                                  _fotoActual == i
+                                      ? Colors.white
+                                      : Colors.white60,
                               borderRadius: BorderRadius.circular(4),
                             ),
                           );
@@ -401,9 +515,8 @@ class _ProductoClienteCardState extends State<_ProductoClienteCard> {
                   ),
                   const SizedBox(height: 10),
                   _ProductoInfoTile(
-                    icon: p.tipo == 'plato'
-                        ? Icons.restaurant
-                        : Icons.local_bar,
+                    icon:
+                        p.tipo == 'plato' ? Icons.restaurant : Icons.local_bar,
                     label: 'Descripción',
                     value: p.descripcion,
                     fullWidth: true,
@@ -419,10 +532,7 @@ class _ProductoClienteCardState extends State<_ProductoClienteCard> {
               style: OutlinedButton.styleFrom(
                 foregroundColor: const Color(0xFF7A2021),
                 backgroundColor: const Color(0xFFFFF4F4),
-                side: const BorderSide(
-                  color: Color(0xFF7A2021),
-                  width: 1.4,
-                ),
+                side: const BorderSide(color: Color(0xFF7A2021), width: 1.4),
                 minimumSize: const Size.fromHeight(50),
                 textStyle: const TextStyle(
                   fontSize: 15,

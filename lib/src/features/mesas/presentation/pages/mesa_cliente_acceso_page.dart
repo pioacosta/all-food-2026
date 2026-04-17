@@ -64,7 +64,11 @@ class MesaClienteAccesoPage extends StatelessWidget {
                       () => Navigator.pushNamed(
                         context,
                         '/carta-cliente',
-                        arguments: 'plato',
+                        arguments: {
+                          'tipo': 'plato',
+                          'mesaId': mesa['id'],
+                          'numeroMesa': numeroMesa,
+                        },
                       ),
                 ),
                 const SizedBox(height: 10),
@@ -77,7 +81,11 @@ class MesaClienteAccesoPage extends StatelessWidget {
                       () => Navigator.pushNamed(
                         context,
                         '/carta-cliente',
-                        arguments: 'bebida',
+                        arguments: {
+                          'tipo': 'bebida',
+                          'mesaId': mesa['id'],
+                          'numeroMesa': numeroMesa,
+                        },
                       ),
                 ),
                 const SizedBox(height: 10),
@@ -98,20 +106,36 @@ class MesaClienteAccesoPage extends StatelessWidget {
                       ),
                 ),
                 const SizedBox(height: 10),
-                const _AccesoCard(
+                _AccesoCard(
                   titulo: 'Estado de pedido y juegos',
                   detalle:
-                      'Disponible cuando se complete el flujo de pedido y descuentos.',
+                      'Gestioná el pedido, estado, encuesta y cuenta desde esta sección.',
                   icono: Icons.pending_actions,
-                  habilitado: false,
+                  onTap:
+                      () => Navigator.pushNamed(
+                        context,
+                        '/pedido-cliente',
+                        arguments: {
+                          'mesaId': mesa['id'],
+                          'numeroMesa': numeroMesa,
+                        },
+                      ),
                 ),
                 const SizedBox(height: 10),
-                const _AccesoCard(
+                _AccesoCard(
                   titulo: 'Encuesta y pedir cuenta',
                   detalle:
-                      'Se habilita despues de la entrega del pedido y cierre de mesa.',
+                      'Una vez recibido el pedido podrás completar encuesta y pagar.',
                   icono: Icons.receipt_long,
-                  habilitado: false,
+                  onTap:
+                      () => Navigator.pushNamed(
+                        context,
+                        '/pedido-cliente',
+                        arguments: {
+                          'mesaId': mesa['id'],
+                          'numeroMesa': numeroMesa,
+                        },
+                      ),
                 ),
               ],
             ),
