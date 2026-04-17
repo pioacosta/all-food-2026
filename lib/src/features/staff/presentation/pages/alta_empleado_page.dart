@@ -286,28 +286,7 @@ class _AltaEmpleadoPageState extends State<AltaEmpleadoPage> {
       return 'El CUIL debe tener exactamente 11 dígitos.';
     }
 
-    if (!_esCuilValido(text)) {
-      return 'El CUIL ingresado no es válido.';
-    }
-
     return null;
-  }
-
-  bool _esCuilValido(String cuil) {
-    final factores = <int>[5, 4, 3, 2, 7, 6, 5, 4, 3, 2];
-    var suma = 0;
-
-    for (var i = 0; i < factores.length; i++) {
-      suma += int.parse(cuil[i]) * factores[i];
-    }
-
-    final modulo = suma % 11;
-    var verificador = 11 - modulo;
-
-    if (verificador == 11) verificador = 0;
-    if (verificador == 10) verificador = 9;
-
-    return verificador == int.parse(cuil[10]);
   }
 
   String? _validarCorreo(String? value) {
