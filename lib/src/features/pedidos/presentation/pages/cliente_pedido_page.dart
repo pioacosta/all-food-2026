@@ -253,6 +253,10 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
         detalle['lineas'] as List<Map<String, dynamic>>? ?? const [],
       );
       final subtotal = ((detalle['subtotal'] as num?) ?? 0).toDouble();
+      final estadoCuenta = detalle['estado']?.toString() ?? 'sin_pedido';
+      final emitidoAt = DateTime.tryParse(
+        detalle['emitidoAt']?.toString() ?? '',
+      );
       final descuentoPorcentaje =
           ((detalle['descuentoPorcentaje'] as num?) ?? 0).toDouble();
       final montoDescuento =
@@ -281,6 +285,32 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
                       color: Colors.white,
                       fontWeight: FontWeight.w700,
                       fontSize: 18,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: Colors.white24),
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            'Estado: ${_estadoLegible(estadoCuenta)}',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                        Text(
+                          'Emitida: ${_formatearFechaHora(emitidoAt)}',
+                          style: const TextStyle(color: Colors.white70),
+                        ),
+                      ],
                     ),
                   ),
                   const SizedBox(height: 10),
@@ -774,6 +804,17 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
       default:
         return 'Sin pedido';
     }
+  }
+
+  String _formatearFechaHora(DateTime? fecha) {
+    if (fecha == null) return '--/-- ----';
+    final local = fecha.toLocal();
+    final dia = local.day.toString().padLeft(2, '0');
+    final mes = local.month.toString().padLeft(2, '0');
+    final anio = local.year.toString();
+    final hora = local.hour.toString().padLeft(2, '0');
+    final minuto = local.minute.toString().padLeft(2, '0');
+    return '$dia/$mes/$anio $hora:$minuto';
   }
 }
 

@@ -95,6 +95,8 @@ class PedidosRepository {
     if (pedido == null) {
       return {
         'pedidoId': null,
+        'estado': 'sin_pedido',
+        'emitidoAt': null,
         'lineas': <Map<String, dynamic>>[],
         'subtotal': 0.0,
         'descuentoPorcentaje': 0.0,
@@ -142,6 +144,8 @@ class PedidosRepository {
 
     return {
       'pedidoId': pedidoId,
+      'estado': pedido['estado']?.toString() ?? 'sin_pedido',
+      'emitidoAt': pedido['created_at'],
       'lineas': lineas,
       'subtotal': subtotal,
       'descuentoPorcentaje': descuentoPorcentaje,
