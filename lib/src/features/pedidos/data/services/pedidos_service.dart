@@ -38,6 +38,14 @@ class PedidosService {
     return _client.from('pedidos').select('*').eq('id', pedidoId).maybeSingle();
   }
 
+  Future<Map<String, dynamic>?> getPerfilById(String userId) async {
+    return _client
+        .from('perfiles')
+        .select('nombres, apellidos')
+        .eq('id', userId)
+        .maybeSingle();
+  }
+
   Future<Map<String, dynamic>> createPedido({
     required String mesaId,
     required String clienteId,

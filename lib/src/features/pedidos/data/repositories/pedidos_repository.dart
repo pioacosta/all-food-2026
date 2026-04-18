@@ -208,17 +208,25 @@ class PedidosRepository {
   }
 
   Future<List<Map<String, dynamic>>> getPedidosPendientesMozo() {
-    return _service.getPedidosByEstado(estados: ['pendiente_mozo']);
+    return _service
+        .getPedidosByEstado(estados: ['pendiente_mozo'])
+        .then(_enriquecerPedidosConCliente);
   }
 
   Future<List<Map<String, dynamic>>> getPedidosListosEntrega() {
-    return _service.getPedidosByEstado(estados: ['listo_para_entrega']);
+    return _service
+        .getPedidosByEstado(estados: ['listo_para_entrega'])
+        .then(_enriquecerPedidosConCliente);
   }
 
   Future<List<Map<String, dynamic>>> getPedidosPagoPendiente() {
-    return _service.getPedidosByEstado(
-      estados: ['pago_pendiente_confirmacion'],
-    );
+    return _service
+        .getPedidosByEstado(estados: ['pago_pendiente_confirmacion'])
+        .then(_enriquecerPedidosConCliente);
+  }
+
+  Future<List<Map<String, dynamic>>> getItemsPedidoById(String pedidoId) {
+    return _service.getItemsPedido(pedidoId);
   }
 
   Future<void> rechazarPedido({
@@ -628,5 +636,34 @@ class PedidosRepository {
       tipo: tipo,
       referenciaId: referenciaId,
     );
+  }
+
+  Future<List<Map<String, dynamic>>> _enriquecerPedidosConCliente(
+    List<Map<String, dynamic>> pedidos,
+  ) async {
+    if (pedidos.isEmpty) return pedidos;
+
+    final enriquecidos = await Future.wait(
+      pedidos.map((pedido) async {
+        final enriched = Map<String, dynamic>.from(pedido);
+        final clienteId = enriched['cliente_id'] as String?;
+        if (clienteId == null) {
+          enriched['cliente_nombre'] = 'Cliente';
+          return enriched;
+        }
+
+        final perfil = await _service.getPerfilById(clienteId);
+        final nombres = (perfil?['nombres'] as String?)?.trim() ?? '';
+        final apellidos = (perfil?['apellidos'] as String?)?.trim() ?? '';
+        final nombreCompleto =
+            [nombres, apellidos].where((s) => s.isNotEmpty).join(' ').trim();
+
+        enriched['cliente_nombre'] =
+            nombreCompleto.isEmpty ? 'Cliente' : nombreCompleto;
+        return enriched;
+      }).toList(),
+    );
+
+    return enriquecidos;
   }
 }

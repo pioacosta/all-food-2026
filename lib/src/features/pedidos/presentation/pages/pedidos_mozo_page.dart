@@ -384,6 +384,192 @@ class _PedidosMozoPageState extends State<PedidosMozoPage> {
     }
   }
 
+  Future<void> _mostrarDetallePedidoPendiente(
+    Map<String, dynamic> pedido,
+  ) async {
+    final pedidoId = pedido['id'] as String?;
+    if (pedidoId == null) return;
+
+    setState(() => _procesando = true);
+    try {
+      final items = await _repo.getItemsPedidoById(pedidoId);
+      if (!mounted) return;
+
+      setState(() => _procesando = false);
+
+      final mesa = pedido['mesas'] as Map<String, dynamic>?;
+      final numeroMesa = mesa?['numero']?.toString() ?? '-';
+      final cliente = pedido['cliente_nombre']?.toString() ?? 'Cliente';
+      final creadoAt = DateTime.tryParse(
+        pedido['created_at']?.toString() ?? '',
+      );
+
+      final accion = await showModalBottomSheet<_AccionPedidoPendiente>(
+        context: context,
+        isScrollControlled: true,
+        backgroundColor: const Color(0xFF7A2021),
+        builder: (_) {
+          return SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(14, 14, 14, 14),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const Text(
+                    'Detalle de pedido pendiente',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w800,
+                      fontSize: 18,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: Colors.white24),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Mesa $numeroMesa',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w700,
+                            fontSize: 16,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Cliente: $cliente',
+                          style: const TextStyle(color: Colors.white70),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          'Hora: ${_formatearFechaHora(creadoAt)}',
+                          style: const TextStyle(color: Colors.white70),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  if (items.isEmpty)
+                    const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 16),
+                      child: Text(
+                        'No hay ítems cargados en el pedido.',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: Colors.white70),
+                      ),
+                    )
+                  else
+                    ConstrainedBox(
+                      constraints: const BoxConstraints(maxHeight: 280),
+                      child: ListView.separated(
+                        shrinkWrap: true,
+                        itemCount: items.length,
+                        separatorBuilder: (_, __) => const SizedBox(height: 6),
+                        itemBuilder: (context, index) {
+                          final item = items[index];
+                          final nombre =
+                              item['nombre_snapshot']?.toString() ?? '-';
+                          final cantidad =
+                              (item['cantidad'] as num?)?.toInt() ?? 0;
+                          final precio =
+                              ((item['precio_unitario'] as num?) ?? 0)
+                                  .toDouble();
+
+                          return Container(
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(color: Colors.white24),
+                            ),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    '$nombre x$cantidad',
+                                    style: const TextStyle(color: Colors.white),
+                                  ),
+                                ),
+                                Text(
+                                  '\$${(precio * cantidad).toStringAsFixed(2)}',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton(
+                          onPressed: () => Navigator.of(context).pop(),
+                          child: const Text('Cerrar'),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: OutlinedButton(
+                          onPressed:
+                              () => Navigator.of(
+                                context,
+                              ).pop(_AccionPedidoPendiente.rechazar),
+                          child: const Text('Rechazar'),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: FilledButton(
+                          onPressed:
+                              () => Navigator.of(
+                                context,
+                              ).pop(_AccionPedidoPendiente.confirmar),
+                          child: const Text('Confirmar'),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      );
+
+      if (!mounted) return;
+      if (accion == _AccionPedidoPendiente.confirmar) {
+        await _confirmarPedido(pedidoId);
+      } else if (accion == _AccionPedidoPendiente.rechazar) {
+        await _rechazarPedido(pedidoId);
+      }
+    } catch (error) {
+      if (!mounted) return;
+      _mostrarMensaje(
+        AppErrorMapper.toUserMessage(
+          error,
+          fallbackMessage: 'No se pudo cargar el detalle del pedido.',
+        ),
+        esError: true,
+      );
+    } finally {
+      if (mounted) setState(() => _procesando = false);
+    }
+  }
+
   String _estadoLegible(String estado) {
     switch (estado) {
       case 'borrador':
@@ -459,36 +645,58 @@ class _PedidosMozoPageState extends State<PedidosMozoPage> {
                         child: _SeccionPedidos(
                           titulo: 'Pendientes de confirmación',
                           pedidos: _pendientes,
-                          accionesBuilder:
-                              (pedido) => [
-                                OutlinedButton(
-                                  onPressed:
-                                      _procesando
-                                          ? null
-                                          : () => _rechazarPedido(
-                                            pedido['id'] as String,
-                                          ),
-                                  child: const Text('Rechazar'),
-                                ),
-                                const SizedBox(width: 8),
-                                FilledButton(
-                                  onPressed:
-                                      _procesando
-                                          ? null
-                                          : () => _confirmarPedido(
-                                            pedido['id'] as String,
-                                          ),
-                                  child: const Text('Confirmar'),
-                                ),
-                              ],
+                          onTapPedido:
+                              _procesando
+                                  ? null
+                                  : (pedido) =>
+                                      _mostrarDetallePedidoPendiente(pedido),
+                          itemBuilder: (pedido) {
+                            final mesa =
+                                pedido['mesas'] as Map<String, dynamic>?;
+                            final numeroMesa =
+                                mesa?['numero']?.toString() ?? '-';
+                            final cliente =
+                                pedido['cliente_nombre']?.toString() ??
+                                'Cliente';
+                            final fecha = DateTime.tryParse(
+                              pedido['created_at']?.toString() ?? '',
+                            );
+
+                            return _PedidoCardBase(
+                              titulo: 'Mesa $numeroMesa',
+                              subtitulo: 'Cliente: $cliente',
+                              detalle: 'Hora: ${_formatearFechaHora(fecha)}',
+                              badgeTexto: 'Pendiente',
+                              badgeColor: const Color(0xFFF59E0B),
+                              pie: 'Tocá para ver detalle y confirmar/rechazar',
+                            );
+                          },
                         ),
                       ),
                       Expanded(
                         child: _SeccionPedidos(
                           titulo: 'Listos para entregar',
                           pedidos: _listosEntrega,
-                          accionesBuilder:
-                              (pedido) => [
+                          itemBuilder: (pedido) {
+                            final mesa =
+                                pedido['mesas'] as Map<String, dynamic>?;
+                            final numeroMesa =
+                                mesa?['numero']?.toString() ?? '-';
+                            final cliente =
+                                pedido['cliente_nombre']?.toString() ??
+                                'Cliente';
+                            final fecha = DateTime.tryParse(
+                              pedido['created_at']?.toString() ?? '',
+                            );
+
+                            return _PedidoCardBase(
+                              titulo: 'Mesa $numeroMesa',
+                              subtitulo: 'Cliente: $cliente',
+                              detalle:
+                                  'Pedido listo desde ${_formatearFechaHora(fecha)}',
+                              badgeTexto: 'Listo',
+                              badgeColor: const Color(0xFF22C55E),
+                              acciones: [
                                 FilledButton(
                                   onPressed:
                                       _procesando
@@ -497,14 +705,34 @@ class _PedidosMozoPageState extends State<PedidosMozoPage> {
                                   child: const Text('Marcar entregado'),
                                 ),
                               ],
+                            );
+                          },
                         ),
                       ),
                       Expanded(
                         child: _SeccionPedidos(
                           titulo: 'Pagos a confirmar',
                           pedidos: _pagosPendientes,
-                          accionesBuilder:
-                              (pedido) => [
+                          itemBuilder: (pedido) {
+                            final mesa =
+                                pedido['mesas'] as Map<String, dynamic>?;
+                            final numeroMesa =
+                                mesa?['numero']?.toString() ?? '-';
+                            final cliente =
+                                pedido['cliente_nombre']?.toString() ??
+                                'Cliente';
+                            final fecha = DateTime.tryParse(
+                              pedido['created_at']?.toString() ?? '',
+                            );
+
+                            return _PedidoCardBase(
+                              titulo: 'Mesa $numeroMesa',
+                              subtitulo: 'Cliente: $cliente',
+                              detalle:
+                                  'Pago informado ${_formatearFechaHora(fecha)}',
+                              badgeTexto: 'Pago',
+                              badgeColor: const Color(0xFF38BDF8),
+                              acciones: [
                                 OutlinedButton(
                                   onPressed:
                                       _procesando
@@ -520,6 +748,8 @@ class _PedidosMozoPageState extends State<PedidosMozoPage> {
                                   child: const Text('Confirmar pago'),
                                 ),
                               ],
+                            );
+                          },
                         ),
                       ),
                     ],
@@ -534,12 +764,25 @@ class _SeccionPedidos extends StatelessWidget {
   const _SeccionPedidos({
     required this.titulo,
     required this.pedidos,
-    required this.accionesBuilder,
+    required this.itemBuilder,
+    this.onTapPedido,
   });
 
   final String titulo;
   final List<Map<String, dynamic>> pedidos;
-  final List<Widget> Function(Map<String, dynamic>) accionesBuilder;
+  final Widget Function(Map<String, dynamic>) itemBuilder;
+  final void Function(Map<String, dynamic>)? onTapPedido;
+
+  List<List<Map<String, dynamic>>> _agruparEnPaginas(
+    List<Map<String, dynamic>> source,
+  ) {
+    final paginas = <List<Map<String, dynamic>>>[];
+    for (var i = 0; i < source.length; i += 2) {
+      final fin = (i + 2).clamp(0, source.length);
+      paginas.add(source.sublist(i, fin));
+    }
+    return paginas;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -572,37 +815,35 @@ class _SeccionPedidos extends StatelessWidget {
                         style: TextStyle(color: Colors.white70),
                       ),
                     )
-                    : ListView.separated(
-                      itemCount: pedidos.length,
-                      separatorBuilder: (_, __) => const SizedBox(height: 8),
-                      itemBuilder: (context, index) {
-                        final pedido = pedidos[index];
-                        final mesa = pedido['mesas'] as Map<String, dynamic>?;
-                        final numeroMesa = mesa?['numero']?.toString() ?? '-';
-                        return Container(
-                          padding: const EdgeInsets.all(10),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.08),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Mesa $numeroMesa',
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                              const SizedBox(height: 6),
-                              Wrap(
-                                spacing: 8,
-                                runSpacing: 8,
-                                children: accionesBuilder(pedido),
-                              ),
-                            ],
-                          ),
+                    : Builder(
+                      builder: (context) {
+                        final paginas = _agruparEnPaginas(pedidos);
+                        return PageView.builder(
+                          scrollDirection: Axis.vertical,
+                          itemCount: paginas.length,
+                          itemBuilder: (context, indexPagina) {
+                            final pagina = paginas[indexPagina];
+                            return Column(
+                              children: [
+                                for (final pedido in pagina)
+                                  Expanded(
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(bottom: 8),
+                                      child: InkWell(
+                                        onTap:
+                                            onTapPedido == null
+                                                ? null
+                                                : () => onTapPedido!(pedido),
+                                        borderRadius: BorderRadius.circular(10),
+                                        child: itemBuilder(pedido),
+                                      ),
+                                    ),
+                                  ),
+                                if (pagina.length < 2)
+                                  const Expanded(child: SizedBox.shrink()),
+                              ],
+                            );
+                          },
                         );
                       },
                     ),
@@ -612,6 +853,105 @@ class _SeccionPedidos extends StatelessWidget {
     );
   }
 }
+
+class _PedidoCardBase extends StatelessWidget {
+  const _PedidoCardBase({
+    required this.titulo,
+    required this.subtitulo,
+    required this.detalle,
+    required this.badgeTexto,
+    required this.badgeColor,
+    this.pie,
+    this.acciones = const [],
+  });
+
+  final String titulo;
+  final String subtitulo;
+  final String detalle;
+  final String badgeTexto;
+  final Color badgeColor;
+  final String? pie;
+  final List<Widget> acciones;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: Colors.white24),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  titulo,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: badgeColor.withValues(alpha: 0.18),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: badgeColor),
+                ),
+                child: Text(
+                  badgeTexto,
+                  style: TextStyle(
+                    color: badgeColor,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Text(
+            subtitulo,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(color: Colors.white70),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            detalle,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(color: Colors.white70),
+          ),
+          if (pie != null) ...[
+            const Spacer(),
+            Text(
+              pie!,
+              style: const TextStyle(
+                color: Colors.white60,
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+          if (acciones.isNotEmpty) ...[
+            const Spacer(),
+            Wrap(spacing: 8, runSpacing: 8, children: acciones),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+enum _AccionPedidoPendiente { confirmar, rechazar }
 
 class _FilaCuentaMozo extends StatelessWidget {
   const _FilaCuentaMozo({
