@@ -97,3 +97,5 @@ flutter run
 4. Se implemento la carta de cliente donde podra realizar pedidos | Fecha de inicio de la tarea: 15/04/2026 | Fecha de finalización de la tarea: 15/04/2026
 
 5. Implementación de lógica para el envío automático de correos electrónicos al aceptar o rechazar una cuenta con perfil de dueño o supervisor. | Fecha de inicio de la tarea: 16/04/2026 | Fecha de finalización de la tarea: 16/04/2026
+
+6. Configuracion e implementacion de notificaciones push para el aviso a dueño o supervisor de un nuevo cliente registrado | Fecha de inicio de la tarea: 17/04/2026 | Fecha de finalización de la tarea: 18/04/2026

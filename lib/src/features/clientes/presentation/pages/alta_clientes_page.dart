@@ -8,6 +8,7 @@ import 'package:all_food/src/shared/widgets/logo_spinner.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class AltaClientePage extends StatefulWidget {
   const AltaClientePage({required this.supabaseReady, super.key});
@@ -124,6 +125,18 @@ class _AltaClientePageState extends State<AltaClientePage> {
         password: _passwordController.text,
         fotoUrl: fotoUrl,
       );
+
+    try {
+        await Supabase.instance.client.functions.invoke(
+          'notificar-cliente-pendiente',
+          body: {
+            'clienteNombre':
+                '${_nombreController.text.trim()} ${_apellidoController.text.trim()}',
+          },
+        );
+      } catch (_) {
+        // Si falla la notificación no bloqueamos el flujo
+      }
 
       if (!mounted) return;
 

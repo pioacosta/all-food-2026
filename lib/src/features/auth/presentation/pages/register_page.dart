@@ -9,6 +9,7 @@ import 'package:all_food/src/features/auth/data/repositories/auth_repository.dar
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({required this.supabaseReady, super.key});
@@ -129,6 +130,18 @@ class _RegisterPageState extends State<RegisterPage> {
         password: _passwordController.text,
         foto: _foto!,
       );
+
+      try {
+        await Supabase.instance.client.functions.invoke(
+          'notificar-cliente-pendiente',
+          body: {
+            'clienteNombre':
+                '${_nombreController.text.trim()} ${_apellidoController.text.trim()}',
+          },
+        );
+      } catch (_) {
+        // mandar error
+      }
 
       if (!mounted) return;
 

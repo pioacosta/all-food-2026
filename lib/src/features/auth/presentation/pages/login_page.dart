@@ -7,6 +7,9 @@ import 'package:all_food/src/features/auth/data/repositories/auth_repository.dar
 import '../../../../config/demo_accounts.dart';
 import 'anonymous_client_page.dart';
 import 'register_page.dart';
+import 'package:all_food/src/shared/services/notificacion__service.dart';
+
+
 
 class LoginPage extends StatefulWidget {
   const LoginPage({
@@ -227,6 +230,13 @@ class _LoginPageState extends State<LoginPage> {
         _mostrarMensaje('No fue posible iniciar sesión.', esError: true);
         return;
       }
+
+     try {
+        await NotificationService().saveTokenForCurrentUser();
+      } catch (_) {
+        // Si falla no bloqueamos el login
+      }
+
     } catch (error) {
       _mostrarMensaje(
         AppErrorMapper.toUserMessage(
