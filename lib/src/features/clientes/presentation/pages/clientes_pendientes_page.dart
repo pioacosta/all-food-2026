@@ -38,8 +38,7 @@ class _ClientesPendientesPageState extends State<ClientesPendientesPage> {
       return;
     }
     try {
-      final autorizado =
-          await _clienteRepository.canManageClients();
+      final autorizado = await _clienteRepository.canManageClients();
       if (!mounted) return;
       if (!autorizado) {
         setState(() {
@@ -90,31 +89,35 @@ class _ClientesPendientesPageState extends State<ClientesPendientesPage> {
       );
   }
 
-Future<void> _aprobar(Map<String, dynamic> cliente) async {
-  try {
-    await _clienteRepository.approveClient(cliente); // 👈 pasás el cliente completo
-    _mostrarMensaje(
-      'Cliente ${cliente['nombres']} aprobado correctamente.',
-      esError: false,
-    );
-    await _recargar();
-  } catch (e) {
-    _mostrarMensaje('Error al aprobar: $e', esError: true);
+  Future<void> _aprobar(Map<String, dynamic> cliente) async {
+    try {
+      await _clienteRepository.approveClient(
+        cliente,
+      ); // 👈 pasás el cliente completo
+      _mostrarMensaje(
+        'Cliente ${cliente['nombres']} aprobado correctamente.',
+        esError: false,
+      );
+      await _recargar();
+    } catch (e) {
+      _mostrarMensaje('Error al aprobar: $e', esError: true);
+    }
   }
-}
 
-Future<void> _rechazar(Map<String, dynamic> cliente) async {
-  try {
-    await _clienteRepository.rejectClient(cliente); // 👈 pasás el cliente completo
-    _mostrarMensaje(
-      'Cliente ${cliente['nombres']} rechazado.',
-      esError: true,
-    );
-    await _recargar();
-  } catch (e) {
-    _mostrarMensaje('Error al rechazar: $e', esError: true);
+  Future<void> _rechazar(Map<String, dynamic> cliente) async {
+    try {
+      await _clienteRepository.rejectClient(
+        cliente,
+      ); // 👈 pasás el cliente completo
+      _mostrarMensaje(
+        'Cliente ${cliente['nombres']} rechazado.',
+        esError: true,
+      );
+      await _recargar();
+    } catch (e) {
+      _mostrarMensaje('Error al rechazar: $e', esError: true);
+    }
   }
-}
 
   @override
   Widget build(BuildContext context) {
@@ -137,106 +140,119 @@ Future<void> _rechazar(Map<String, dynamic> cliente) async {
           ),
         ),
         child: SafeArea(
-          child: !_puedeGestionarClientes
-              ? const Center(
-                  child: Padding(
-                    padding: EdgeInsets.all(24),
-                    child: Text(
-                      'No tenés permisos para gestionar clientes.',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(color: Colors.white70, fontSize: 16),
-                    ),
-                  ),
-                )
-              : Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    // ── Header ─────────────────────────────────────────
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(18, 20, 18, 8),
-                      child: Column(
-                        children: [
-                          const Text(
-                            'Clientes pendientes',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontFamily: 'ArchivoBlack',
-                              fontSize: 32,
-                              color: Colors.white,
-                              letterSpacing: -1.5,
-                            ),
-                          ),
-                          const SizedBox(height: 6),
-                          Text(
-                            _clientes.isEmpty
-                                ? 'No hay solicitudes pendientes'
-                                : 'Deslizá horizontal para aprobar o rechazar',
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(
-                                color: Colors.white70, fontSize: 20),
-                          ),
-                          const SizedBox(height: 8),
-                          if (_clientes.isNotEmpty)
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  '${_clientes.length} clientes pendiente${_clientes.length != 1 ? 's' : ''}',
-                                  style: const TextStyle(
-                                      fontSize: 18, color: Colors.white54),
-                                ),
-                              ],
-                            ),
-                            
-                        ],
+          child:
+              !_puedeGestionarClientes
+                  ? const Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(24),
+                      child: Text(
+                        'No tenés permisos para gestionar clientes.',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: Colors.white70, fontSize: 16),
                       ),
                     ),
-
-                    // ── Lista vertical ─────────────────────────────────
-                    Expanded(
-                      child: _clientes.isEmpty
-                          ? const Center(
-                              child: Text(
-                                'No hay pendientes',
-                                style: TextStyle(
-                                    color: Colors.white70, fontSize: 16),
-                              ),
-                            )
-                          : PageView.builder(
-                              controller: _pageController,
-                              scrollDirection: Axis.vertical, // 👈 clave
-                              itemCount: _clientes.length,
-                              onPageChanged: (i) =>
-                                  setState(() => _currentIndex = i),
-                              itemBuilder: (context, index) {
-                                final cliente = _clientes[index];
-                                return Padding(
-                                  padding: const EdgeInsets.fromLTRB(
-                                      16, 8, 16, 16),
-                                  child: _ClienteSwipeCard(
-                                    key: ValueKey(cliente['id'] ?? index),
-                                    cliente: cliente,
-                                    onAprobar: () => _aprobar(cliente),
-                                    onRechazar: () => _rechazar(cliente),
-                                  ),
-                                );
-                              },
-                            ),
-                    ),
-
-                    // ── Indicador: cliente X de N ──────────────────────
-                    if (_clientes.isNotEmpty)
+                  )
+                  : Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      // ── Header ─────────────────────────────────────────
                       Padding(
-                        padding: const EdgeInsets.only(bottom: 16),
-                        child: Text(
-                          '${_currentIndex + 1} de ${_clientes.length}',
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                              color: Colors.white54, fontSize: 13),
+                        padding: const EdgeInsets.fromLTRB(18, 20, 18, 8),
+                        child: Column(
+                          children: [
+                            const Text(
+                              'Clientes pendientes',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontFamily: 'ArchivoBlack',
+                                fontSize: 32,
+                                color: Colors.white,
+                                letterSpacing: -1.5,
+                              ),
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              _clientes.isEmpty
+                                  ? 'No hay solicitudes pendientes'
+                                  : 'Deslizá horizontal para aprobar o rechazar',
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                color: Color(0xFFFFD7D7),
+                                fontSize: 20,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            if (_clientes.isNotEmpty)
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    '${_clientes.length} clientes pendiente${_clientes.length != 1 ? 's' : ''}',
+                                    style: const TextStyle(
+                                      fontSize: 18,
+                                      color: Color(0xFFFFC2C2),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                          ],
                         ),
                       ),
-                  ],
-                ),
+
+                      // ── Lista vertical ─────────────────────────────────
+                      Expanded(
+                        child:
+                            _clientes.isEmpty
+                                ? const Center(
+                                  child: Text(
+                                    'No hay pendientes',
+                                    style: TextStyle(
+                                      color: Colors.white70,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                )
+                                : PageView.builder(
+                                  controller: _pageController,
+                                  scrollDirection: Axis.vertical, // 👈 clave
+                                  itemCount: _clientes.length,
+                                  onPageChanged:
+                                      (i) => setState(() => _currentIndex = i),
+                                  itemBuilder: (context, index) {
+                                    final cliente = _clientes[index];
+                                    return Padding(
+                                      padding: const EdgeInsets.fromLTRB(
+                                        16,
+                                        8,
+                                        16,
+                                        16,
+                                      ),
+                                      child: _ClienteSwipeCard(
+                                        key: ValueKey(cliente['id'] ?? index),
+                                        cliente: cliente,
+                                        onAprobar: () => _aprobar(cliente),
+                                        onRechazar: () => _rechazar(cliente),
+                                      ),
+                                    );
+                                  },
+                                ),
+                      ),
+
+                      // ── Indicador: cliente X de N ──────────────────────
+                      if (_clientes.isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 16),
+                          child: Text(
+                            '${_currentIndex + 1} de ${_clientes.length}',
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                              color: Colors.white54,
+                              fontSize: 13,
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
         ),
       ),
     );
@@ -311,17 +327,16 @@ class _ClienteSwipeCardState extends State<_ClienteSwipeCard>
     final rejectOpacity = (-_dragX / 150).clamp(0.0, 1.0);
 
     return GestureDetector(
-      onHorizontalDragUpdate: (d) =>
-          setState(() => _dragX += d.delta.dx),
-      onHorizontalDragEnd: (d) =>
-          _onDragEnd(d.velocity.pixelsPerSecond.dx),
+      onHorizontalDragUpdate: (d) => setState(() => _dragX += d.delta.dx),
+      onHorizontalDragEnd: (d) => _onDragEnd(d.velocity.pixelsPerSecond.dx),
       child: AnimatedOpacity(
         opacity: _dismissed ? 0 : 1,
         duration: const Duration(milliseconds: 200),
         child: Transform(
-          transform: Matrix4.identity()
-            ..translate(_dragX, 0)
-            ..rotateZ(angle),
+          transform:
+              Matrix4.identity()
+                ..translate(_dragX, 0)
+                ..rotateZ(angle),
           alignment: Alignment.bottomCenter,
           child: Stack(
             children: [
@@ -330,9 +345,9 @@ class _ClienteSwipeCardState extends State<_ClienteSwipeCard>
                 width: double.infinity,
                 height: double.infinity,
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: const Color(0xFF28171B),
                   borderRadius: BorderRadius.circular(24),
-                  border: Border.all(color: Colors.grey.shade200),
+                  border: Border.all(color: const Color(0xFF8F5D62), width: 1),
                 ),
                 child: Column(
                   children: [
@@ -342,17 +357,19 @@ class _ClienteSwipeCardState extends State<_ClienteSwipeCard>
                         children: [
                           CircleAvatar(
                             radius: 80,
-                            backgroundColor: Colors.grey.shade100,
+                            backgroundColor: const Color(0xFF3D272C),
                             backgroundImage:
                                 widget.cliente['foto_url'] != null
-                                    ? NetworkImage(
-                                        widget.cliente['foto_url'])
+                                    ? NetworkImage(widget.cliente['foto_url'])
                                     : null,
-                            child: widget.cliente['foto_url'] == null
-                                ? Icon(Icons.person,
-                                    size: 52,
-                                    color: Colors.grey.shade400)
-                                : null,
+                            child:
+                                widget.cliente['foto_url'] == null
+                                    ? Icon(
+                                      Icons.person,
+                                      size: 52,
+                                      color: const Color(0xFFE8CACC),
+                                    )
+                                    : null,
                           ),
                           const SizedBox(height: 20),
                           Text(
@@ -361,30 +378,34 @@ class _ClienteSwipeCardState extends State<_ClienteSwipeCard>
                             style: const TextStyle(
                               fontSize: 30,
                               fontWeight: FontWeight.w600,
-                              color: Color(0xFF1A1A1A),
+                              color: Color(0xFFFFE8E8),
                             ),
                           ),
                           const SizedBox(height: 6),
                           Text(
                             widget.cliente['correo'] ?? '',
-                            style: TextStyle(
-                                fontSize: 20,
-                                color: Colors.grey.shade500),
+                            style: const TextStyle(
+                              fontSize: 20,
+                              color: Color(0xFFE3BDC1),
+                            ),
                           ),
                           if (widget.cliente['dni'] != null) ...[
                             const SizedBox(height: 8),
                             Container(
                               padding: const EdgeInsets.symmetric(
-                                  horizontal: 16, vertical: 6),
+                                horizontal: 16,
+                                vertical: 6,
+                              ),
                               decoration: BoxDecoration(
-                                color: Colors.grey.shade100,
+                                color: const Color(0xFF3B252B),
                                 borderRadius: BorderRadius.circular(20),
                               ),
                               child: Text(
                                 'DNI: ${widget.cliente['dni']}',
-                                style: TextStyle(
-                                    fontSize: 17,
-                                    color: Colors.grey.shade600),
+                                style: const TextStyle(
+                                  fontSize: 17,
+                                  color: Color(0xFFEED5D7),
+                                ),
                               ),
                             ),
                           ],
@@ -394,30 +415,42 @@ class _ClienteSwipeCardState extends State<_ClienteSwipeCard>
 
                     // ── Hints de swipe ───────────────────────────────
                     Padding(
-                      padding:
-                          const EdgeInsets.symmetric(horizontal: 24),
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
                       child: Row(
-                        mainAxisAlignment:
-                            MainAxisAlignment.spaceBetween,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Row(children: [
-                            Icon(Icons.arrow_back_ios,
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.arrow_back_ios,
                                 size: 13,
-                                color: Colors.grey.shade400),
-                            Text('Rechazar',
-                                style: TextStyle(
-                                    fontSize: 15,
-                                    color: Colors.grey.shade400)),
-                          ]),
-                          Row(children: [
-                            Text('Aprobar',
-                                style: TextStyle(
-                                    fontSize: 15,
-                                    color: Colors.grey.shade400)),
-                            Icon(Icons.arrow_forward_ios,
+                                color: const Color(0xFFD8B4B8),
+                              ),
+                              Text(
+                                'Rechazar',
+                                style: const TextStyle(
+                                  fontSize: 15,
+                                  color: Color(0xFFD8B4B8),
+                                ),
+                              ),
+                            ],
+                          ),
+                          Row(
+                            children: [
+                              Text(
+                                'Aprobar',
+                                style: const TextStyle(
+                                  fontSize: 15,
+                                  color: Color(0xFFD8B4B8),
+                                ),
+                              ),
+                              Icon(
+                                Icons.arrow_forward_ios,
                                 size: 13,
-                                color: Colors.grey.shade400),
-                          ]),
+                                color: const Color(0xFFD8B4B8),
+                              ),
+                            ],
+                          ),
                         ],
                       ),
                     ),
@@ -426,15 +459,13 @@ class _ClienteSwipeCardState extends State<_ClienteSwipeCard>
 
                     // ── Botones grandes ──────────────────────────────
                     Padding(
-                      padding:
-                          const EdgeInsets.fromLTRB(32, 0, 32, 28),
+                      padding: const EdgeInsets.fromLTRB(32, 0, 32, 28),
                       child: Row(
                         children: [
                           Expanded(
                             child: _BigActionButton(
                               color: const Color(0xFFE24B4A),
-                              backgroundColor:
-                                  const Color(0xFFFCEBEB),
+                              backgroundColor: const Color(0xFF4A1F22),
                               icon: Icons.close_rounded,
                               label: 'Rechazar',
                               onTap: widget.onRechazar,
@@ -444,8 +475,7 @@ class _ClienteSwipeCardState extends State<_ClienteSwipeCard>
                           Expanded(
                             child: _BigActionButton(
                               color: const Color(0xFF639922),
-                              backgroundColor:
-                                  const Color(0xFFEAF3DE),
+                              backgroundColor: const Color(0xFF243823),
                               icon: Icons.check_rounded,
                               label: 'Aprobar',
                               onTap: widget.onAprobar,
@@ -466,12 +496,14 @@ class _ClienteSwipeCardState extends State<_ClienteSwipeCard>
                       opacity: acceptOpacity,
                       child: Container(
                         decoration: BoxDecoration(
-                          color: const Color(0xFF639922)
-                              .withValues(alpha: 0.08),
+                          color: const Color(
+                            0xFF639922,
+                          ).withValues(alpha: 0.08),
                           borderRadius: BorderRadius.circular(24),
                           border: Border.all(
-                              color: const Color(0xFF639922),
-                              width: 3),
+                            color: const Color(0xFF639922),
+                            width: 3,
+                          ),
                         ),
                         alignment: Alignment.topLeft,
                         padding: const EdgeInsets.all(20),
@@ -497,12 +529,14 @@ class _ClienteSwipeCardState extends State<_ClienteSwipeCard>
                       opacity: rejectOpacity,
                       child: Container(
                         decoration: BoxDecoration(
-                          color: const Color(0xFFE24B4A)
-                              .withValues(alpha: 0.08),
+                          color: const Color(
+                            0xFFE24B4A,
+                          ).withValues(alpha: 0.08),
                           borderRadius: BorderRadius.circular(24),
                           border: Border.all(
-                              color: const Color(0xFFE24B4A),
-                              width: 3),
+                            color: const Color(0xFFE24B4A),
+                            width: 3,
+                          ),
                         ),
                         alignment: Alignment.topRight,
                         padding: const EdgeInsets.all(20),

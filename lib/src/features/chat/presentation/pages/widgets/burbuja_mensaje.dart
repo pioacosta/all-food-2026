@@ -32,7 +32,7 @@ class BurbujaMensaje extends StatelessWidget {
 
     // Color del timestamp según lado
     final Color timestampColor =
-        esMio ? Colors.white.withValues(alpha: 0.55) : Colors.grey.shade400;
+        esMio ? Colors.white.withValues(alpha: 0.65) : const Color(0xFFD4B9BC);
 
     return Align(
       alignment: esMio ? Alignment.centerRight : Alignment.centerLeft,
@@ -63,7 +63,7 @@ class BurbujaMensaje extends StatelessWidget {
                       style: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
-                        color: Color(0xFF333333),
+                        color: Color(0xFFFFDCDC),
                       ),
                     ),
                     if (tagInfo != null) ...[
@@ -72,7 +72,7 @@ class BurbujaMensaje extends StatelessWidget {
                         '($tagInfo)',
                         style: TextStyle(
                           fontSize: 13,
-                          color: Colors.black.withValues(alpha: 0.4),
+                          color: const Color(0xFFE7C7CA),
                           fontWeight: FontWeight.w400,
                         ),
                       ),
@@ -85,7 +85,8 @@ class BurbujaMensaje extends StatelessWidget {
             Container(
               padding: const EdgeInsets.fromLTRB(14, 10, 14, 8),
               decoration: BoxDecoration(
-                color: esMio ? const Color(0xFF5B1718) : Colors.white,
+                color:
+                    esMio ? const Color(0xFF6D1B1D) : const Color(0xFF3A242A),
                 borderRadius: BorderRadius.only(
                   topLeft: const Radius.circular(16),
                   topRight: const Radius.circular(16),
@@ -94,7 +95,7 @@ class BurbujaMensaje extends StatelessWidget {
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.08),
+                    color: Colors.black.withValues(alpha: 0.18),
                     blurRadius: 3,
                     offset: const Offset(0, 1),
                   ),
@@ -111,7 +112,7 @@ class BurbujaMensaje extends StatelessWidget {
                       mensaje,
                       style: TextStyle(
                         fontSize: 15,
-                        color: esMio ? Colors.white : const Color(0xFF1A1A1A),
+                        color: esMio ? Colors.white : const Color(0xFFFFECEC),
                         height: 1.3,
                       ),
                     ),

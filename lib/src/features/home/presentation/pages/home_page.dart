@@ -225,6 +225,115 @@ class _HomePageState extends State<HomePage> {
       );
   }
 
+  List<_DashboardAction> _buildStaffActions({
+    required bool puedeCrearProductos,
+    required bool puedeCrearEmpleados,
+    required bool puedeGestionarMesas,
+    required bool esMetre,
+    required bool esMozo,
+    required bool esCocinero,
+    required bool esCantinero,
+  }) {
+    return [
+      if (puedeCrearProductos)
+        _DashboardAction(
+          icon: Icons.add_circle_outline,
+          titulo: _perfil == 'cocinero' ? 'Crear plato' : 'Crear bebida',
+          descripcion: 'Registrá nuevos productos de tu sector en la carta.',
+          color: const Color(0xFF2D6A4F),
+          onTap: () => Navigator.pushNamed(context, '/crear-producto'),
+        ),
+      if (puedeCrearProductos)
+        _DashboardAction(
+          icon: Icons.menu_book_rounded,
+          titulo: 'Ver carta de productos',
+          descripcion: 'Consultá todos los productos disponibles en la carta.',
+          color: const Color(0xFF7A2021),
+          onTap: () => Navigator.pushNamed(context, '/carta'),
+        ),
+      if (puedeCrearEmpleados)
+        _DashboardAction(
+          icon: Icons.badge_outlined,
+          titulo: 'Alta de empleados',
+          descripcion: 'Creá cuentas para nuevos integrantes del equipo.',
+          color: const Color(0xFF0E7490),
+          onTap: () => Navigator.pushNamed(context, '/alta-empleado'),
+        ),
+      if (puedeCrearEmpleados)
+        _DashboardAction(
+          icon: Icons.table_restaurant,
+          titulo: 'Crear mesa',
+          descripcion: 'Registrá nuevas mesas para el salón.',
+          color: const Color(0xFF2563EB),
+          onTap: () => Navigator.pushNamed(context, '/crear-mesa'),
+        ),
+      if (puedeGestionarMesas)
+        _DashboardAction(
+          icon: Icons.edit_road,
+          titulo: 'Ver / editar mesas',
+          descripcion: 'Ajustá datos y estado operativo de las mesas.',
+          color: const Color(0xFF7C3AED),
+          onTap: () => Navigator.pushNamed(context, '/ver-editar-mesas'),
+        ),
+      if (puedeCrearEmpleados)
+        _DashboardAction(
+          icon: Icons.groups_2_outlined,
+          titulo: 'Gestionar clientes',
+          descripcion: 'Aprobá clientes pendientes y administrá registros.',
+          color: const Color(0xFFB45309),
+          onTap: () => Navigator.pushNamed(context, '/aprobacion-clientes'),
+        ),
+      if (esMetre)
+        _DashboardAction(
+          icon: Icons.assignment_turned_in_outlined,
+          titulo: 'Asignar mesa',
+          descripcion: 'Asigná mesas a clientes con solicitud pendiente.',
+          color: const Color(0xFFB91C1C),
+          onTap: () => Navigator.pushNamed(context, '/asignar-mesa'),
+        ),
+      if (esMetre)
+        _DashboardAction(
+          icon: Icons.person_add_alt_1,
+          titulo: 'Alta cliente',
+          descripcion: 'Registrá manualmente un nuevo cliente.',
+          color: const Color(0xFF0F766E),
+          onTap: () => Navigator.pushNamed(context, '/alta-clientes'),
+        ),
+      if (esMozo)
+        _DashboardAction(
+          icon: Icons.receipt_long_outlined,
+          titulo: 'Gestionar pedidos y pagos',
+          descripcion: 'Seguí el estado de pedidos y cobranzas.',
+          color: const Color(0xFF4F46E5),
+          onTap: () => Navigator.pushNamed(context, '/pedidos-mozo'),
+        ),
+      if (esMozo)
+        _DashboardAction(
+          icon: Icons.help_outline,
+          titulo: 'Consultas',
+          descripcion: 'Revisá y gestioná consultas activas de mesas.',
+          color: const Color(0xFF6D28D9),
+          onTap: () => Navigator.pushNamed(context, '/consultas'),
+        ),
+      if (esCocinero)
+        _DashboardAction(
+          icon: Icons.soup_kitchen_outlined,
+          titulo: 'Pedidos de cocina',
+          descripcion: 'Prepará y marcá pedidos de cocina en curso.',
+          color: const Color(0xFF15803D),
+          onTap: () => Navigator.pushNamed(context, '/pedidos-cocina'),
+        ),
+      if (esCantinero)
+        _DashboardAction(
+          icon: Icons.local_bar_outlined,
+          titulo: 'Pedidos de bar',
+          descripcion: 'Gestioná pedidos de bebidas pendientes.',
+          color: const Color(0xFF0369A1),
+          onTap: () => Navigator.pushNamed(context, '/pedidos-bar'),
+        ),
+    ];
+  }
+
   @override
   Widget build(BuildContext context) {
     final puedeCrearEmpleados = _perfil == 'dueno' || _perfil == 'supervisor';
@@ -236,6 +345,15 @@ class _HomePageState extends State<HomePage> {
     final esMozo = _perfil == 'mozo';
     final esCocinero = _perfil == 'cocinero';
     final esCantinero = _perfil == 'cantinero';
+    final accionesStaff = _buildStaffActions(
+      puedeCrearProductos: puedeCrearProductos,
+      puedeCrearEmpleados: puedeCrearEmpleados,
+      puedeGestionarMesas: puedeGestionarMesas,
+      esMetre: esMetre,
+      esMozo: esMozo,
+      esCocinero: esCocinero,
+      esCantinero: esCantinero,
+    );
 
     return Scaffold(
       appBar: AppBar(
@@ -291,119 +409,141 @@ class _HomePageState extends State<HomePage> {
                             ),
                           ),
                         if (!esCliente) const SizedBox(height: 20),
-                        if (puedeCrearProductos)
-                          ElevatedButton(
-                            onPressed: () {
-                              Navigator.pushNamed(context, '/crear-producto');
-                            },
-                            child: Text(
-                              _perfil == 'cocinero'
-                                  ? 'Crear plato'
-                                  : 'Crear bebida',
+                        if (!esCliente)
+                          Expanded(
+                            child: Padding(
+                              padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                              child:
+                                  accionesStaff.isEmpty
+                                      ? const Center(
+                                        child: Text(
+                                          'No hay acciones disponibles para este perfil.',
+                                          style: TextStyle(
+                                            color: Colors.white70,
+                                          ),
+                                          textAlign: TextAlign.center,
+                                        ),
+                                      )
+                                      : ListView.separated(
+                                        itemCount:
+                                            accionesStaff.length +
+                                            (accionesStaff.length < 8 ? 1 : 0),
+                                        separatorBuilder:
+                                            (_, __) =>
+                                                const SizedBox(height: 14),
+                                        itemBuilder: (context, index) {
+                                          if (index >= accionesStaff.length) {
+                                            return const Padding(
+                                              padding: EdgeInsets.only(top: 50),
+                                              child: Center(
+                                                child: Text(
+                                                  'No hay más opciones disponibles',
+                                                  style: TextStyle(
+                                                    color: Colors.white70,
+                                                    fontSize: 16,
+                                                    fontWeight: FontWeight.w600,
+                                                  ),
+                                                ),
+                                              ),
+                                            );
+                                          }
+                                          final accion = accionesStaff[index];
+                                          return _DashboardActionCard(
+                                            icon: accion.icon,
+                                            titulo: accion.titulo,
+                                            descripcion: accion.descripcion,
+                                            color: accion.color,
+                                            onTap: accion.onTap,
+                                          );
+                                        },
+                                      ),
                             ),
                           ),
-                        if (puedeCrearProductos) const SizedBox(height: 12),
-                        if (puedeCrearProductos)
-                          ElevatedButton(
-                            onPressed: () {
-                              Navigator.pushNamed(context, '/carta');
-                            },
-                            child: const Text('Ver carta de productos'),
-                          ),
-                        if (puedeCrearProductos) const SizedBox(height: 12),
-                        if (puedeCrearEmpleados)
-                          ElevatedButton(
-                            onPressed: () {
-                              Navigator.pushNamed(context, '/alta-empleado');
-                            },
-                            child: const Text('Alta de empleados'),
-                          ),
-                        if (puedeCrearEmpleados) const SizedBox(height: 12),
-                        if (puedeCrearEmpleados)
-                          ElevatedButton(
-                            onPressed: () {
-                              Navigator.pushNamed(context, '/crear-mesa');
-                            },
-                            child: const Text('Crear mesa'),
-                          ),
-                        if (puedeCrearEmpleados) const SizedBox(height: 12),
-                        if (puedeGestionarMesas)
-                          ElevatedButton(
-                            onPressed: () {
-                              Navigator.pushNamed(context, '/ver-editar-mesas');
-                            },
-                            child: const Text('Ver / editar mesas'),
-                          ),
-                        if (puedeGestionarMesas) const SizedBox(height: 12),
-                        if (puedeCrearEmpleados)
-                          ElevatedButton(
-                            onPressed: () {
-                              Navigator.pushNamed(
-                                context,
-                                '/aprobacion-clientes',
-                              );
-                            },
-                            child: const Text('Gestionar clientes'),
-                          ),
-                        if (esMetre)
-                          ElevatedButton(
-                            onPressed: () {
-                              Navigator.pushNamed(context, '/asignar-mesa');
-                            },
-                            child: const Text('Asignar mesa'),
-                          ),
-                        if (esMetre) const SizedBox(height: 12),
-                        if (esMetre)
-                          ElevatedButton(
-                            onPressed: () {
-                              Navigator.pushNamed(context, '/alta-clientes');
-                            },
-                            child: const Text('Alta cliente'),
-                          ),
-                        if (esMozo) const SizedBox(height: 12),
-                        if (esMozo)
-                          ElevatedButton(
-                            onPressed: () {
-                              Navigator.pushNamed(context, '/pedidos-mozo');
-                            },
-                            child: const Text('Gestionar pedidos y pagos'),
-                          ),
-                        if (esMozo) const SizedBox(height: 12),
-                        if (esMozo)
-                          ElevatedButton(
-                            onPressed: () {
-                              Navigator.pushNamed(context, '/chat-mozo');
-                            },
-                            child: const Text('Chat con clientes'),
-                          ),
-
-                        if (esMozo) const SizedBox(height: 12),
-                        if (esMozo)
-                          ElevatedButton(
-                            onPressed: () {
-                              Navigator.pushNamed(context, '/consultas');
-                            },
-                            child: const Text('Consultas'),
-                          ),
-                        if (esCocinero) const SizedBox(height: 12),
-                        if (esCocinero)
-                          ElevatedButton(
-                            onPressed: () {
-                              Navigator.pushNamed(context, '/pedidos-cocina');
-                            },
-                            child: const Text('Pedidos de cocina'),
-                          ),
-                        if (esCantinero) const SizedBox(height: 12),
-                        if (esCantinero)
-                          ElevatedButton(
-                            onPressed: () {
-                              Navigator.pushNamed(context, '/pedidos-bar');
-                            },
-                            child: const Text('Pedidos de bar'),
-                          ),
-                        if (!esCliente) const Spacer(),
                       ],
                     ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _DashboardAction {
+  const _DashboardAction({
+    required this.icon,
+    required this.titulo,
+    required this.descripcion,
+    required this.color,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String titulo;
+  final String descripcion;
+  final Color color;
+  final VoidCallback onTap;
+}
+
+class _DashboardActionCard extends StatelessWidget {
+  const _DashboardActionCard({
+    required this.icon,
+    required this.titulo,
+    required this.descripcion,
+    required this.color,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String titulo;
+  final String descripcion;
+  final Color color;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
+      child: Ink(
+        decoration: BoxDecoration(
+          color: color.withOpacity(0.88),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: Colors.white24),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          child: Row(
+            children: [
+              Icon(icon, color: Colors.white, size: 30),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      titulo,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      descripcion,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: Colors.white70,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              const Icon(Icons.chevron_right, color: Colors.white),
+            ],
           ),
         ),
       ),

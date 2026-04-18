@@ -416,24 +416,27 @@ class _MesaEditorCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const textDark = Color(0xFF2A2A2A);
-    const softBorder = Color(0xFFD7D7D7);
+    const textDark = Color(0xFFFFE6E6);
+    const softBorder = Color(0xFF9A6C72);
 
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: const Color(0xFF241519),
         borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: const Color(0xFF8F5F64), width: 1),
       ),
       child: Theme(
         data: Theme.of(context).copyWith(
           inputDecorationTheme: const InputDecorationTheme(
-            labelStyle: TextStyle(color: Color(0xFF4A4A4A)),
+            labelStyle: TextStyle(color: Color(0xFFFFD0D0)),
+            filled: true,
+            fillColor: Color(0xFF311E23),
             enabledBorder: OutlineInputBorder(
               borderSide: BorderSide(color: softBorder),
             ),
             focusedBorder: OutlineInputBorder(
-              borderSide: BorderSide(color: Color(0xFF7A2021), width: 1.5),
+              borderSide: BorderSide(color: Color(0xFFFFAEB5), width: 1.5),
             ),
             disabledBorder: OutlineInputBorder(
               borderSide: BorderSide(color: softBorder),
@@ -448,7 +451,7 @@ class _MesaEditorCard extends StatelessWidget {
               Text(
                 'Mesa ${index + 1} de $total',
                 textAlign: TextAlign.center,
-                style: const TextStyle(color: Color(0xFF6A6A6A)),
+                style: const TextStyle(color: Color(0xFFFFCACA)),
               ),
               const SizedBox(height: 6),
               Row(
@@ -547,7 +550,7 @@ class _MesaEditorCard extends StatelessWidget {
                 style: TextStyle(
                   fontFamily: 'ArchivoBlack',
                   fontSize: 30,
-                  color: Color(0xFF3D1F1F),
+                  color: Color(0xFFFFD9DC),
                   letterSpacing: -1.2,
                 ),
               ),
@@ -563,11 +566,11 @@ class _MesaEditorCard extends StatelessWidget {
                     errorBuilder: (_, __, ___) {
                       return Container(
                         height: 230,
-                        color: const Color(0xFFF0F0F0),
+                        color: const Color(0xFF3A252A),
                         alignment: Alignment.center,
                         child: const Icon(
                           Icons.broken_image,
-                          color: Color(0xFF8A8A8A),
+                          color: Color(0xFFD7B1B4),
                         ),
                       );
                     },
@@ -577,14 +580,14 @@ class _MesaEditorCard extends StatelessWidget {
                 Container(
                   height: 230,
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF0F0F0),
+                    color: const Color(0xFF3A252A),
                     borderRadius: BorderRadius.circular(14),
                   ),
                   alignment: Alignment.center,
                   child: const Icon(
                     Icons.table_restaurant,
                     size: 40,
-                    color: Color(0xFF8A8A8A),
+                    color: Color(0xFFD7B1B4),
                   ),
                 ),
               if (!mesa.editando) const SizedBox(height: 56),
@@ -618,7 +621,7 @@ class _MesaEditorCard extends StatelessWidget {
                 const SizedBox(height: 10),
                 DropdownButtonFormField<String>(
                   value: mesa.tipo,
-                  dropdownColor: Colors.white,
+                  dropdownColor: const Color(0xFF311E23),
                   style: const TextStyle(color: textDark),
                   decoration: const InputDecoration(labelText: 'Tipo de mesa'),
                   items: const [
@@ -643,9 +646,9 @@ class _MesaEditorCard extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF2E6E6),
+                    color: const Color(0xFF331F24),
                     borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: const Color(0xFFD8BBBB)),
+                    border: Border.all(color: const Color(0xFF8F5F64)),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -657,11 +660,11 @@ class _MesaEditorCard extends StatelessWidget {
                               icon: Icons.pin_outlined,
                               label: 'Numero',
                               value: mesa.numeroController.text,
-                              backgroundColor: const Color(0xFFFAF4F4),
-                              borderColor: const Color(0xFFE4CDCD),
-                              iconColor: const Color(0xFF7A2021),
-                              labelColor: const Color(0xFF7E5858),
-                              valueColor: const Color(0xFF3D1F1F),
+                              backgroundColor: const Color(0xFF432A30),
+                              borderColor: const Color(0xFF9C6D73),
+                              iconColor: const Color(0xFFFFB7BD),
+                              labelColor: const Color(0xFFE6BEC1),
+                              valueColor: const Color(0xFFFFEDEE),
                             ),
                           ),
                           const SizedBox(width: 10),
@@ -670,11 +673,11 @@ class _MesaEditorCard extends StatelessWidget {
                               icon: Icons.people_alt_outlined,
                               label: 'Comensales',
                               value: mesa.comensalesController.text,
-                              backgroundColor: const Color(0xFFFAF4F4),
-                              borderColor: const Color(0xFFE4CDCD),
-                              iconColor: const Color(0xFF7A2021),
-                              labelColor: const Color(0xFF7E5858),
-                              valueColor: const Color(0xFF3D1F1F),
+                              backgroundColor: const Color(0xFF432A30),
+                              borderColor: const Color(0xFF9C6D73),
+                              iconColor: const Color(0xFFFFB7BD),
+                              labelColor: const Color(0xFFE6BEC1),
+                              valueColor: const Color(0xFFFFEDEE),
                             ),
                           ),
                         ],
@@ -685,11 +688,11 @@ class _MesaEditorCard extends StatelessWidget {
                         label: 'Tipo de mesa',
                         value: mesa.tipoTexto,
                         fullWidth: true,
-                        backgroundColor: const Color(0xFFFAF4F4),
-                        borderColor: const Color(0xFFE4CDCD),
-                        iconColor: const Color(0xFF7A2021),
-                        labelColor: const Color(0xFF7E5858),
-                        valueColor: const Color(0xFF3D1F1F),
+                        backgroundColor: const Color(0xFF432A30),
+                        borderColor: const Color(0xFF9C6D73),
+                        iconColor: const Color(0xFFFFB7BD),
+                        labelColor: const Color(0xFFE6BEC1),
+                        valueColor: const Color(0xFFFFEDEE),
                       ),
                     ],
                   ),

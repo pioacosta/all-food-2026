@@ -17,6 +17,7 @@ class _ChatPageState extends State<ChatPage> {
   final _repo = ChatRepository();
   final _controller = TextEditingController();
   final _scrollController = ScrollController();
+  static const _argentinaOffset = Duration(hours: 3);
 
   String? _consultaId;
   bool _loading = true;
@@ -135,8 +136,12 @@ class _ChatPageState extends State<ChatPage> {
                 child: Container(
                   margin: const EdgeInsets.symmetric(horizontal: 12),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: const Color(0xFF211317),
                     borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: const Color(0xFF8D5A5F),
+                      width: 0.9,
+                    ),
                   ),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(20),
@@ -145,7 +150,7 @@ class _ChatPageState extends State<ChatPage> {
                             ? const Center(
                               child: Text(
                                 'No se pudo iniciar el chat.',
-                                style: TextStyle(color: Colors.grey),
+                                style: TextStyle(color: Color(0xFFFFCDCD)),
                               ),
                             )
                             : StreamBuilder<List<Map<String, dynamic>>>(
@@ -171,13 +176,13 @@ class _ChatPageState extends State<ChatPage> {
                                         Icon(
                                           Icons.chat_bubble_outline,
                                           size: 48,
-                                          color: Colors.grey.shade300,
+                                          color: const Color(0xFFFFD4D4),
                                         ),
                                         const SizedBox(height: 12),
                                         Text(
                                           'Enviá tu primera consulta',
-                                          style: TextStyle(
-                                            color: Colors.grey.shade400,
+                                          style: const TextStyle(
+                                            color: Color(0xFFFFD4D4),
                                             fontSize: 15,
                                           ),
                                         ),
@@ -223,13 +228,14 @@ class _ChatPageState extends State<ChatPage> {
                     Expanded(
                       child: Container(
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: const Color(0xFF2A171B),
                           borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: const Color(0xFF8D5A5F)),
                         ),
                         child: TextField(
                           controller: _controller,
                           style: const TextStyle(
-                            color: Color(0xFF1A1A1A),
+                            color: Color(0xFFFFEAEA),
                             fontSize: 15,
                           ),
                           textCapitalization: TextCapitalization.sentences,
@@ -237,7 +243,9 @@ class _ChatPageState extends State<ChatPage> {
                           onSubmitted: (_) => _enviar(),
                           decoration: InputDecoration(
                             hintText: 'Escribí un mensaje...',
-                            hintStyle: TextStyle(color: Colors.grey.shade400),
+                            hintStyle: const TextStyle(
+                              color: Color(0xFFD8B4B8),
+                            ),
                             border: InputBorder.none,
                             contentPadding: const EdgeInsets.symmetric(
                               horizontal: 16,
@@ -257,8 +265,10 @@ class _ChatPageState extends State<ChatPage> {
                         decoration: BoxDecoration(
                           color:
                               _enviando
-                                  ? Colors.white.withValues(alpha: 0.5)
-                                  : Colors.white,
+                                  ? const Color(
+                                    0xFFFFDCC7,
+                                  ).withValues(alpha: 0.5)
+                                  : const Color(0xFFFFDCC7),
                           borderRadius: BorderRadius.circular(14),
                         ),
                         child:
@@ -289,7 +299,9 @@ class _ChatPageState extends State<ChatPage> {
 
   // Ejemplo de función para formatear ambos
   String _formatFechaHora(String dateString) {
-    final dateTime = DateTime.parse(dateString).toLocal();
+    final parsed = DateTime.parse(dateString);
+    final utc = parsed.isUtc ? parsed : parsed.toUtc();
+    final dateTime = utc.subtract(_argentinaOffset);
     final day = dateTime.day.toString().padLeft(2, '0');
     final month = dateTime.month.toString().padLeft(2, '0');
     final year = (dateTime.year % 100).toString().padLeft(2, '0');
@@ -298,4 +310,3 @@ class _ChatPageState extends State<ChatPage> {
     return "$day/$month/$year $hour:$minute";
   }
 }
-

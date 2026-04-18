@@ -16,13 +16,14 @@ class ConsultasPage extends StatefulWidget {
 
 class _ConsultasPageState extends State<ConsultasPage> {
   final _repo = GestionServiciosRepository();
-  final _pageController = PageController();
+  static const int _itemsPorPagina = 5;
+  static const _argentinaOffset = Duration(hours: 3);
 
   List<Map<String, dynamic>> _consultas = [];
   bool _loading = true;
   bool _puedeVerMensajes = false;
   bool _validandoAcceso = true;
-  int _currentIndex = 0;
+  int _paginaActual = 0;
 
   @override
   void initState() {
@@ -32,8 +33,41 @@ class _ConsultasPageState extends State<ConsultasPage> {
 
   @override
   void dispose() {
-    _pageController.dispose();
     super.dispose();
+  }
+
+  int get _totalPaginas {
+    if (_consultas.isEmpty) return 1;
+    return (_consultas.length / _itemsPorPagina).ceil();
+  }
+
+  List<Map<String, dynamic>> get _consultasPagina {
+    final inicio = _paginaActual * _itemsPorPagina;
+    final fin = (inicio + _itemsPorPagina).clamp(0, _consultas.length);
+    if (inicio >= _consultas.length) return const [];
+    return _consultas.sublist(inicio, fin);
+  }
+
+  DateTime _timestampOrden(Map<String, dynamic> consulta) {
+    final ultimo = consulta['ultimo_mensaje'] as Map<String, dynamic>?;
+    final createdAt = ultimo?['created_at'] as String?;
+    if (createdAt == null) return DateTime.fromMillisecondsSinceEpoch(0);
+    try {
+      final parsed = DateTime.parse(createdAt);
+      return parsed.isUtc ? parsed : parsed.toUtc();
+    } catch (_) {
+      return DateTime.fromMillisecondsSinceEpoch(0);
+    }
+  }
+
+  void _irPaginaAnterior() {
+    if (_paginaActual == 0) return;
+    setState(() => _paginaActual -= 1);
+  }
+
+  void _irPaginaSiguiente() {
+    if (_paginaActual >= _totalPaginas - 1) return;
+    setState(() => _paginaActual += 1);
   }
 
   Future<void> _cargar() async {
@@ -58,17 +92,15 @@ class _ConsultasPageState extends State<ConsultasPage> {
       final data = await _repo.getConsultasAbiertas();
       if (!mounted) return;
 
+      data.sort((a, b) => _timestampOrden(b).compareTo(_timestampOrden(a)));
+
       setState(() {
         _consultas = data;
         _puedeVerMensajes = true;
         _validandoAcceso = false;
         _loading = false;
-        _currentIndex = 0;
+        _paginaActual = 0;
       });
-
-      if (_pageController.hasClients) {
-        _pageController.jumpToPage(0);
-      }
     } catch (_) {
       if (!mounted) return;
       setState(() {
@@ -79,21 +111,29 @@ class _ConsultasPageState extends State<ConsultasPage> {
   }
 
   String _formatHora(String? iso) {
-    if (iso == null) return '';
+    final dt = _parseBuenosAires(iso);
+    if (dt == null) return '';
+    return '${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
+  }
+
+  DateTime? _parseBuenosAires(String? iso) {
+    if (iso == null) return null;
     try {
-      final dt = DateTime.parse(iso).toLocal();
-      return '${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
+      final parsed = DateTime.parse(iso);
+      final utc = parsed.isUtc ? parsed : parsed.toUtc();
+      return utc.subtract(_argentinaOffset);
     } catch (_) {
-      return '';
+      return null;
     }
   }
 
   // Devuelve minutos transcurridos y nivel de urgencia
   ({String texto, Urgencia nivel}) _urgencia(String? iso) {
-    if (iso == null) return (texto: '', nivel: Urgencia.normal);
+    final dt = _parseBuenosAires(iso);
+    if (dt == null) return (texto: '', nivel: Urgencia.normal);
     try {
-      final dt = DateTime.parse(iso).toLocal();
-      final diff = DateTime.now().difference(dt);
+      final ahoraBa = DateTime.now().toUtc().subtract(_argentinaOffset);
+      final diff = ahoraBa.difference(dt);
 
       String texto;
       if (diff.inMinutes < 1) {
@@ -260,9 +300,9 @@ class _ConsultasPageState extends State<ConsultasPage> {
                         ? const SinConsultasWidget()
                         : ListView.builder(
                           padding: const EdgeInsets.only(top: 8, bottom: 16),
-                          itemCount: _consultas.length,
+                          itemCount: _consultasPagina.length,
                           itemBuilder: (context, index) {
-                            final c = _consultas[index];
+                            final c = _consultasPagina[index];
 
                             final mesaNumero =
                                 c['mesas']?['numero']?.toString() ?? '-';
@@ -311,11 +351,67 @@ class _ConsultasPageState extends State<ConsultasPage> {
               // ── Indicador de página ──────────────────────────────
               if (_consultas.isNotEmpty)
                 Padding(
-                  padding: const EdgeInsets.only(bottom: 16),
-                  child: Text(
-                    '${_currentIndex + 1} de ${_consultas.length}',
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(color: Colors.white54, fontSize: 13),
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 14),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          onPressed:
+                              _paginaActual == 0 ? null : _irPaginaAnterior,
+                          style: OutlinedButton.styleFrom(
+                            minimumSize: const Size.fromHeight(44),
+                            foregroundColor: const Color(0xFF4A0E10),
+                            backgroundColor: Colors.white,
+                            disabledForegroundColor: Colors.white54,
+                            disabledBackgroundColor: const Color(0xFF7A2021),
+                            side: const BorderSide(
+                              color: Colors.white,
+                              width: 1.3,
+                            ),
+                            textStyle: const TextStyle(
+                              fontWeight: FontWeight.w700,
+                              fontSize: 15,
+                            ),
+                          ),
+                          icon: const Icon(Icons.chevron_left),
+                          label: const Text('Anterior'),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Text(
+                        'Página ${_paginaActual + 1} / $_totalPaginas',
+                        style: const TextStyle(
+                          color: Color(0xFFFFE3E3),
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          onPressed:
+                              _paginaActual >= _totalPaginas - 1
+                                  ? null
+                                  : _irPaginaSiguiente,
+                          style: OutlinedButton.styleFrom(
+                            minimumSize: const Size.fromHeight(44),
+                            foregroundColor: const Color(0xFF4A0E10),
+                            backgroundColor: Colors.white,
+                            disabledForegroundColor: Colors.white54,
+                            disabledBackgroundColor: const Color(0xFF7A2021),
+                            side: const BorderSide(
+                              color: Colors.white,
+                              width: 1.3,
+                            ),
+                            textStyle: const TextStyle(
+                              fontWeight: FontWeight.w700,
+                              fontSize: 15,
+                            ),
+                          ),
+                          icon: const Icon(Icons.chevron_right),
+                          label: const Text('Siguiente'),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
             ],
