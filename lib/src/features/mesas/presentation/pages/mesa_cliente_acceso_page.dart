@@ -57,33 +57,15 @@ class MesaClienteAccesoPage extends StatelessWidget {
                 ),
                 const SizedBox(height: 14),
                 _AccesoCard(
-                  titulo: 'Ver carta de platos',
+                  titulo: 'Ver carta de productos',
                   detalle:
-                      'Productos con fotos, descripcion, precio y tiempo estimado.',
+                      'Listado de platos y bebidas con filtros por categoría.',
                   icono: Icons.restaurant_menu,
                   onTap:
                       () => Navigator.pushNamed(
                         context,
                         '/carta-cliente',
                         arguments: {
-                          'tipo': 'plato',
-                          'mesaId': mesa['id'],
-                          'numeroMesa': numeroMesa,
-                        },
-                      ),
-                ),
-                const SizedBox(height: 10),
-                _AccesoCard(
-                  titulo: 'Ver carta de bebidas',
-                  detalle:
-                      'Bebidas con fotos, descripcion, precio y tiempo estimado.',
-                  icono: Icons.local_bar,
-                  onTap:
-                      () => Navigator.pushNamed(
-                        context,
-                        '/carta-cliente',
-                        arguments: {
-                          'tipo': 'bebida',
                           'mesaId': mesa['id'],
                           'numeroMesa': numeroMesa,
                         },

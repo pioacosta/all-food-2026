@@ -306,18 +306,9 @@ class _HomePageState extends State<HomePage> {
                         if (puedeCrearProductos)
                           ElevatedButton(
                             onPressed: () {
-                              Navigator.pushNamed(
-                                context,
-                                '/carta',
-                                arguments:
-                                    _perfil == 'cocinero' ? 'plato' : 'bebida',
-                              );
+                              Navigator.pushNamed(context, '/carta');
                             },
-                            child: Text(
-                              _perfil == 'cocinero'
-                                  ? 'Ver carta de platos'
-                                  : 'Ver carta de bebidas',
-                            ),
+                            child: const Text('Ver carta de productos'),
                           ),
                         if (puedeCrearProductos) const SizedBox(height: 12),
                         if (puedeCrearEmpleados)

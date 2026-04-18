@@ -86,19 +86,20 @@ class AllFoodApp extends StatelessWidget {
             (_) => CrearProductoPage(supabaseReady: supabaseReady),
 
         '/carta': (context) {
-          final tipo = ModalRoute.of(context)!.settings.arguments as String;
-          return CartaPage(tipo: tipo);
+          final rawArgs = ModalRoute.of(context)!.settings.arguments;
+          final tipo = rawArgs is String ? rawArgs : null;
+          return CartaPage(initialCategoria: tipo);
         },
 
         '/carta-cliente': (context) {
           final rawArgs = ModalRoute.of(context)!.settings.arguments;
           if (rawArgs is String) {
-            return CartaClientePage(tipo: rawArgs);
+            return CartaClientePage(initialCategoria: rawArgs);
           }
 
-          final args = rawArgs as Map<String, dynamic>;
+          final args = (rawArgs as Map<String, dynamic>?) ?? const {};
           return CartaClientePage(
-            tipo: args['tipo'] as String,
+            initialCategoria: args['tipo'] as String?,
             mesaId: args['mesaId'] as String?,
             numeroMesa: (args['numeroMesa'] as num?)?.toInt(),
           );

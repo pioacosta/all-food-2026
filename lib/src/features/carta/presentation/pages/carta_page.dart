@@ -1,30 +1,61 @@
-import 'package:all_food/src/features/carta/data/repositories/carta_repository.dart';
 import 'package:all_food/src/features/carta/data/models/producto_model.dart';
+import 'package:all_food/src/features/carta/data/repositories/carta_repository.dart';
 import 'package:all_food/src/features/carta/presentation/pages/producto_detalle_page.dart';
 import 'package:all_food/src/shared/errors/app_error_mapper.dart';
 import 'package:all_food/src/shared/widgets/logo_spinner.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class CartaPage extends StatefulWidget {
-  const CartaPage({required this.tipo, super.key});
+  const CartaPage({this.initialCategoria, super.key});
 
-  final String tipo;
+  final String? initialCategoria;
 
   @override
   State<CartaPage> createState() => _CartaPageState();
 }
 
 class _CartaPageState extends State<CartaPage> {
+  static const int _itemsPorPagina = 4;
+  static const int _maxNombre = 22;
+  static const int _maxDescripcion = 90;
+  static const int _maxTiempo = 3;
+  static const int _maxPrecio = 8;
+
   final _repository = CartaRepository();
   final _searchController = TextEditingController();
 
+  String _categoria = 'todos';
+  int _paginaActual = 0;
+  String? _perfilUsuario;
+
   List<ProductoModel> _productos = [];
   bool _cargando = true;
+  bool _procesandoAccion = false;
   String? _error;
+
+  int get _totalPaginas {
+    if (_productos.isEmpty) return 1;
+    return (_productos.length / _itemsPorPagina).ceil();
+  }
+
+  List<ProductoModel> get _productosPagina {
+    final inicio = _paginaActual * _itemsPorPagina;
+    final fin = (inicio + _itemsPorPagina).clamp(0, _productos.length);
+    if (inicio >= _productos.length) return const [];
+    return _productos.sublist(inicio, fin);
+  }
+
+  int get _cantidadVaciosEnPagina => _itemsPorPagina - _productosPagina.length;
 
   @override
   void initState() {
     super.initState();
+    final initial = widget.initialCategoria;
+    if (initial == 'plato' || initial == 'bebida') {
+      _categoria = initial!;
+    }
+    _cargarPerfil();
     _cargar();
   }
 
@@ -34,28 +65,33 @@ class _CartaPageState extends State<CartaPage> {
     super.dispose();
   }
 
-  Future<void> _cargar({String? nombre}) async {
-    setState(() {
-      _cargando = true;
-      _error = null;
-    });
+  Future<void> _cargar({String? nombre, bool mostrarSpinner = true}) async {
+    if (mostrarSpinner) {
+      setState(() {
+        _cargando = true;
+        _error = null;
+      });
+    } else {
+      setState(() {
+        _error = null;
+      });
+    }
 
     try {
-      final data = await _repository.getProductos(
-        tipo: widget.tipo,
-        nombre: nombre,
-      );
+      final tipo = _categoria == 'todos' ? null : _categoria;
+      final data = await _repository.getProductos(tipo: tipo, nombre: nombre);
 
       if (!mounted) return;
       setState(() {
         _productos = data.map(ProductoModel.fromMap).toList();
+        _paginaActual = 0;
         _cargando = false;
       });
-    } catch (e) {
+    } catch (error) {
       if (!mounted) return;
       setState(() {
         _error = AppErrorMapper.toUserMessage(
-          e,
+          error,
           fallbackMessage: 'Error al cargar los productos.',
         );
         _cargando = false;
@@ -63,22 +99,359 @@ class _CartaPageState extends State<CartaPage> {
     }
   }
 
+  Future<void> _cargarPerfil() async {
+    try {
+      final perfil = await _repository.getUserPerfil();
+      if (!mounted) return;
+      setState(() => _perfilUsuario = perfil);
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _perfilUsuario = null);
+    }
+  }
+
   void _onBuscar(String valor) {
-    _cargar(nombre: valor.isEmpty ? null : valor);
+    _cargar(nombre: valor.trim().isEmpty ? null : valor.trim());
+  }
+
+  void _onCambiarCategoria(String categoria) {
+    if (_categoria == categoria) return;
+    setState(() {
+      _categoria = categoria;
+      _paginaActual = 0;
+    });
+    final nombre = _searchController.text.trim();
+    _cargar(nombre: nombre.isEmpty ? null : nombre, mostrarSpinner: false);
+  }
+
+  void _irPaginaAnterior() {
+    if (_paginaActual == 0) return;
+    setState(() => _paginaActual -= 1);
+  }
+
+  void _irPaginaSiguiente() {
+    if (_paginaActual >= _totalPaginas - 1) return;
+    setState(() => _paginaActual += 1);
+  }
+
+  bool _puedeGestionarProducto(ProductoModel producto) {
+    return (_perfilUsuario == 'cocinero' && producto.tipo == 'plato') ||
+        (_perfilUsuario == 'cantinero' && producto.tipo == 'bebida');
+  }
+
+  void _mostrarMensaje(String mensaje, {required bool esError}) {
+    ScaffoldMessenger.of(context)
+      ..clearSnackBars()
+      ..showSnackBar(
+        SnackBar(
+          content: Text(mensaje),
+          backgroundColor:
+              esError ? const Color(0xFF992E2E) : const Color(0xFF2D6A4F),
+        ),
+      );
+  }
+
+  Future<void> _editarProducto(ProductoModel producto) async {
+    final formKey = GlobalKey<FormState>();
+    var nombre = producto.nombre;
+    var descripcion = producto.descripcion;
+    var tiempoTexto = producto.tiempoMin.toString();
+    var precioTexto = producto.precio.toStringAsFixed(2);
+
+    final payload = await showDialog<Map<String, dynamic>?>(
+      context: context,
+      builder: (context) {
+        final borde = OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: const BorderSide(color: Color(0xFFB77B7B)),
+        );
+        final foco = OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: const BorderSide(color: Color(0xFF7A2021), width: 1.5),
+        );
+
+        return AlertDialog(
+          backgroundColor: const Color(0xFFF7ECEC),
+          surfaceTintColor: Colors.transparent,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24),
+          ),
+          title: const Row(
+            children: [
+              Icon(Icons.edit_note, color: Color(0xFF7A2021), size: 24),
+              SizedBox(width: 8),
+              Text(
+                'Editar producto',
+                style: TextStyle(
+                  color: Color(0xFF2A1414),
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ],
+          ),
+          content: Form(
+            key: formKey,
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextFormField(
+                    initialValue: nombre,
+                    style: const TextStyle(color: Color(0xFF2A1414)),
+                    cursorColor: const Color(0xFF7A2021),
+                    maxLength: _maxNombre,
+                    inputFormatters: [
+                      LengthLimitingTextInputFormatter(_maxNombre),
+                    ],
+                    decoration: InputDecoration(
+                      labelText: 'Nombre',
+                      labelStyle: const TextStyle(color: Color(0xFF5D3030)),
+                      filled: true,
+                      fillColor: Colors.white,
+                      enabledBorder: borde,
+                      focusedBorder: foco,
+                    ),
+                    validator:
+                        (v) =>
+                            v == null || v.trim().isEmpty
+                                ? 'Campo requerido'
+                                : null,
+                    onChanged: (v) => nombre = v,
+                  ),
+                  const SizedBox(height: 10),
+                  TextFormField(
+                    initialValue: descripcion,
+                    style: const TextStyle(color: Color(0xFF2A1414)),
+                    cursorColor: const Color(0xFF7A2021),
+                    maxLines: 3,
+                    maxLength: _maxDescripcion,
+                    inputFormatters: [
+                      LengthLimitingTextInputFormatter(_maxDescripcion),
+                    ],
+                    decoration: InputDecoration(
+                      labelText: 'Descripción',
+                      labelStyle: const TextStyle(color: Color(0xFF5D3030)),
+                      filled: true,
+                      fillColor: Colors.white,
+                      enabledBorder: borde,
+                      focusedBorder: foco,
+                    ),
+                    validator:
+                        (v) =>
+                            v == null || v.trim().isEmpty
+                                ? 'Campo requerido'
+                                : null,
+                    onChanged: (v) => descripcion = v,
+                  ),
+                  const SizedBox(height: 10),
+                  TextFormField(
+                    initialValue: tiempoTexto,
+                    style: const TextStyle(color: Color(0xFF2A1414)),
+                    cursorColor: const Color(0xFF7A2021),
+                    keyboardType: TextInputType.number,
+                    maxLength: _maxTiempo,
+                    inputFormatters: [
+                      LengthLimitingTextInputFormatter(_maxTiempo),
+                    ],
+                    decoration: InputDecoration(
+                      labelText: 'Tiempo (minutos)',
+                      labelStyle: const TextStyle(color: Color(0xFF5D3030)),
+                      filled: true,
+                      fillColor: Colors.white,
+                      enabledBorder: borde,
+                      focusedBorder: foco,
+                    ),
+                    validator:
+                        (v) =>
+                            int.tryParse(v ?? '') == null
+                                ? 'Número inválido'
+                                : null,
+                    onChanged: (v) => tiempoTexto = v,
+                  ),
+                  const SizedBox(height: 10),
+                  TextFormField(
+                    initialValue: precioTexto,
+                    style: const TextStyle(color: Color(0xFF2A1414)),
+                    cursorColor: const Color(0xFF7A2021),
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
+                    maxLength: _maxPrecio,
+                    inputFormatters: [
+                      LengthLimitingTextInputFormatter(_maxPrecio),
+                    ],
+                    decoration: InputDecoration(
+                      labelText: 'Precio',
+                      labelStyle: const TextStyle(color: Color(0xFF5D3030)),
+                      filled: true,
+                      fillColor: Colors.white,
+                      enabledBorder: borde,
+                      focusedBorder: foco,
+                    ),
+                    validator:
+                        (v) =>
+                            double.tryParse(v ?? '') == null
+                                ? 'Número inválido'
+                                : null,
+                    onChanged: (v) => precioTexto = v,
+                  ),
+                ],
+              ),
+            ),
+          ),
+          actions: [
+            OutlinedButton(
+              onPressed: () => Navigator.of(context).pop(),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: const Color(0xFF7A2021),
+                side: const BorderSide(color: Color(0xFF7A2021)),
+                minimumSize: const Size(110, 44),
+              ),
+              child: const Text('Cancelar'),
+            ),
+            FilledButton(
+              onPressed: () {
+                if (!formKey.currentState!.validate()) return;
+                Navigator.of(context).pop({
+                  'nombre': nombre.trim(),
+                  'descripcion': descripcion.trim(),
+                  'tiempoMin': int.parse(tiempoTexto.trim()),
+                  'precio': double.parse(precioTexto.trim()),
+                });
+              },
+              style: FilledButton.styleFrom(
+                backgroundColor: const Color(0xFF7A2021),
+                foregroundColor: Colors.white,
+                minimumSize: const Size(110, 44),
+              ),
+              child: const Text('Guardar'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (payload == null) return;
+
+    setState(() => _procesandoAccion = true);
+    try {
+      await _repository.editarProducto(
+        productoId: producto.id,
+        tipo: producto.tipo,
+        nombre: payload['nombre'] as String,
+        descripcion: payload['descripcion'] as String,
+        tiempoMin: payload['tiempoMin'] as int,
+        precio: payload['precio'] as double,
+      );
+      if (!mounted) return;
+      _mostrarMensaje('Producto actualizado.', esError: false);
+      final nombre = _searchController.text.trim();
+      await _cargar(
+        nombre: nombre.isEmpty ? null : nombre,
+        mostrarSpinner: false,
+      );
+    } catch (error) {
+      if (!mounted) return;
+      _mostrarMensaje(
+        AppErrorMapper.toUserMessage(
+          error,
+          fallbackMessage: 'No se pudo editar el producto.',
+        ),
+        esError: true,
+      );
+    } finally {
+      if (mounted) setState(() => _procesandoAccion = false);
+    }
+  }
+
+  Future<void> _eliminarProducto(ProductoModel producto) async {
+    final confirmar = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: const Color(0xFFF7ECEC),
+          surfaceTintColor: Colors.transparent,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24),
+          ),
+          title: const Row(
+            children: [
+              Icon(Icons.warning_rounded, color: Color(0xFFB62F2F), size: 24),
+              SizedBox(width: 8),
+              Text(
+                'Eliminar producto',
+                style: TextStyle(
+                  color: Color(0xFF2A1414),
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ],
+          ),
+          content: Text(
+            'Se eliminará "${producto.nombre}" de la carta. Esta acción no se puede deshacer.',
+            style: const TextStyle(color: Color(0xFF3A2222), height: 1.35),
+          ),
+          actions: [
+            OutlinedButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: const Color(0xFF7A2021),
+                side: const BorderSide(color: Color(0xFF7A2021)),
+                minimumSize: const Size(110, 44),
+              ),
+              child: const Text('Cancelar'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              style: FilledButton.styleFrom(
+                backgroundColor: const Color(0xFFB62F2F),
+                foregroundColor: Colors.white,
+                minimumSize: const Size(110, 44),
+              ),
+              child: const Text('Eliminar'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmar != true) return;
+
+    setState(() => _procesandoAccion = true);
+    try {
+      await _repository.eliminarProducto(
+        productoId: producto.id,
+        tipo: producto.tipo,
+      );
+      if (!mounted) return;
+      _mostrarMensaje('Producto eliminado de la carta.', esError: false);
+      final nombre = _searchController.text.trim();
+      await _cargar(
+        nombre: nombre.isEmpty ? null : nombre,
+        mostrarSpinner: false,
+      );
+    } catch (error) {
+      if (!mounted) return;
+      _mostrarMensaje(
+        AppErrorMapper.toUserMessage(
+          error,
+          fallbackMessage: 'No se pudo eliminar el producto.',
+        ),
+        esError: true,
+      );
+    } finally {
+      if (mounted) setState(() => _procesandoAccion = false);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final titulo =
-        widget.tipo == 'plato' ? 'Carta de platos' : 'Carta de bebidas';
-
     return Scaffold(
-      appBar: AppBar(title: Text(titulo)),
+      appBar: AppBar(title: const Text('Carta de productos')),
       body: Container(
-        color: const Color(0xFF5A0F10), 
+        color: const Color(0xFF5A0F10),
         child: Column(
           children: [
-            // 🔍 Buscador
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
               child: TextField(
@@ -87,17 +460,14 @@ class _CartaPageState extends State<CartaPage> {
                 style: const TextStyle(color: Colors.white),
                 decoration: InputDecoration(
                   filled: true,
-                  fillColor: const Color(0xFF8D2628),
+                  fillColor: const Color(0xFF9D2A2A),
                   hintText: 'Buscar por nombre...',
-                  hintStyle: const TextStyle(color: Colors.white54),
-                  prefixIcon: const Icon(Icons.search, color: Colors.white54),
+                  hintStyle: const TextStyle(color: Color(0xFFFFD6D6)),
+                  prefixIcon: const Icon(Icons.search, color: Colors.white),
                   suffixIcon:
                       _searchController.text.isNotEmpty
                           ? IconButton(
-                            icon: const Icon(
-                              Icons.clear,
-                              color: Colors.white54,
-                            ),
+                            icon: const Icon(Icons.clear, color: Colors.white),
                             onPressed: () {
                               _searchController.clear();
                               _onBuscar('');
@@ -106,13 +476,69 @@ class _CartaPageState extends State<CartaPage> {
                           : null,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(14),
-                    borderSide: BorderSide.none,
+                    borderSide: const BorderSide(color: Color(0xFFFFC2C2)),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(14),
+                    borderSide: const BorderSide(color: Color(0xFFFFC2C2)),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(14),
+                    borderSide: const BorderSide(
+                      color: Colors.white,
+                      width: 1.8,
+                    ),
                   ),
                 ),
               ),
             ),
-
-            // 📋 Contenido
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
+              child: Wrap(
+                spacing: 8,
+                children: [
+                  ChoiceChip(
+                    label: const Text('Todos'),
+                    selected: _categoria == 'todos',
+                    onSelected: (_) => _onCambiarCategoria('todos'),
+                    selectedColor: const Color(0xFFF8D9D9),
+                    backgroundColor: const Color(0xFFF2ECEC),
+                    checkmarkColor: const Color(0xFF4A1414),
+                    side: const BorderSide(color: Color(0xFFD8BBBB)),
+                    labelStyle: const TextStyle(
+                      color: Color(0xFF4A1414),
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  ChoiceChip(
+                    label: const Text('Platos'),
+                    selected: _categoria == 'plato',
+                    onSelected: (_) => _onCambiarCategoria('plato'),
+                    selectedColor: const Color(0xFFF8D9D9),
+                    backgroundColor: const Color(0xFFF2ECEC),
+                    checkmarkColor: const Color(0xFF4A1414),
+                    side: const BorderSide(color: Color(0xFFD8BBBB)),
+                    labelStyle: const TextStyle(
+                      color: Color(0xFF4A1414),
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  ChoiceChip(
+                    label: const Text('Bebidas'),
+                    selected: _categoria == 'bebida',
+                    onSelected: (_) => _onCambiarCategoria('bebida'),
+                    selectedColor: const Color(0xFFF8D9D9),
+                    backgroundColor: const Color(0xFFF2ECEC),
+                    checkmarkColor: const Color(0xFF4A1414),
+                    side: const BorderSide(color: Color(0xFFD8BBBB)),
+                    labelStyle: const TextStyle(
+                      color: Color(0xFF4A1414),
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ],
+              ),
+            ),
             Expanded(
               child:
                   _cargando
@@ -147,25 +573,151 @@ class _CartaPageState extends State<CartaPage> {
                           style: TextStyle(color: Colors.white70),
                         ),
                       )
-                      : PageView.builder(
-                        scrollDirection: Axis.vertical,
-                        itemCount: _productos.length,
-                        itemBuilder: (context, index) {
-                          return _ProductoCard(
-                            producto: _productos[index],
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder:
-                                      (_) => ProductoDetallePage(
-                                        producto: _productos[index],
+                      : Column(
+                        children: [
+                          Expanded(
+                            child: Padding(
+                              padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                              child: Column(
+                                children: List.generate(_itemsPorPagina, (
+                                  index,
+                                ) {
+                                  final tieneProducto =
+                                      index < _productosPagina.length;
+                                  final esUltimoSlot =
+                                      index == _itemsPorPagina - 1;
+
+                                  return Expanded(
+                                    child: Padding(
+                                      padding: EdgeInsets.only(
+                                        bottom: esUltimoSlot ? 0 : 4,
                                       ),
+                                      child:
+                                          tieneProducto
+                                              ? Builder(
+                                                builder: (context) {
+                                                  final producto =
+                                                      _productosPagina[index];
+                                                  final puedeGestionar =
+                                                      _puedeGestionarProducto(
+                                                        producto,
+                                                      ) &&
+                                                      !_procesandoAccion;
+                                                  return _ProductoCard(
+                                                    producto: producto,
+                                                    onTap: () {
+                                                      Navigator.push(
+                                                        context,
+                                                        MaterialPageRoute(
+                                                          builder:
+                                                              (
+                                                                _,
+                                                              ) => ProductoDetallePage(
+                                                                producto:
+                                                                    producto,
+                                                                onEditar:
+                                                                    puedeGestionar
+                                                                        ? () => _editarProducto(
+                                                                          producto,
+                                                                        )
+                                                                        : null,
+                                                                onEliminar:
+                                                                    puedeGestionar
+                                                                        ? () => _eliminarProducto(
+                                                                          producto,
+                                                                        )
+                                                                        : null,
+                                                              ),
+                                                        ),
+                                                      );
+                                                    },
+                                                  );
+                                                },
+                                              )
+                                              : _SlotVacioProducto(
+                                                mostrarMensaje:
+                                                    _cantidadVaciosEnPagina >
+                                                        0 &&
+                                                    index ==
+                                                        _productosPagina.length,
+                                              ),
+                                    ),
+                                  );
+                                }),
+                              ),
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(16, 0, 16, 14),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: OutlinedButton.icon(
+                                    onPressed:
+                                        _paginaActual == 0
+                                            ? null
+                                            : _irPaginaAnterior,
+                                    style: OutlinedButton.styleFrom(
+                                      minimumSize: const Size.fromHeight(46),
+                                      foregroundColor: const Color(0xFF4A0E10),
+                                      backgroundColor: Colors.white,
+                                      disabledForegroundColor: Colors.white54,
+                                      disabledBackgroundColor: const Color(
+                                        0xFF7A2021,
+                                      ),
+                                      side: const BorderSide(
+                                        color: Colors.white,
+                                        width: 1.4,
+                                      ),
+                                      textStyle: const TextStyle(
+                                        fontWeight: FontWeight.w700,
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                    icon: const Icon(Icons.chevron_left),
+                                    label: const Text('Anterior'),
+                                  ),
                                 ),
-                              );
-                            },
-                          );
-                        },
+                                const SizedBox(width: 12),
+                                Text(
+                                  'Página ${_paginaActual + 1} / $_totalPaginas',
+                                  style: const TextStyle(
+                                    color: Color(0xFFFFE9E9),
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: OutlinedButton.icon(
+                                    onPressed:
+                                        _paginaActual >= _totalPaginas - 1
+                                            ? null
+                                            : _irPaginaSiguiente,
+                                    style: OutlinedButton.styleFrom(
+                                      minimumSize: const Size.fromHeight(46),
+                                      foregroundColor: const Color(0xFF4A0E10),
+                                      backgroundColor: Colors.white,
+                                      disabledForegroundColor: Colors.white54,
+                                      disabledBackgroundColor: const Color(
+                                        0xFF7A2021,
+                                      ),
+                                      side: const BorderSide(
+                                        color: Colors.white,
+                                        width: 1.4,
+                                      ),
+                                      textStyle: const TextStyle(
+                                        fontWeight: FontWeight.w700,
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                    icon: const Icon(Icons.chevron_right),
+                                    label: const Text('Siguiente'),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
                       ),
             ),
           ],
@@ -175,178 +727,226 @@ class _CartaPageState extends State<CartaPage> {
   }
 }
 
-// ─── Card tipo reel ─────────────────────────────────────────────
-
-class _ProductoCard extends StatefulWidget {
+class _ProductoCard extends StatelessWidget {
   const _ProductoCard({required this.producto, required this.onTap});
 
   final ProductoModel producto;
   final VoidCallback onTap;
 
-  @override
-  State<_ProductoCard> createState() => _ProductoCardState();
-}
-
-class _ProductoCardState extends State<_ProductoCard> {
-  final PageController _fotoController = PageController();
-  int _fotoActual = 0;
-
-  @override
-  void dispose() {
-    _fotoController.dispose();
-    super.dispose();
+  static String _limitarTexto(String value, int maxChars) {
+    final limpio = value.trim();
+    if (maxChars <= 1) return limpio.isEmpty ? '' : '…';
+    if (limpio.length <= maxChars) return limpio;
+    return '${limpio.substring(0, maxChars - 1)}…';
   }
 
   @override
   Widget build(BuildContext context) {
-    final p = widget.producto;
+    final esPlato = producto.tipo == 'plato';
+    final nombre = _limitarTexto(producto.nombre, 18);
+    final descripcion = _limitarTexto(producto.descripcion, 34);
+    final tipo = _limitarTexto(esPlato ? 'Plato' : 'Bebida', 8);
+    final tiempo = _limitarTexto(producto.tiempoMin.toString(), 10);
+    final precio = _limitarTexto(producto.precio.toStringAsFixed(2), 10);
 
-    return GestureDetector(
-      onTap: widget.onTap,
-      child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        decoration: BoxDecoration(
-          color: const Color(0xFF8D2628), // 🍷 card estilo login
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // 📸 Carrusel
-            Expanded(
-              flex: 6,
-              child: ClipRRect(
-                borderRadius: const BorderRadius.vertical(
-                  top: Radius.circular(20),
-                ),
-                child: Stack(
-                  children: [
-                    PageView.builder(
-                      controller: _fotoController,
-                      itemCount: p.fotos.length,
-                      onPageChanged: (i) => setState(() => _fotoActual = i),
-                      itemBuilder:
-                          (_, i) => Image.network(
-                            p.fotos[i],
-                            fit: BoxFit.cover,
-                            width: double.infinity,
-                            loadingBuilder:
-                                (_, child, progress) =>
-                                    progress == null
-                                        ? child
-                                        : const Center(
-                                          child: CircularProgressIndicator(
-                                            color: Colors.white,
-                                          ),
-                                        ),
-                            errorBuilder:
-                                (_, __, ___) => const Center(
-                                  child: Icon(
-                                    Icons.broken_image,
-                                    color: Colors.white38,
-                                    size: 48,
-                                  ),
-                                ),
-                          ),
-                    ),
-
-                    // indicadores
-                    Positioned(
-                      bottom: 10,
-                      left: 0,
-                      right: 0,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: List.generate(p.fotos.length, (i) {
-                          return AnimatedContainer(
-                            duration: const Duration(milliseconds: 200),
-                            margin: const EdgeInsets.symmetric(horizontal: 3),
-                            width: _fotoActual == i ? 18 : 8,
-                            height: 8,
-                            decoration: BoxDecoration(
-                              color:
-                                  _fotoActual == i
-                                      ? Colors.white
-                                      : Colors.white38,
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                          );
-                        }),
+    return Card(
+      color: const Color(0xFFA02C2C),
+      margin: EdgeInsets.zero,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(14),
+        side: const BorderSide(color: Color(0xFFFFC9C9), width: 0.6),
+      ),
+      elevation: 2,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(14),
+        child: Padding(
+          padding: const EdgeInsets.all(8),
+          child: Row(
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: Image.network(
+                  producto.foto1,
+                  width: 64,
+                  height: 64,
+                  fit: BoxFit.cover,
+                  errorBuilder:
+                      (_, __, ___) => Container(
+                        width: 64,
+                        height: 64,
+                        color: Colors.white12,
+                        alignment: Alignment.center,
+                        child: const Icon(
+                          Icons.broken_image,
+                          color: Colors.white54,
+                        ),
                       ),
-                    ),
-                  ],
                 ),
               ),
-            ),
-
-            // 📝 Info
-            Expanded(
-              flex: 4,
-              child: Padding(
-                padding: const EdgeInsets.all(16),
+              const SizedBox(width: 10),
+              Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      p.nombre,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 28,
-                        fontFamily: 'ArchivoBlack',
-                      ),
+                      nombre,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 16,
+                      ),
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      p.descripcion,
-                      style: const TextStyle(
-                        color: Colors.white70,
-                        fontSize: 20,
-                      ),
-                      maxLines: 2,
+                      descripcion,
+                      maxLines: 1,
                       overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: Color(0xFFFFDDDD),
+                        fontSize: 14,
+                      ),
                     ),
-                    const Spacer(),
+                    const SizedBox(height: 6),
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Row(
-                          children: [
-                            const Icon(
-                              Icons.access_time,
-                              color: Colors.white54,
-                              size: 25,
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              '${p.tiempoMin} min',
-                              style: const TextStyle(color: Colors.white54, fontSize: 20),
-                            ),
-                          ],
-                        ),
-                        Text(
-                          '\$${p.precio.toStringAsFixed(2)}',
-                          style: const TextStyle(
-                            color: Color.fromARGB(
-                              255,
-                              250,
-                              250,
-                              250,
-                            ), // 💰 dorado
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
+                        Expanded(
+                          child: _DatoPildora(
+                            icon: esPlato ? Icons.restaurant : Icons.local_bar,
+                            text: tipo,
+                            centered: true,
                           ),
                         ),
+                        const SizedBox(width: 4),
+                        Expanded(
+                          child: _DatoPildora(
+                            icon: Icons.access_time,
+                            text: tiempo,
+                            centered: true,
+                          ),
+                        ),
+                        const SizedBox(width: 4),
+                        Expanded(
+                          child: _DatoPildora(
+                            icon: Icons.attach_money,
+                            text: precio,
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        const Icon(Icons.chevron_right, color: Colors.white70),
                       ],
+                    ),
+                    const SizedBox(height: 6),
+                    const Text(
+                      'Toca para ver/editar detalles',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: Color(0xFFFFD6D6),
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ],
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
+    );
+  }
+}
+
+class _DatoPildora extends StatelessWidget {
+  const _DatoPildora({
+    required this.icon,
+    required this.text,
+    this.centered = false,
+  });
+
+  final IconData icon;
+  final String text;
+  final bool centered;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 3),
+      decoration: BoxDecoration(
+        color: const Color(0xFF9A3A3A),
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(color: const Color(0xFFFFB9B9)),
+      ),
+      child: Row(
+        mainAxisAlignment:
+            centered ? MainAxisAlignment.center : MainAxisAlignment.start,
+        children: [
+          Icon(icon, size: 12, color: Colors.white70),
+          const SizedBox(width: 2),
+          if (centered)
+            Flexible(
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.center,
+                child: Text(
+                  text,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            )
+          else
+            Expanded(
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  text,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SlotVacioProducto extends StatelessWidget {
+  const _SlotVacioProducto({required this.mostrarMensaje});
+
+  final bool mostrarMensaje;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: const Color(0xFF8D2628).withOpacity(0.38),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: Colors.white12),
+      ),
+      alignment: Alignment.center,
+      child:
+          mostrarMensaje
+              ? const Text(
+                'No hay más productos',
+                style: TextStyle(
+                  color: Colors.white70,
+                  fontWeight: FontWeight.w600,
+                ),
+              )
+              : const SizedBox.shrink(),
     );
   }
 }

@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:all_food/src/features/productos/data/repositories/productos_repository.dart';
 import 'package:all_food/src/shared/errors/app_error_mapper.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:all_food/src/shared/widgets/logo_spinner.dart';
 
@@ -16,6 +17,11 @@ class CrearProductoPage extends StatefulWidget {
 }
 
 class _CrearProductoPageState extends State<CrearProductoPage> {
+  static const int _maxNombre = 22;
+  static const int _maxDescripcion = 90;
+  static const int _maxTiempo = 3;
+  static const int _maxPrecio = 8;
+
   final _formKey = GlobalKey<FormState>();
 
   final _nombreController = TextEditingController();
@@ -190,133 +196,213 @@ class _CrearProductoPageState extends State<CrearProductoPage> {
 
   @override
   Widget build(BuildContext context) {
+    const pageBg = Color(0xFF5F0E0E);
+    const cardBg = Color(0xFF8B1A1A);
+    const fieldBg = Color(0xFFA52A2A);
+
     return Scaffold(
       appBar: AppBar(title: const Text('Crear Producto')),
       body: Container(
         width: double.infinity,
         height: double.infinity,
-        color: const Color(0xFF6B1010),
+        color: pageBg,
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 48),
           child: Center(
             child: Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: const Color(0xFF8B1A1A),
+                color: cardBg,
                 borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: Colors.white24),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Color(0x4D000000),
+                    blurRadius: 18,
+                    offset: Offset(0, 8),
+                  ),
+                ],
               ),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    const Text(
-                      'Crear Producto',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontFamily: 'ArchivoBlack',
-                        fontSize: 34,
+              child: Theme(
+                data: Theme.of(context).copyWith(
+                  inputDecorationTheme: InputDecorationTheme(
+                    filled: true,
+                    fillColor: fieldBg,
+                    labelStyle: const TextStyle(color: Color(0xFFFFDCDC)),
+                    floatingLabelStyle: const TextStyle(color: Colors.white),
+                    hintStyle: const TextStyle(color: Colors.white54),
+                    counterStyle: const TextStyle(
+                      color: Color(0xFFFFDCDC),
+                      fontWeight: FontWeight.w700,
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: const BorderSide(color: Color(0xFFFFC2C2)),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: const BorderSide(
                         color: Colors.white,
-                        letterSpacing: -2,
+                        width: 1.6,
                       ),
                     ),
-                    const SizedBox(height: 20),
-
-                    // NOMBRE
-                    TextFormField(
-                      controller: _nombreController,
-                      style: const TextStyle(color: Colors.white),
-                      decoration: const InputDecoration(labelText: 'Nombre'),
-                      validator:
-                          (v) => v == null || v.isEmpty ? 'Requerido' : null,
+                    errorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: const BorderSide(color: Color(0xFFFF9D9D)),
                     ),
-                    const SizedBox(height: 16),
-
-                    // DESCRIPCIÓN
-                    TextFormField(
-                      controller: _descripcionController,
-                      style: const TextStyle(color: Colors.white),
-                      maxLines: 3,
-                      decoration: const InputDecoration(
-                        labelText: 'Descripción',
+                    focusedErrorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: const BorderSide(
+                        color: Color(0xFFFF9D9D),
+                        width: 1.6,
                       ),
-                      validator:
-                          (v) => v == null || v.isEmpty ? 'Requerido' : null,
                     ),
-                    const SizedBox(height: 16),
-
-                    // TIEMPO
-                    TextFormField(
-                      controller: _tiempoController,
-                      keyboardType: TextInputType.number,
-                      style: const TextStyle(color: Colors.white),
-                      decoration: const InputDecoration(
-                        labelText: 'Tiempo (mínimo)',
+                    errorStyle: const TextStyle(color: Color(0xFFFFCDCD)),
+                  ),
+                ),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      const Text(
+                        'Crear Producto',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontFamily: 'ArchivoBlack',
+                          fontSize: 34,
+                          color: Colors.white,
+                          letterSpacing: -2,
+                        ),
                       ),
-                      validator:
-                          (v) =>
-                              int.tryParse(v ?? '') == null
-                                  ? 'Número inválido'
-                                  : null,
-                    ),
-                    const SizedBox(height: 16),
+                      const SizedBox(height: 20),
 
-                    // PRECIO
-                    TextFormField(
-                      controller: _precioController,
-                      keyboardType: TextInputType.number,
-                      style: const TextStyle(color: Colors.white),
-                      decoration: const InputDecoration(labelText: 'Precio'),
-                      validator:
-                          (v) =>
-                              double.tryParse(v ?? '') == null
-                                  ? 'Número inválido'
-                                  : null,
-                    ),
-                    const SizedBox(height: 16),
+                      // NOMBRE
+                      TextFormField(
+                        controller: _nombreController,
+                        style: const TextStyle(color: Colors.white),
+                        maxLength: _maxNombre,
+                        inputFormatters: [
+                          LengthLimitingTextInputFormatter(_maxNombre),
+                        ],
+                        decoration: const InputDecoration(labelText: 'Nombre'),
+                        validator:
+                            (v) => v == null || v.isEmpty ? 'Requerido' : null,
+                      ),
+                      const SizedBox(height: 16),
 
-                    // IMÁGENES
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: List.generate(3, (index) {
-                        final img = _imagenes[index];
-                        return GestureDetector(
-                          onTap: () => _seleccionarImagen(index),
-                          child: Container(
-                            width: 90,
-                            height: 90,
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF9B2A2A),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child:
-                                img == null
-                                    ? const Icon(
-                                      Icons.camera_alt,
-                                      color: Colors.white,
-                                    )
-                                    : ClipRRect(
-                                      borderRadius: BorderRadius.circular(12),
-                                      child: Image.file(
-                                        File(img.path),
-                                        fit: BoxFit.cover,
+                      // DESCRIPCIÓN
+                      TextFormField(
+                        controller: _descripcionController,
+                        style: const TextStyle(color: Colors.white),
+                        maxLines: 3,
+                        maxLength: _maxDescripcion,
+                        inputFormatters: [
+                          LengthLimitingTextInputFormatter(_maxDescripcion),
+                        ],
+                        decoration: const InputDecoration(
+                          labelText: 'Descripción',
+                        ),
+                        validator:
+                            (v) => v == null || v.isEmpty ? 'Requerido' : null,
+                      ),
+                      const SizedBox(height: 16),
+
+                      // TIEMPO
+                      TextFormField(
+                        controller: _tiempoController,
+                        keyboardType: TextInputType.number,
+                        style: const TextStyle(color: Colors.white),
+                        maxLength: _maxTiempo,
+                        inputFormatters: [
+                          LengthLimitingTextInputFormatter(_maxTiempo),
+                        ],
+                        decoration: const InputDecoration(
+                          labelText: 'Tiempo (minutos)',
+                        ),
+                        validator:
+                            (v) =>
+                                int.tryParse(v ?? '') == null
+                                    ? 'Número inválido'
+                                    : null,
+                      ),
+                      const SizedBox(height: 16),
+
+                      // PRECIO
+                      TextFormField(
+                        controller: _precioController,
+                        keyboardType: TextInputType.number,
+                        style: const TextStyle(color: Colors.white),
+                        maxLength: _maxPrecio,
+                        inputFormatters: [
+                          LengthLimitingTextInputFormatter(_maxPrecio),
+                        ],
+                        decoration: const InputDecoration(labelText: 'Precio'),
+                        validator:
+                            (v) =>
+                                double.tryParse(v ?? '') == null
+                                    ? 'Número inválido'
+                                    : null,
+                      ),
+                      const SizedBox(height: 16),
+
+                      // IMÁGENES
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: List.generate(3, (index) {
+                          final img = _imagenes[index];
+                          return GestureDetector(
+                            onTap: () => _seleccionarImagen(index),
+                            child: Container(
+                              width: 90,
+                              height: 90,
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF9B2A2A),
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                  color: const Color(0xFFFFC2C2),
+                                ),
+                              ),
+                              child:
+                                  img == null
+                                      ? const Icon(
+                                        Icons.camera_alt,
+                                        color: Colors.white,
+                                        size: 30,
+                                      )
+                                      : ClipRRect(
+                                        borderRadius: BorderRadius.circular(12),
+                                        child: Image.file(
+                                          File(img.path),
+                                          fit: BoxFit.cover,
+                                        ),
                                       ),
-                                    ),
+                            ),
+                          );
+                        }),
+                      ),
+
+                      const SizedBox(height: 24),
+
+                      FilledButton(
+                        onPressed: _guardando ? null : _guardarProducto,
+                        style: FilledButton.styleFrom(
+                          minimumSize: const Size.fromHeight(54),
+                          backgroundColor: Colors.white,
+                          foregroundColor: Colors.black,
+                          disabledBackgroundColor: Colors.white70,
+                          textStyle: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w700,
                           ),
-                        );
-                      }),
-                    ),
-
-                    const SizedBox(height: 24),
-
-                    FilledButton(
-                      onPressed: _guardando ? null : _guardarProducto,
-                      child:
-                          _guardando
-                              ? const LogoSpinner(size: 20, strokeWidth: 2)
-                              : const Text('Guardar'),
-                    ),
-                  ],
+                        ),
+                        child:
+                            _guardando
+                                ? const LogoSpinner(size: 20, strokeWidth: 2)
+                                : const Text('Guardar'),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),

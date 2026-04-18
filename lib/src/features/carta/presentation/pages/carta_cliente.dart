@@ -12,13 +12,13 @@ import 'package:flutter/material.dart';
 // ─────────────────────────────────────────────────────────────
 class CartaClientePage extends StatefulWidget {
   const CartaClientePage({
-    required this.tipo,
+    this.initialCategoria,
     this.mesaId,
     this.numeroMesa,
     super.key,
   });
 
-  final String tipo;
+  final String? initialCategoria;
   final String? mesaId;
   final int? numeroMesa;
 
@@ -29,8 +29,10 @@ class CartaClientePage extends StatefulWidget {
 class _CartaClientePageState extends State<CartaClientePage> {
   final _repository = CartaRepository();
   final _pedidosRepository = PedidosRepository();
-  final _pageController = PageController();
   final _searchController = TextEditingController();
+  static const int _itemsPorPagina = 4;
+  String _categoria = 'todos';
+  int _paginaActual = 0;
 
   List<ProductoModel> _productos = [];
   bool _cargando = true;
@@ -38,34 +40,65 @@ class _CartaClientePageState extends State<CartaClientePage> {
   String? _error;
   Map<String, dynamic>? _resumenPedido;
 
+  int get _totalPaginas {
+    if (_productos.isEmpty) return 1;
+    return (_productos.length / _itemsPorPagina).ceil();
+  }
+
+  List<ProductoModel> get _productosPagina {
+    final inicio = _paginaActual * _itemsPorPagina;
+    final fin = (inicio + _itemsPorPagina).clamp(0, _productos.length);
+    if (inicio >= _productos.length) return const [];
+    return _productos.sublist(inicio, fin);
+  }
+
+  void _normalizarPagina() {
+    final ultima = _totalPaginas - 1;
+    if (_paginaActual > ultima) {
+      _paginaActual = ultima;
+    }
+    if (_paginaActual < 0) {
+      _paginaActual = 0;
+    }
+  }
+
   @override
   void initState() {
     super.initState();
+    final initial = widget.initialCategoria;
+    if (initial == 'plato' || initial == 'bebida') {
+      _categoria = initial!;
+    }
     _cargar();
   }
 
   @override
   void dispose() {
-    _pageController.dispose();
     _searchController.dispose();
     super.dispose();
   }
 
-  Future<void> _cargar({String? nombre}) async {
-    setState(() {
-      _cargando = true;
-      _error = null;
-    });
+  Future<void> _cargar({String? nombre, bool mostrarSpinner = true}) async {
+    if (mostrarSpinner) {
+      setState(() {
+        _cargando = true;
+        _error = null;
+      });
+    } else {
+      setState(() {
+        _error = null;
+      });
+    }
 
     try {
-      final data = await _repository.getProductos(
-        tipo: widget.tipo,
-        nombre: nombre,
-      );
+      final tipo = _categoria == 'todos' ? null : _categoria;
+      final data = await _repository.getProductos(tipo: tipo, nombre: nombre);
 
       if (!mounted) return;
       setState(() {
         _productos = data.map(ProductoModel.fromMap).toList();
+        _paginaActual = 0;
+        _normalizarPagina();
         _cargando = false;
       });
 
@@ -107,6 +140,32 @@ class _CartaClientePageState extends State<CartaClientePage> {
 
   void _onBuscar(String valor) {
     _cargar(nombre: valor.isEmpty ? null : valor);
+  }
+
+  void _onCambiarCategoria(String categoria) {
+    if (_categoria == categoria) return;
+    setState(() {
+      _categoria = categoria;
+      _paginaActual = 0;
+    });
+    final nombre = _searchController.text.trim();
+    _cargar(nombre: nombre.isEmpty ? null : nombre, mostrarSpinner: false);
+  }
+
+  void _irPaginaAnterior() {
+    if (_paginaActual == 0) return;
+    setState(() {
+      _paginaActual -= 1;
+      _normalizarPagina();
+    });
+  }
+
+  void _irPaginaSiguiente() {
+    if (_paginaActual >= _totalPaginas - 1) return;
+    setState(() {
+      _paginaActual += 1;
+      _normalizarPagina();
+    });
   }
 
   Future<void> _onAgregarAlPedido(ProductoModel producto) async {
@@ -156,15 +215,9 @@ class _CartaClientePageState extends State<CartaClientePage> {
       );
   }
 
-  // ── Placeholder: se implementará cuando continúes el flujo de detalle ──
-  void _onVerDetalle(ProductoModel producto) {
-    // TODO: navegar a ProductoDetallePage o modal de detalle
-  }
-
   @override
   Widget build(BuildContext context) {
-    final titulo =
-        widget.tipo == 'plato' ? 'Carta de platos' : 'Carta de bebidas';
+    const titulo = 'Carta de productos';
 
     return Scaffold(
       appBar: AppBar(
@@ -227,15 +280,29 @@ class _CartaClientePageState extends State<CartaClientePage> {
                 ),
               ),
 
-              // ── Hint de navegación ────────────────────────────────────
-              if (!_cargando && _productos.isNotEmpty)
-                const Padding(
-                  padding: EdgeInsets.only(bottom: 6),
-                  child: Text(
-                    'Deslizá verticalmente para ver más productos',
-                    style: TextStyle(color: Colors.white70, fontSize: 12),
-                  ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
+                child: Wrap(
+                  spacing: 8,
+                  children: [
+                    ChoiceChip(
+                      label: const Text('Todos'),
+                      selected: _categoria == 'todos',
+                      onSelected: (_) => _onCambiarCategoria('todos'),
+                    ),
+                    ChoiceChip(
+                      label: const Text('Platos'),
+                      selected: _categoria == 'plato',
+                      onSelected: (_) => _onCambiarCategoria('plato'),
+                    ),
+                    ChoiceChip(
+                      label: const Text('Bebidas'),
+                      selected: _categoria == 'bebida',
+                      onSelected: (_) => _onCambiarCategoria('bebida'),
+                    ),
+                  ],
                 ),
+              ),
 
               if (widget.mesaId != null)
                 Container(
@@ -310,24 +377,112 @@ class _CartaClientePageState extends State<CartaClientePage> {
                             style: TextStyle(color: Colors.white70),
                           ),
                         )
-                        : PageView.builder(
-                          controller: _pageController,
-                          scrollDirection: Axis.vertical,
-                          itemCount: _productos.length,
-                          itemBuilder: (context, index) {
-                            final producto = _productos[index];
-                            return Padding(
-                              padding: const EdgeInsets.fromLTRB(12, 8, 12, 16),
-                              child: _ProductoClienteCard(
-                                producto: producto,
-                                index: index,
-                                total: _productos.length,
-                                onAgregarAlPedido:
-                                    () => _onAgregarAlPedido(producto),
-                                onVerDetalle: () => _onVerDetalle(producto),
+                        : Column(
+                          children: [
+                            Expanded(
+                              child: Padding(
+                                padding: const EdgeInsets.fromLTRB(
+                                  12,
+                                  8,
+                                  12,
+                                  8,
+                                ),
+                                child: Column(
+                                  children:
+                                      _productosPagina.map((producto) {
+                                        return Expanded(
+                                          child: Padding(
+                                            padding: const EdgeInsets.only(
+                                              bottom: 8,
+                                            ),
+                                            child: _ProductoClienteListItem(
+                                              producto: producto,
+                                              onAgregarAlPedido:
+                                                  () => _onAgregarAlPedido(
+                                                    producto,
+                                                  ),
+                                            ),
+                                          ),
+                                        );
+                                      }).toList(),
+                                ),
                               ),
-                            );
-                          },
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(12, 0, 12, 10),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: OutlinedButton.icon(
+                                      onPressed:
+                                          _paginaActual == 0
+                                              ? null
+                                              : _irPaginaAnterior,
+                                      style: OutlinedButton.styleFrom(
+                                        minimumSize: const Size.fromHeight(46),
+                                        foregroundColor: const Color(
+                                          0xFF4A0E10,
+                                        ),
+                                        backgroundColor: Colors.white,
+                                        disabledForegroundColor: Colors.white54,
+                                        disabledBackgroundColor: const Color(
+                                          0xFF7A2021,
+                                        ),
+                                        side: const BorderSide(
+                                          color: Colors.white,
+                                          width: 1.4,
+                                        ),
+                                        textStyle: const TextStyle(
+                                          fontWeight: FontWeight.w700,
+                                          fontSize: 16,
+                                        ),
+                                      ),
+                                      icon: const Icon(Icons.chevron_left),
+                                      label: const Text('Anterior'),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Text(
+                                    'Página ${_paginaActual + 1} / $_totalPaginas',
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Expanded(
+                                    child: OutlinedButton.icon(
+                                      onPressed:
+                                          _paginaActual >= _totalPaginas - 1
+                                              ? null
+                                              : _irPaginaSiguiente,
+                                      style: OutlinedButton.styleFrom(
+                                        minimumSize: const Size.fromHeight(46),
+                                        foregroundColor: const Color(
+                                          0xFF4A0E10,
+                                        ),
+                                        backgroundColor: Colors.white,
+                                        disabledForegroundColor: Colors.white54,
+                                        disabledBackgroundColor: const Color(
+                                          0xFF7A2021,
+                                        ),
+                                        side: const BorderSide(
+                                          color: Colors.white,
+                                          width: 1.4,
+                                        ),
+                                        textStyle: const TextStyle(
+                                          fontWeight: FontWeight.w700,
+                                          fontSize: 16,
+                                        ),
+                                      ),
+                                      icon: const Icon(Icons.chevron_right),
+                                      label: const Text('Siguiente'),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
               ),
 
@@ -339,6 +494,138 @@ class _CartaClientePageState extends State<CartaClientePage> {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _ProductoClienteListItem extends StatelessWidget {
+  const _ProductoClienteListItem({
+    required this.producto,
+    required this.onAgregarAlPedido,
+  });
+
+  final ProductoModel producto;
+  final VoidCallback onAgregarAlPedido;
+
+  @override
+  Widget build(BuildContext context) {
+    final esPlato = producto.tipo == 'plato';
+
+    return Container(
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Row(
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: Image.network(
+              producto.foto1,
+              width: 72,
+              height: 72,
+              fit: BoxFit.cover,
+              errorBuilder:
+                  (_, __, ___) => Container(
+                    width: 72,
+                    height: 72,
+                    color: const Color(0xFFE9D7D7),
+                    alignment: Alignment.center,
+                    child: const Icon(Icons.broken_image),
+                  ),
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  producto.nombre,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: Color(0xFF3D1F1F),
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 3),
+                Text(
+                  producto.descripcion,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(color: Color(0xFF6B4A4A)),
+                ),
+                const SizedBox(height: 6),
+                Row(
+                  children: [
+                    _DatoMini(
+                      icon: esPlato ? Icons.restaurant : Icons.local_bar,
+                      text: esPlato ? 'Plato' : 'Bebida',
+                    ),
+                    const SizedBox(width: 6),
+                    _DatoMini(
+                      icon: Icons.access_time,
+                      text: '${producto.tiempoMin} min',
+                    ),
+                    const SizedBox(width: 6),
+                    _DatoMini(
+                      icon: Icons.attach_money,
+                      text: '\$${producto.precio.toStringAsFixed(2)}',
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 8),
+          FilledButton(
+            onPressed: onAgregarAlPedido,
+            style: FilledButton.styleFrom(
+              minimumSize: const Size(40, 40),
+              backgroundColor: const Color(0xFF2D6A4F),
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+            ),
+            child: const Icon(Icons.add_shopping_cart, size: 18),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _DatoMini extends StatelessWidget {
+  const _DatoMini({required this.icon, required this.text});
+
+  final IconData icon;
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF2E6E6),
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(color: const Color(0xFFD8BBBB)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 13, color: const Color(0xFF7A2021)),
+          const SizedBox(width: 4),
+          Text(
+            text,
+            style: const TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: Color(0xFF5D3030),
+            ),
+          ),
+        ],
       ),
     );
   }

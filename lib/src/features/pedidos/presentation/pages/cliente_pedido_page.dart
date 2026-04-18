@@ -63,13 +63,12 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
     }
   }
 
-  // Abre carta por tipo y refresca para reflejar cambios de ítems.
-  Future<void> _abrirCarta(String tipo) async {
+  // Abre carta unificada y refresca para reflejar cambios de ítems.
+  Future<void> _abrirCarta() async {
     await Navigator.of(context).push(
       MaterialPageRoute(
         builder:
             (_) => CartaClientePage(
-              tipo: tipo,
               mesaId: widget.mesaId,
               numeroMesa: widget.numeroMesa,
             ),
@@ -529,30 +528,10 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
                       ),
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 16),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: FilledButton.icon(
-                                onPressed:
-                                    _procesando
-                                        ? null
-                                        : () => _abrirCarta('plato'),
-                                icon: const Icon(Icons.restaurant_menu),
-                                label: const Text('Agregar platos'),
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: FilledButton.icon(
-                                onPressed:
-                                    _procesando
-                                        ? null
-                                        : () => _abrirCarta('bebida'),
-                                icon: const Icon(Icons.local_bar),
-                                label: const Text('Agregar bebidas'),
-                              ),
-                            ),
-                          ],
+                        child: FilledButton.icon(
+                          onPressed: _procesando ? null : _abrirCarta,
+                          icon: const Icon(Icons.restaurant_menu),
+                          label: const Text('Agregar productos'),
                         ),
                       ),
                       const SizedBox(height: 10),

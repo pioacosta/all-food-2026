@@ -7,16 +7,16 @@ class CartaFlowException extends AppException {
 
 class CartaRepository {
   CartaRepository({CartaService? service})
-      : _service = service ?? CartaService();
+    : _service = service ?? CartaService();
 
   final CartaService _service;
 
-  /// Devuelve productos según el tipo y búsqueda opcional.
+  /// Devuelve productos según el tipo (opcional) y búsqueda opcional.
   Future<List<Map<String, dynamic>>> getProductos({
-    required String tipo,
+    String? tipo,
     String? nombre,
   }) async {
-    if (tipo != 'plato' && tipo != 'bebida') {
+    if (tipo != null && tipo != 'plato' && tipo != 'bebida') {
       throw const CartaFlowException('Tipo de producto no válido.');
     }
 
@@ -30,5 +30,60 @@ class CartaRepository {
       throw const CartaFlowException('El producto no fue encontrado.');
     }
     return data;
+  }
+
+  Future<String?> getUserPerfil() async {
+    return _service.getUserPerfil();
+  }
+
+  Future<void> editarProducto({
+    required String productoId,
+    required String tipo,
+    required String nombre,
+    required String descripcion,
+    required int tiempoMin,
+    required double precio,
+  }) async {
+    final perfil = await getUserPerfil();
+    _validarPermiso(perfil: perfil, tipo: tipo, accion: 'editar');
+
+    await _service.updateProducto(
+      productoId: productoId,
+      payload: {
+        'nombre': nombre,
+        'descripcion': descripcion,
+        'tiempo_elaboracion_min': tiempoMin,
+        'precio': precio,
+      },
+    );
+  }
+
+  Future<void> eliminarProducto({
+    required String productoId,
+    required String tipo,
+  }) async {
+    final perfil = await getUserPerfil();
+    _validarPermiso(perfil: perfil, tipo: tipo, accion: 'eliminar');
+    await _service.softDeleteProducto(productoId);
+  }
+
+  void _validarPermiso({
+    required String? perfil,
+    required String tipo,
+    required String accion,
+  }) {
+    if (perfil == null) {
+      throw const CartaFlowException(
+        'No se pudo obtener el perfil del usuario.',
+      );
+    }
+
+    if (tipo == 'plato' && perfil != 'cocinero') {
+      throw CartaFlowException('Solo un cocinero puede $accion platos.');
+    }
+
+    if (tipo == 'bebida' && perfil != 'cantinero') {
+      throw CartaFlowException('Solo un cantinero puede $accion bebidas.');
+    }
   }
 }
