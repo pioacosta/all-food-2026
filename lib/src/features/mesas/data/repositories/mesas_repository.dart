@@ -221,6 +221,12 @@ class MesasRepository {
   Future<void> solicitarMesaClienteActualPorQrIngreso(
     String qrEscaneado,
   ) async {
+    validarQrIngresoListaEspera(qrEscaneado);
+
+    await solicitarMesaClienteActual();
+  }
+
+  void validarQrIngresoListaEspera(String qrEscaneado) {
     final valor = qrEscaneado.trim();
 
     // El QR de entrada es unico y compartido para todos los clientes.
@@ -229,8 +235,6 @@ class MesasRepository {
         'El QR escaneado no corresponde al ingreso de lista de espera.',
       );
     }
-
-    await solicitarMesaClienteActual();
   }
 
   Future<void> enviarConsultaRapidaMozo({

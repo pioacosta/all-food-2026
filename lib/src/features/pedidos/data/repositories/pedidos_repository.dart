@@ -47,7 +47,14 @@ class PedidosRepository {
   Future<void> agregarProducto({
     required String mesaId,
     required ProductoModel producto,
+    int cantidad = 1,
   }) async {
+    if (cantidad <= 0) {
+      throw const PedidosFlowException(
+        'La cantidad del producto debe ser mayor a cero.',
+      );
+    }
+
     final pedido = await asegurarPedidoEditable(mesaId);
     final pedidoId = pedido['id'] as String;
 
@@ -62,15 +69,16 @@ class PedidosRepository {
         'producto_id': producto.id,
         'tipo_producto': producto.tipo,
         'nombre_snapshot': producto.nombre,
-        'cantidad': 1,
+        'cantidad': cantidad,
         'precio_unitario': producto.precio,
         'tiempo_elaboracion_min': producto.tiempoMin,
         'estado': 'pendiente',
       });
     } else {
+      final cantidadActual = (existente['cantidad'] as num?)?.toInt() ?? 0;
       await _service.updatePedidoItem(
         itemId: existente['id'] as String,
-        payload: {'cantidad': (existente['cantidad'] as int) + 1},
+        payload: {'cantidad': cantidadActual + cantidad},
       );
     }
 

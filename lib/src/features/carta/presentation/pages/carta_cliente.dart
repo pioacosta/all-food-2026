@@ -4,6 +4,7 @@ import 'package:all_food/src/features/pedidos/data/repositories/pedidos_reposito
 import 'package:all_food/src/shared/errors/app_error_mapper.dart';
 import 'package:all_food/src/shared/widgets/logo_spinner.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 // ─────────────────────────────────────────────────────────────
 //  CartaClientePage
@@ -168,7 +169,10 @@ class _CartaClientePageState extends State<CartaClientePage> {
     });
   }
 
-  Future<void> _onAgregarAlPedido(ProductoModel producto) async {
+  Future<void> _onAgregarAlPedido(
+    ProductoModel producto, {
+    required int cantidad,
+  }) async {
     if (widget.mesaId == null) {
       _mostrarMensaje(
         'No hay mesa vinculada. Escaneá el QR de mesa para pedir.',
@@ -182,10 +186,14 @@ class _CartaClientePageState extends State<CartaClientePage> {
       await _pedidosRepository.agregarProducto(
         mesaId: widget.mesaId!,
         producto: producto,
+        cantidad: cantidad,
       );
       if (!mounted) return;
       await _cargarResumenPedido();
-      _mostrarMensaje('${producto.nombre} agregado al pedido.', esError: false);
+      _mostrarMensaje(
+        '${producto.nombre} x$cantidad agregado al pedido.',
+        esError: false,
+      );
     } catch (error) {
       if (!mounted) return;
       _mostrarMensaje(
@@ -200,6 +208,24 @@ class _CartaClientePageState extends State<CartaClientePage> {
         setState(() => _agregando = false);
       }
     }
+  }
+
+  Future<void> _abrirSelectorCantidad(ProductoModel producto) async {
+    if (widget.mesaId == null) {
+      _mostrarMensaje(
+        'No hay mesa vinculada. Escaneá el QR de mesa para pedir.',
+        esError: true,
+      );
+      return;
+    }
+
+    final cantidad = await showDialog<int>(
+      context: context,
+      builder: (_) => _CantidadProductoDialog(producto: producto),
+    );
+
+    if (!mounted || cantidad == null) return;
+    await _onAgregarAlPedido(producto, cantidad: cantidad);
   }
 
   void _mostrarMensaje(String mensaje, {required bool esError}) {
@@ -397,8 +423,8 @@ class _CartaClientePageState extends State<CartaClientePage> {
                                             ),
                                             child: _ProductoClienteListItem(
                                               producto: producto,
-                                              onAgregarAlPedido:
-                                                  () => _onAgregarAlPedido(
+                                              onTapProducto:
+                                                  () => _abrirSelectorCantidad(
                                                     producto,
                                                   ),
                                             ),
@@ -502,97 +528,200 @@ class _CartaClientePageState extends State<CartaClientePage> {
 class _ProductoClienteListItem extends StatelessWidget {
   const _ProductoClienteListItem({
     required this.producto,
-    required this.onAgregarAlPedido,
+    required this.onTapProducto,
   });
 
   final ProductoModel producto;
-  final VoidCallback onAgregarAlPedido;
+  final VoidCallback onTapProducto;
 
   @override
   Widget build(BuildContext context) {
     final esPlato = producto.tipo == 'plato';
 
-    return Container(
-      padding: const EdgeInsets.all(10),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
+    return InkWell(
+      onTap: onTapProducto,
+      borderRadius: BorderRadius.circular(14),
+      child: Ink(
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(14),
+        ),
+        child: Row(
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: Image.network(
+                producto.foto1,
+                width: 72,
+                height: 72,
+                fit: BoxFit.cover,
+                errorBuilder:
+                    (_, __, ___) => Container(
+                      width: 72,
+                      height: 72,
+                      color: const Color(0xFFE9D7D7),
+                      alignment: Alignment.center,
+                      child: const Icon(Icons.broken_image),
+                    ),
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    producto.nombre,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      color: Color(0xFF3D1F1F),
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  const SizedBox(height: 3),
+                  Text(
+                    producto.descripcion,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(color: Color(0xFF6B4A4A)),
+                  ),
+                  const SizedBox(height: 6),
+                  Row(
+                    children: [
+                      _DatoMini(
+                        icon: esPlato ? Icons.restaurant : Icons.local_bar,
+                        text: esPlato ? 'Plato' : 'Bebida',
+                      ),
+                      const SizedBox(width: 6),
+                      _DatoMini(
+                        icon: Icons.access_time,
+                        text: '${producto.tiempoMin} min',
+                      ),
+                      const SizedBox(width: 6),
+                      _DatoMini(
+                        icon: Icons.attach_money,
+                        text: '\$${producto.precio.toStringAsFixed(2)}',
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 8),
+            const Icon(Icons.chevron_right, color: Color(0xFF7A2021)),
+          ],
+        ),
       ),
-      child: Row(
+    );
+  }
+}
+
+class _CantidadProductoDialog extends StatefulWidget {
+  const _CantidadProductoDialog({required this.producto});
+
+  final ProductoModel producto;
+
+  @override
+  State<_CantidadProductoDialog> createState() =>
+      _CantidadProductoDialogState();
+}
+
+class _CantidadProductoDialogState extends State<_CantidadProductoDialog> {
+  final TextEditingController _cantidadController = TextEditingController(
+    text: '1',
+  );
+  int _cantidad = 1;
+
+  @override
+  void dispose() {
+    _cantidadController.dispose();
+    super.dispose();
+  }
+
+  void _setCantidad(int nuevaCantidad) {
+    final valor = nuevaCantidad.clamp(1, 99);
+    setState(() {
+      _cantidad = valor;
+      _cantidadController.text = '$valor';
+      _cantidadController.selection = TextSelection.fromPosition(
+        TextPosition(offset: _cantidadController.text.length),
+      );
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Text(widget.producto.nombre),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(10),
-            child: Image.network(
-              producto.foto1,
-              width: 72,
-              height: 72,
-              fit: BoxFit.cover,
-              errorBuilder:
-                  (_, __, ___) => Container(
-                    width: 72,
-                    height: 72,
-                    color: const Color(0xFFE9D7D7),
-                    alignment: Alignment.center,
-                    child: const Icon(Icons.broken_image),
-                  ),
+          Text(
+            widget.producto.descripcion,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(color: Color(0xFF6B4A4A)),
+          ),
+          const SizedBox(height: 10),
+          Text(
+            '\$${widget.producto.precio.toStringAsFixed(2)} c/u',
+            style: const TextStyle(
+              fontWeight: FontWeight.w700,
+              color: Color(0xFF3D1F1F),
             ),
           ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  producto.nombre,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    color: Color(0xFF3D1F1F),
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                const SizedBox(height: 3),
-                Text(
-                  producto.descripcion,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(color: Color(0xFF6B4A4A)),
-                ),
-                const SizedBox(height: 6),
-                Row(
-                  children: [
-                    _DatoMini(
-                      icon: esPlato ? Icons.restaurant : Icons.local_bar,
-                      text: esPlato ? 'Plato' : 'Bebida',
-                    ),
-                    const SizedBox(width: 6),
-                    _DatoMini(
-                      icon: Icons.access_time,
-                      text: '${producto.tiempoMin} min',
-                    ),
-                    const SizedBox(width: 6),
-                    _DatoMini(
-                      icon: Icons.attach_money,
-                      text: '\$${producto.precio.toStringAsFixed(2)}',
-                    ),
+          const SizedBox(height: 14),
+          Row(
+            children: [
+              IconButton.filledTonal(
+                onPressed: () => _setCantidad(_cantidad - 1),
+                icon: const Icon(Icons.remove),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: TextField(
+                  controller: _cantidadController,
+                  textAlign: TextAlign.center,
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.digitsOnly,
+                    LengthLimitingTextInputFormatter(2),
                   ],
+                  onChanged: (value) {
+                    final parsed = int.tryParse(value);
+                    if (parsed == null) return;
+                    _setCantidad(parsed);
+                  },
+                  decoration: const InputDecoration(
+                    labelText: 'Cantidad',
+                    border: OutlineInputBorder(),
+                    isDense: true,
+                  ),
                 ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 8),
-          FilledButton(
-            onPressed: onAgregarAlPedido,
-            style: FilledButton.styleFrom(
-              minimumSize: const Size(40, 40),
-              backgroundColor: const Color(0xFF2D6A4F),
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(horizontal: 10),
-            ),
-            child: const Icon(Icons.add_shopping_cart, size: 18),
+              ),
+              const SizedBox(width: 10),
+              IconButton.filled(
+                onPressed: () => _setCantidad(_cantidad + 1),
+                icon: const Icon(Icons.add),
+              ),
+            ],
           ),
         ],
       ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('Cancelar'),
+        ),
+        FilledButton.icon(
+          onPressed: () => Navigator.of(context).pop(_cantidad),
+          icon: const Icon(Icons.add_shopping_cart),
+          label: const Text('Agregar'),
+        ),
+      ],
     );
   }
 }

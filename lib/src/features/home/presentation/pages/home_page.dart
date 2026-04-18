@@ -105,7 +105,7 @@ class _HomePageState extends State<HomePage> {
 
     setState(() => _solicitandoMesa = true);
 
-    final resultado = await Navigator.of(context).push<bool>(
+    final resultado = await Navigator.of(context).push<IngresoQrResultado>(
       MaterialPageRoute(
         builder: (_) => const IngresoListaEsperaQrScannerPage(),
       ),
@@ -114,7 +114,7 @@ class _HomePageState extends State<HomePage> {
     if (!mounted) return;
     setState(() => _solicitandoMesa = false);
 
-    if (resultado != true) return;
+    if (resultado != IngresoQrResultado.listaEspera) return;
 
     _mostrarMensaje(
       'Solicitud enviada. Espera a que el metre te asigne una mesa.',

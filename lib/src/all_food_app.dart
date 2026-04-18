@@ -161,6 +161,23 @@ class SessionGate extends StatefulWidget {
 
 class _SessionGateState extends State<SessionGate> {
   bool _splashDone = false;
+  int _perfilRetryCount = 0;
+  bool _retryProgramado = false;
+
+  static const int _maxPerfilRetries = 8;
+  static const Duration _perfilRetryDelay = Duration(milliseconds: 450);
+
+  void _programarRetryPerfil() {
+    if (_retryProgramado) return;
+    _retryProgramado = true;
+
+    Future.delayed(_perfilRetryDelay, () {
+      if (!mounted) return;
+      setState(() {
+        _retryProgramado = false;
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -189,6 +206,8 @@ class _SessionGateState extends State<SessionGate> {
         final session = snapshot.data?.session;
 
         if (session == null) {
+          _perfilRetryCount = 0;
+          _retryProgramado = false;
           return LoginPage(
             supabaseReady: widget.supabaseReady,
             initializationMessage: widget.initializationMessage,
@@ -203,9 +222,30 @@ class _SessionGateState extends State<SessionGate> {
                   .eq('id', session.user.id)
                   .single(),
           builder: (context, perfilSnapshot) {
-            if (!perfilSnapshot.hasData) {
+            if (perfilSnapshot.connectionState == ConnectionState.waiting) {
               return const LogoLoader();
             }
+
+            if (perfilSnapshot.hasError || !perfilSnapshot.hasData) {
+              if (_perfilRetryCount < _maxPerfilRetries) {
+                _perfilRetryCount++;
+                _programarRetryPerfil();
+                return const LogoLoader();
+              }
+
+              Future.microtask(() async {
+                await Supabase.instance.client.auth.signOut();
+              });
+
+              return LoginPage(
+                supabaseReady: widget.supabaseReady,
+                errorMessage:
+                    'No se pudo cargar tu perfil. Intenta ingresar nuevamente.',
+              );
+            }
+
+            _perfilRetryCount = 0;
+            _retryProgramado = false;
 
             final estado = perfilSnapshot.data!['estado_registro'];
 

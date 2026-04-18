@@ -1,8 +1,11 @@
 import 'package:all_food/src/features/mesas/data/repositories/mesas_repository.dart';
+import 'package:all_food/src/features/pedidos/presentation/pages/resultados_encuestas_page.dart';
 import 'package:all_food/src/shared/errors/app_error_mapper.dart';
 import 'package:all_food/src/shared/widgets/logo_spinner.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
+
+enum IngresoQrResultado { listaEspera }
 
 class IngresoListaEsperaQrScannerPage extends StatefulWidget {
   const IngresoListaEsperaQrScannerPage({super.key});
@@ -21,6 +24,7 @@ class _IngresoListaEsperaQrScannerPageState
   final _repo = MesasRepository();
 
   bool _procesando = false;
+  bool _modalAbierto = false;
 
   @override
   void dispose() {
@@ -29,7 +33,7 @@ class _IngresoListaEsperaQrScannerPageState
   }
 
   Future<void> _onDetect(BarcodeCapture capture) async {
-    if (_procesando) return;
+    if (_procesando || _modalAbierto) return;
 
     final raw = capture.barcodes.first.rawValue?.trim() ?? '';
     if (raw.isEmpty) return;
@@ -37,10 +41,87 @@ class _IngresoListaEsperaQrScannerPageState
     setState(() => _procesando = true);
 
     try {
-      await _repo.solicitarMesaClienteActualPorQrIngreso(raw);
+      _repo.validarQrIngresoListaEspera(raw);
+      await _controller.stop();
       if (!mounted) return;
 
-      Navigator.of(context).pop(true);
+      setState(() {
+        _procesando = false;
+        _modalAbierto = true;
+      });
+
+      final accion = await showModalBottomSheet<_IngresoAccion>(
+        context: context,
+        backgroundColor: const Color(0xFF8D2628),
+        builder:
+            (_) => SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 20),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    const Text(
+                      'QR de entrada validado',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 18,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    FilledButton(
+                      onPressed: () {
+                        Navigator.of(context).pop(_IngresoAccion.listaEspera);
+                      },
+                      child: const Text('Anotarme en lista de espera'),
+                    ),
+                    const SizedBox(height: 8),
+                    FilledButton.tonal(
+                      onPressed: () {
+                        Navigator.of(context).pop(_IngresoAccion.verEncuestas);
+                      },
+                      child: const Text('Ver resultados de encuestas'),
+                    ),
+                    const SizedBox(height: 8),
+                    OutlinedButton(
+                      onPressed: () {
+                        Navigator.of(context).pop(_IngresoAccion.cancelar);
+                      },
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: Colors.white,
+                        side: const BorderSide(color: Colors.white70),
+                      ),
+                      child: const Text('Cancelar'),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+      );
+
+      if (!mounted) return;
+
+      setState(() {
+        _modalAbierto = false;
+      });
+
+      if (accion == _IngresoAccion.listaEspera) {
+        setState(() => _procesando = true);
+        await _repo.solicitarMesaClienteActual();
+        if (!mounted) return;
+        Navigator.of(context).pop(IngresoQrResultado.listaEspera);
+        return;
+      }
+
+      if (accion == _IngresoAccion.verEncuestas) {
+        await Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) => const ResultadosEncuestasPage()),
+        );
+      }
+
+      await _controller.start();
     } catch (error) {
       if (!mounted) return;
       final mensaje = AppErrorMapper.toUserMessage(
@@ -81,7 +162,7 @@ class _IngresoListaEsperaQrScannerPageState
                 borderRadius: BorderRadius.circular(12),
               ),
               child: const Text(
-                'Escaneá el QR de entrada del local para anotarte en lista de espera.',
+                'Escaneá el QR de entrada para anotarte en lista de espera o ver encuestas previas.',
                 textAlign: TextAlign.center,
                 style: TextStyle(color: Colors.white),
               ),
@@ -98,3 +179,5 @@ class _IngresoListaEsperaQrScannerPageState
     );
   }
 }
+
+enum _IngresoAccion { listaEspera, verEncuestas, cancelar }

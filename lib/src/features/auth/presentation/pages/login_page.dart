@@ -9,8 +9,6 @@ import 'anonymous_client_page.dart';
 import 'register_page.dart';
 import 'package:all_food/src/shared/services/notificacion__service.dart';
 
-
-
 class LoginPage extends StatefulWidget {
   const LoginPage({
     required this.supabaseReady,
@@ -231,12 +229,11 @@ class _LoginPageState extends State<LoginPage> {
         return;
       }
 
-     try {
+      try {
         await NotificationService().saveTokenForCurrentUser();
       } catch (_) {
         // Si falla no bloqueamos el login
       }
-
     } catch (error) {
       _mostrarMensaje(
         AppErrorMapper.toUserMessage(
@@ -269,7 +266,7 @@ class _LoginPageState extends State<LoginPage> {
     setState(() {});
   }
 
-  void _completarIngresoRapidoMozo(){
+  void _completarIngresoRapidoMozo() {
     _emailController.text = DemoAccounts.mozoEmail;
     _passwordController.text = DemoAccounts.mozoPassword;
     setState(() {});
@@ -564,7 +561,8 @@ class _LoginPageState extends State<LoginPage> {
                                     ),
                                   );
 
-                                  if (!mounted || creado != true) return;
+                                  if (!context.mounted) return;
+                                  if (creado != true) return;
 
                                   Navigator.of(context).pushNamedAndRemoveUntil(
                                     '/session',
