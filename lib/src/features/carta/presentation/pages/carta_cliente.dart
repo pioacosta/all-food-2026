@@ -333,35 +333,87 @@ class _CartaClientePageState extends State<CartaClientePage> {
               if (widget.mesaId != null)
                 Container(
                   margin: const EdgeInsets.fromLTRB(12, 0, 12, 8),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 10,
-                  ),
+                  padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.12),
+                    color: const Color(0xFF3F1213),
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.white24),
+                    border: Border.all(
+                      color: const Color(0xFFFFE2A8),
+                      width: 1.2,
+                    ),
                   ),
                   child: Row(
                     children: [
                       Expanded(
-                        child: Text(
-                          _resumenPedido == null
-                              ? 'Pedido vacío'
-                              : 'Total: \$${((_resumenPedido!['subtotal'] as num?) ?? 0).toStringAsFixed(2)}',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w700,
-                          ),
+                        flex: 3,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'TOTAL ACUMULADO',
+                              style: TextStyle(
+                                color: Color(0xFFFFE2A8),
+                                fontSize: 11,
+                                letterSpacing: 0.6,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              _resumenPedido == null
+                                  ? '\$0.00'
+                                  : '\$${((_resumenPedido!['subtotal'] as num?) ?? 0).toStringAsFixed(2)}',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 28,
+                                fontWeight: FontWeight.w900,
+                                height: 1,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
+                      const SizedBox(width: 8),
                       Expanded(
-                        child: Text(
-                          _resumenPedido == null
-                              ? 'Tiempo: 0 min'
-                              : 'Tiempo: ${_resumenPedido!['tiempoTotalMin']} min',
-                          textAlign: TextAlign.end,
-                          style: const TextStyle(color: Colors.white70),
+                        flex: 2,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 8,
+                          ),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF7A2021),
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(color: Colors.white24),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'TIEMPO',
+                                style: TextStyle(
+                                  color: Colors.white70,
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                _resumenPedido == null
+                                    ? '0 min'
+                                    : '${_resumenPedido!['tiempoTotalMin']} min',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 17,
+                                  fontWeight: FontWeight.w800,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ],
@@ -445,7 +497,11 @@ class _CartaClientePageState extends State<CartaClientePage> {
                                               ? null
                                               : _irPaginaAnterior,
                                       style: OutlinedButton.styleFrom(
-                                        minimumSize: const Size.fromHeight(46),
+                                        minimumSize: const Size.fromHeight(40),
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 10,
+                                          vertical: 8,
+                                        ),
                                         foregroundColor: const Color(
                                           0xFF4A0E10,
                                         ),
@@ -460,22 +516,31 @@ class _CartaClientePageState extends State<CartaClientePage> {
                                         ),
                                         textStyle: const TextStyle(
                                           fontWeight: FontWeight.w700,
-                                          fontSize: 16,
+                                          fontSize: 14,
                                         ),
                                       ),
-                                      icon: const Icon(Icons.chevron_left),
+                                      icon: const Icon(
+                                        Icons.chevron_left,
+                                        size: 18,
+                                      ),
                                       label: const Text('Anterior'),
                                     ),
                                   ),
-                                  const SizedBox(width: 10),
-                                  Text(
-                                    'Página ${_paginaActual + 1} / $_totalPaginas',
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.w700,
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      'Página ${_paginaActual + 1} / $_totalPaginas',
+                                      textAlign: TextAlign.center,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.w700,
+                                        fontSize: 13,
+                                      ),
                                     ),
                                   ),
-                                  const SizedBox(width: 10),
+                                  const SizedBox(width: 8),
                                   Expanded(
                                     child: OutlinedButton.icon(
                                       onPressed:
@@ -483,7 +548,11 @@ class _CartaClientePageState extends State<CartaClientePage> {
                                               ? null
                                               : _irPaginaSiguiente,
                                       style: OutlinedButton.styleFrom(
-                                        minimumSize: const Size.fromHeight(46),
+                                        minimumSize: const Size.fromHeight(40),
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 10,
+                                          vertical: 8,
+                                        ),
                                         foregroundColor: const Color(
                                           0xFF4A0E10,
                                         ),
@@ -498,10 +567,13 @@ class _CartaClientePageState extends State<CartaClientePage> {
                                         ),
                                         textStyle: const TextStyle(
                                           fontWeight: FontWeight.w700,
-                                          fontSize: 16,
+                                          fontSize: 14,
                                         ),
                                       ),
-                                      icon: const Icon(Icons.chevron_right),
+                                      icon: const Icon(
+                                        Icons.chevron_right,
+                                        size: 18,
+                                      ),
                                       label: const Text('Siguiente'),
                                     ),
                                   ),
@@ -588,18 +660,18 @@ class _ProductoClienteListItem extends StatelessWidget {
                     style: const TextStyle(color: Color(0xFF6B4A4A)),
                   ),
                   const SizedBox(height: 6),
-                  Row(
+                  Wrap(
+                    spacing: 6,
+                    runSpacing: 4,
                     children: [
                       _DatoMini(
                         icon: esPlato ? Icons.restaurant : Icons.local_bar,
                         text: esPlato ? 'Plato' : 'Bebida',
                       ),
-                      const SizedBox(width: 6),
                       _DatoMini(
                         icon: Icons.access_time,
                         text: '${producto.tiempoMin} min',
                       ),
-                      const SizedBox(width: 6),
                       _DatoMini(
                         icon: Icons.attach_money,
                         text: '\$${producto.precio.toStringAsFixed(2)}',
