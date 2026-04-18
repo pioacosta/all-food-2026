@@ -227,8 +227,8 @@ class _CrearProductoPageState extends State<CrearProductoPage> {
                       controller: _nombreController,
                       style: const TextStyle(color: Colors.white),
                       decoration: const InputDecoration(labelText: 'Nombre'),
-                      validator: (v) =>
-                          v == null || v.isEmpty ? 'Requerido' : null,
+                      validator:
+                          (v) => v == null || v.isEmpty ? 'Requerido' : null,
                     ),
                     const SizedBox(height: 16),
 
@@ -237,10 +237,11 @@ class _CrearProductoPageState extends State<CrearProductoPage> {
                       controller: _descripcionController,
                       style: const TextStyle(color: Colors.white),
                       maxLines: 3,
-                      decoration:
-                          const InputDecoration(labelText: 'Descripción'),
-                      validator: (v) =>
-                          v == null || v.isEmpty ? 'Requerido' : null,
+                      decoration: const InputDecoration(
+                        labelText: 'Descripción',
+                      ),
+                      validator:
+                          (v) => v == null || v.isEmpty ? 'Requerido' : null,
                     ),
                     const SizedBox(height: 16),
 
@@ -249,12 +250,14 @@ class _CrearProductoPageState extends State<CrearProductoPage> {
                       controller: _tiempoController,
                       keyboardType: TextInputType.number,
                       style: const TextStyle(color: Colors.white),
-                      decoration:
-                          const InputDecoration(labelText: 'Tiempo (min)'),
-                      validator: (v) =>
-                          int.tryParse(v ?? '') == null
-                              ? 'Número inválido'
-                              : null,
+                      decoration: const InputDecoration(
+                        labelText: 'Tiempo (mínimo)',
+                      ),
+                      validator:
+                          (v) =>
+                              int.tryParse(v ?? '') == null
+                                  ? 'Número inválido'
+                                  : null,
                     ),
                     const SizedBox(height: 16),
 
@@ -264,10 +267,11 @@ class _CrearProductoPageState extends State<CrearProductoPage> {
                       keyboardType: TextInputType.number,
                       style: const TextStyle(color: Colors.white),
                       decoration: const InputDecoration(labelText: 'Precio'),
-                      validator: (v) =>
-                          double.tryParse(v ?? '') == null
-                              ? 'Número inválido'
-                              : null,
+                      validator:
+                          (v) =>
+                              double.tryParse(v ?? '') == null
+                                  ? 'Número inválido'
+                                  : null,
                     ),
                     const SizedBox(height: 16),
 
@@ -285,18 +289,19 @@ class _CrearProductoPageState extends State<CrearProductoPage> {
                               color: const Color(0xFF9B2A2A),
                               borderRadius: BorderRadius.circular(12),
                             ),
-                            child: img == null
-                                ? const Icon(
-                                    Icons.camera_alt,
-                                    color: Colors.white,
-                                  )
-                                : ClipRRect(
-                                    borderRadius: BorderRadius.circular(12),
-                                    child: Image.file(
-                                      File(img.path),
-                                      fit: BoxFit.cover,
+                            child:
+                                img == null
+                                    ? const Icon(
+                                      Icons.camera_alt,
+                                      color: Colors.white,
+                                    )
+                                    : ClipRRect(
+                                      borderRadius: BorderRadius.circular(12),
+                                      child: Image.file(
+                                        File(img.path),
+                                        fit: BoxFit.cover,
+                                      ),
                                     ),
-                                  ),
                           ),
                         );
                       }),
@@ -306,9 +311,10 @@ class _CrearProductoPageState extends State<CrearProductoPage> {
 
                     FilledButton(
                       onPressed: _guardando ? null : _guardarProducto,
-                      child: _guardando
-                          ? const LogoSpinner(size: 20, strokeWidth: 2)
-                          : const Text('Guardar'),
+                      child:
+                          _guardando
+                              ? const LogoSpinner(size: 20, strokeWidth: 2)
+                              : const Text('Guardar'),
                     ),
                   ],
                 ),
