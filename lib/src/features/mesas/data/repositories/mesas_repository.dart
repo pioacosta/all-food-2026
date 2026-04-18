@@ -16,6 +16,8 @@ class MesasRepository {
 
   final MesasService _service;
   final NotificacionesService _notificacionesService = NotificacionesService();
+  static const String _qrIngresoListaEsperaPayload =
+      'ALL_FOOD::INGRESO::LISTA_ESPERA::V1';
 
   // ----- Permisos por rol -----
   Future<bool> canCurrentUserCreateTables() async {
@@ -214,6 +216,21 @@ class MesasRepository {
       tipo: 'solicitud_mesa',
       payload: {'clienteId': clienteId},
     );
+  }
+
+  Future<void> solicitarMesaClienteActualPorQrIngreso(
+    String qrEscaneado,
+  ) async {
+    final valor = qrEscaneado.trim();
+
+    // El QR de entrada es unico y compartido para todos los clientes.
+    if (valor != _qrIngresoListaEsperaPayload) {
+      throw const MesasFlowException(
+        'El QR escaneado no corresponde al ingreso de lista de espera.',
+      );
+    }
+
+    await solicitarMesaClienteActual();
   }
 
   Future<void> enviarConsultaRapidaMozo({

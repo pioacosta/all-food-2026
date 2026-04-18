@@ -1,4 +1,5 @@
 import 'package:all_food/src/features/mesas/data/repositories/mesas_repository.dart';
+import 'package:all_food/src/features/mesas/presentation/pages/ingreso_lista_espera_qr_scanner_page.dart';
 import 'package:all_food/src/features/mesas/presentation/pages/mesa_qr_scanner_page.dart';
 import 'package:flutter/material.dart';
 import 'package:all_food/src/features/home/data/repositories/home_repository.dart';
@@ -99,32 +100,27 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  Future<void> _solicitarMesa() async {
+  Future<void> _escanearQrIngresoYSolicitarMesa() async {
     if (_solicitandoMesa) return;
 
     setState(() => _solicitandoMesa = true);
-    try {
-      await _mesasRepository.solicitarMesaClienteActual();
-      if (!mounted) return;
-      _mostrarMensaje(
-        'Solicitud enviada. Espera a que el metre te asigne una mesa.',
-        esError: false,
-      );
-      await _refrescarEstadoMesaCliente();
-    } catch (error) {
-      if (!mounted) return;
-      _mostrarMensaje(
-        AppErrorMapper.toUserMessage(
-          error,
-          fallbackMessage: 'No se pudo solicitar la mesa.',
-        ),
-        esError: true,
-      );
-    } finally {
-      if (mounted) {
-        setState(() => _solicitandoMesa = false);
-      }
-    }
+
+    final resultado = await Navigator.of(context).push<bool>(
+      MaterialPageRoute(
+        builder: (_) => const IngresoListaEsperaQrScannerPage(),
+      ),
+    );
+
+    if (!mounted) return;
+    setState(() => _solicitandoMesa = false);
+
+    if (resultado != true) return;
+
+    _mostrarMensaje(
+      'Solicitud enviada. Espera a que el metre te asigne una mesa.',
+      esError: false,
+    );
+    await _refrescarEstadoMesaCliente();
   }
 
   Future<void> _cerrarSesion() async {
@@ -397,7 +393,8 @@ class _HomePageState extends State<HomePage> {
                               estadoMesa: _estadoMesaCliente,
                               numeroMesaAsignada:
                                   _mesaAsignada?['numero'] as int?,
-                              onSolicitarMesa: _solicitarMesa,
+                              onEscanearQrIngreso:
+                                  _escanearQrIngresoYSolicitarMesa,
                               onRefrescarEstado: _refrescarEstadoMesaCliente,
                               onEscanearQr: () {
                                 Navigator.of(context).push(
@@ -557,7 +554,7 @@ class _ClienteDashboard extends StatelessWidget {
     required this.solicitandoMesa,
     required this.estadoMesa,
     required this.numeroMesaAsignada,
-    required this.onSolicitarMesa,
+    required this.onEscanearQrIngreso,
     required this.onRefrescarEstado,
     required this.onEscanearQr,
   });
@@ -566,7 +563,7 @@ class _ClienteDashboard extends StatelessWidget {
   final bool solicitandoMesa;
   final String estadoMesa;
   final int? numeroMesaAsignada;
-  final VoidCallback onSolicitarMesa;
+  final VoidCallback onEscanearQrIngreso;
   final VoidCallback onRefrescarEstado;
   final VoidCallback onEscanearQr;
 
@@ -621,12 +618,16 @@ class _ClienteDashboard extends StatelessWidget {
               children: [
                 Expanded(
                   child: _ClienteActionCard(
-                    icon: Icons.how_to_reg,
-                    titulo: 'Solicitar mesa',
+                    icon: Icons.qr_code_scanner,
+                    titulo: 'Escanear QR de entrada',
                     descripcion:
-                        'Registra tu solicitud para que el metre pueda asignarte una mesa.',
+                        puedeSolicitar
+                            ? 'Escaneá el QR de entrada para anotarte en la lista de espera.'
+                            : esperandoMetre
+                            ? 'Ya estás en lista de espera. Aguarda asignación del metre.'
+                            : 'Ya tenés una mesa asignada, no hace falta escanear nuevamente.',
                     habilitado: puedeSolicitar && !solicitandoMesa,
-                    onTap: onSolicitarMesa,
+                    onTap: onEscanearQrIngreso,
                     loading: solicitandoMesa,
                     color: const Color(0xFF2D6A4F),
                   ),

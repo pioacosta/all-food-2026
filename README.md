@@ -1,7 +1,8 @@
 ![Logo](./assets/images/logo.png)
-# All Food
-Aplicación móvil para la gestión de restaurante.
 
+# All Food
+
+Aplicación móvil para la gestión de restaurante.
 
 ## Stack tecnológico
 
@@ -39,6 +40,12 @@ flutter pub get
 flutter analyze
 flutter run
 ```
+
+## QR de entrada (lista de espera)
+
+Para anotarse en la lista de espera, el cliente debe escanear el QR de entrada.
+
+![QR de entrada](./assets/images/qrcode.png)
 
 ## Lista de tareas realizadas
 
@@ -78,9 +85,9 @@ flutter run
 
 4. Modulo de asignar mesa, creación del modulo en donde el metre tiene una lista de clientes aprobados y puede asignarle una mesa que no está en uso | Fecha de finalización de la tarea: 15/04/2026
 
-6. Formulario de alta de clientes para el perfil metre | Fecha de inicio de la tarea: 16/04/2026 | Fecha de finalización de la tarea: 16/04/2026
+5. Formulario de alta de clientes para el perfil metre | Fecha de inicio de la tarea: 16/04/2026 | Fecha de finalización de la tarea: 16/04/2026
 
-7. Implementacion de consultas por chat entre cliente y mozos | Fecha de inicio de la tarea: 16/04/2026 | Fecha de finalización de la tarea: 17/04/2026
+6. Implementacion de consultas por chat entre cliente y mozos | Fecha de inicio de la tarea: 16/04/2026 | Fecha de finalización de la tarea: 17/04/2026
 
 ---
 
