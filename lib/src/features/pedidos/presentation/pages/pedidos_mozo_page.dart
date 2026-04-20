@@ -760,7 +760,7 @@ class _PedidosMozoPageState extends State<PedidosMozoPage> {
   }
 }
 
-class _SeccionPedidos extends StatelessWidget {
+class _SeccionPedidos extends StatefulWidget {
   const _SeccionPedidos({
     required this.titulo,
     required this.pedidos,
@@ -772,6 +772,25 @@ class _SeccionPedidos extends StatelessWidget {
   final List<Map<String, dynamic>> pedidos;
   final Widget Function(Map<String, dynamic>) itemBuilder;
   final void Function(Map<String, dynamic>)? onTapPedido;
+
+  @override
+  State<_SeccionPedidos> createState() => _SeccionPedidosState();
+}
+
+class _SeccionPedidosState extends State<_SeccionPedidos> {
+  int _paginaActual = 0;
+
+  @override
+  void didUpdateWidget(covariant _SeccionPedidos oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.pedidos.isEmpty && _paginaActual != 0) {
+      setState(() => _paginaActual = 0);
+      return;
+    }
+    if (widget.pedidos.isNotEmpty && _paginaActual >= widget.pedidos.length) {
+      setState(() => _paginaActual = widget.pedidos.length - 1);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -786,18 +805,44 @@ class _SeccionPedidos extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(
-            titulo,
-            style: const TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.w700,
-              fontSize: 16,
-            ),
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  widget.titulo,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w700,
+                    fontSize: 16,
+                  ),
+                ),
+              ),
+              if (widget.pedidos.isNotEmpty)
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 3,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: Colors.white24),
+                  ),
+                  child: Text(
+                    '${_paginaActual + 1}/${widget.pedidos.length}',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 12,
+                    ),
+                  ),
+                ),
+            ],
           ),
           const SizedBox(height: 8),
           Expanded(
             child:
-                pedidos.isEmpty
+                widget.pedidos.isEmpty
                     ? const Center(
                       child: Text(
                         'Sin elementos',
@@ -808,18 +853,20 @@ class _SeccionPedidos extends StatelessWidget {
                     // y permitir navegación horizontal tipo snap.
                     : PageView.builder(
                       scrollDirection: Axis.horizontal,
-                      itemCount: pedidos.length,
+                      itemCount: widget.pedidos.length,
+                      onPageChanged:
+                          (index) => setState(() => _paginaActual = index),
                       itemBuilder: (context, index) {
-                        final pedido = pedidos[index];
+                        final pedido = widget.pedidos[index];
                         return Padding(
                           padding: const EdgeInsets.only(right: 2),
                           child: InkWell(
                             onTap:
-                                onTapPedido == null
+                                widget.onTapPedido == null
                                     ? null
-                                    : () => onTapPedido!(pedido),
+                                    : () => widget.onTapPedido!(pedido),
                             borderRadius: BorderRadius.circular(10),
-                            child: itemBuilder(pedido),
+                            child: widget.itemBuilder(pedido),
                           ),
                         );
                       },
