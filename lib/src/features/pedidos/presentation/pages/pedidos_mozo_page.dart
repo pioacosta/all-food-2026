@@ -773,17 +773,6 @@ class _SeccionPedidos extends StatelessWidget {
   final Widget Function(Map<String, dynamic>) itemBuilder;
   final void Function(Map<String, dynamic>)? onTapPedido;
 
-  List<List<Map<String, dynamic>>> _agruparEnPaginas(
-    List<Map<String, dynamic>> source,
-  ) {
-    final paginas = <List<Map<String, dynamic>>>[];
-    for (var i = 0; i < source.length; i += 2) {
-      final fin = (i + 2).clamp(0, source.length);
-      paginas.add(source.sublist(i, fin));
-    }
-    return paginas;
-  }
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -815,35 +804,23 @@ class _SeccionPedidos extends StatelessWidget {
                         style: TextStyle(color: Colors.white70),
                       ),
                     )
-                    : Builder(
-                      builder: (context) {
-                        final paginas = _agruparEnPaginas(pedidos);
-                        return PageView.builder(
-                          scrollDirection: Axis.vertical,
-                          itemCount: paginas.length,
-                          itemBuilder: (context, indexPagina) {
-                            final pagina = paginas[indexPagina];
-                            return Column(
-                              children: [
-                                for (final pedido in pagina)
-                                  Expanded(
-                                    child: Padding(
-                                      padding: const EdgeInsets.only(bottom: 8),
-                                      child: InkWell(
-                                        onTap:
-                                            onTapPedido == null
-                                                ? null
-                                                : () => onTapPedido!(pedido),
-                                        borderRadius: BorderRadius.circular(10),
-                                        child: itemBuilder(pedido),
-                                      ),
-                                    ),
-                                  ),
-                                if (pagina.length < 2)
-                                  const Expanded(child: SizedBox.shrink()),
-                              ],
-                            );
-                          },
+                    // Renderiza un pedido por página para evitar overflow vertical
+                    // y permitir navegación horizontal tipo snap.
+                    : PageView.builder(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: pedidos.length,
+                      itemBuilder: (context, index) {
+                        final pedido = pedidos[index];
+                        return Padding(
+                          padding: const EdgeInsets.only(right: 2),
+                          child: InkWell(
+                            onTap:
+                                onTapPedido == null
+                                    ? null
+                                    : () => onTapPedido!(pedido),
+                            borderRadius: BorderRadius.circular(10),
+                            child: itemBuilder(pedido),
+                          ),
                         );
                       },
                     ),
@@ -876,7 +853,7 @@ class _PedidoCardBase extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(10),
+      padding: const EdgeInsets.all(9),
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(10),
@@ -931,9 +908,11 @@ class _PedidoCardBase extends StatelessWidget {
             style: const TextStyle(color: Colors.white70),
           ),
           if (pie != null) ...[
-            const Spacer(),
+            const SizedBox(height: 8),
             Text(
               pie!,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
               style: const TextStyle(
                 color: Colors.white60,
                 fontSize: 12,
@@ -942,7 +921,7 @@ class _PedidoCardBase extends StatelessWidget {
             ),
           ],
           if (acciones.isNotEmpty) ...[
-            const Spacer(),
+            const SizedBox(height: 8),
             Wrap(spacing: 8, runSpacing: 8, children: acciones),
           ],
         ],
