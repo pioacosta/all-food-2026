@@ -594,13 +594,16 @@ class PedidosRepository {
 
   // ----- Helpers internos -----
   int _calcularTiempoTotal(List<Map<String, dynamic>> items) {
-    var total = 0;
+    var maximo = 0;
     for (final item in items) {
       final tiempo = (item['tiempo_elaboracion_min'] as num?)?.toInt() ?? 0;
       final cantidad = (item['cantidad'] as num?)?.toInt() ?? 0;
-      total += tiempo * cantidad;
+      if (cantidad <= 0) continue;
+      if (tiempo > maximo) {
+        maximo = tiempo;
+      }
     }
-    return total;
+    return maximo;
   }
 
   Future<void> _recalcularTotalesPedido(String pedidoId) async {

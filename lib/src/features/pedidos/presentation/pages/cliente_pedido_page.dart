@@ -491,7 +491,7 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
                                 Expanded(
                                   child: _DatoHeader(
                                     titulo: 'Tiempo total',
-                                    valor: '$_tiempoTotal min',
+                                    valor: '$_tiempoTotal minutos',
                                   ),
                                 ),
                               ],

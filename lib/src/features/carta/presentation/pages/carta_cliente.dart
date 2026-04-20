@@ -1,5 +1,6 @@
 import 'package:all_food/src/features/carta/data/repositories/carta_repository.dart';
 import 'package:all_food/src/features/carta/data/models/producto_model.dart';
+import 'package:all_food/src/features/carta/presentation/pages/producto_detalle_page.dart';
 import 'package:all_food/src/features/pedidos/data/repositories/pedidos_repository.dart';
 import 'package:all_food/src/shared/errors/app_error_mapper.dart';
 import 'package:all_food/src/shared/widgets/logo_spinner.dart';
@@ -31,7 +32,9 @@ class _CartaClientePageState extends State<CartaClientePage> {
   final _repository = CartaRepository();
   final _pedidosRepository = PedidosRepository();
   final _searchController = TextEditingController();
-  static const int _itemsPorPagina = 4;
+  // En cliente usamos 3 ítems por página para evitar overflow en pantallas
+  // chicas al combinar filtros + resumen + paginación.
+  static const int _itemsPorPagina = 3;
   String _categoria = 'todos';
   int _paginaActual = 0;
 
@@ -210,7 +213,7 @@ class _CartaClientePageState extends State<CartaClientePage> {
     }
   }
 
-  Future<void> _abrirSelectorCantidad(ProductoModel producto) async {
+  Future<void> _abrirVistaPreviaProducto(ProductoModel producto) async {
     if (widget.mesaId == null) {
       _mostrarMensaje(
         'No hay mesa vinculada. Escaneá el QR de mesa para pedir.',
@@ -219,9 +222,33 @@ class _CartaClientePageState extends State<CartaClientePage> {
       return;
     }
 
-    final cantidad = await showDialog<int>(
+    final cantidad = await showModalBottomSheet<int>(
       context: context,
-      builder: (_) => _CantidadProductoDialog(producto: producto),
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (sheetContext) {
+        return FractionallySizedBox(
+          heightFactor: 0.9,
+          child: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
+              child: _ProductoClienteCard(
+                producto: producto,
+                onAgregarAlPedido:
+                    (cantidadSeleccionada) =>
+                        Navigator.of(sheetContext).pop(cantidadSeleccionada),
+                onVerDetalle: () async {
+                  await Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => ProductoDetallePage(producto: producto),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
+        );
+      },
     );
 
     if (!mounted || cantidad == null) return;
@@ -402,8 +429,8 @@ class _CartaClientePageState extends State<CartaClientePage> {
                               const SizedBox(height: 2),
                               Text(
                                 _resumenPedido == null
-                                    ? '0 min'
-                                    : '${_resumenPedido!['tiempoTotalMin']} min',
+                                    ? '0 minutos'
+                                    : '${_resumenPedido!['tiempoTotalMin']} minutos',
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                                 style: const TextStyle(
@@ -476,9 +503,10 @@ class _CartaClientePageState extends State<CartaClientePage> {
                                             child: _ProductoClienteListItem(
                                               producto: producto,
                                               onTapProducto:
-                                                  () => _abrirSelectorCantidad(
-                                                    producto,
-                                                  ),
+                                                  () =>
+                                                      _abrirVistaPreviaProducto(
+                                                        producto,
+                                                      ),
                                             ),
                                           ),
                                         );
@@ -610,104 +638,164 @@ class _ProductoClienteListItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final esPlato = producto.tipo == 'plato';
 
-    return InkWell(
-      onTap: onTapProducto,
-      borderRadius: BorderRadius.circular(14),
-      child: Ink(
-        padding: const EdgeInsets.all(10),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(14),
-        ),
-        child: Row(
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(10),
-              child: Image.network(
-                producto.foto1,
-                width: 72,
-                height: 72,
-                fit: BoxFit.cover,
-                errorBuilder:
-                    (_, __, ___) => Container(
-                      width: 72,
-                      height: 72,
-                      color: const Color(0xFFE9D7D7),
-                      alignment: Alignment.center,
-                      child: const Icon(Icons.broken_image),
-                    ),
+    return Card(
+      color: const Color(0xFFA02C2C),
+      margin: EdgeInsets.zero,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(14),
+        side: const BorderSide(color: Color(0xFFFFC9C9), width: 0.6),
+      ),
+      elevation: 2,
+      child: InkWell(
+        onTap: onTapProducto,
+        borderRadius: BorderRadius.circular(14),
+        child: Ink(
+          padding: const EdgeInsets.all(9),
+          child: Row(
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: Image.network(
+                  producto.foto1,
+                  width: 68,
+                  height: 68,
+                  fit: BoxFit.cover,
+                  errorBuilder:
+                      (_, __, ___) => Container(
+                        width: 68,
+                        height: 68,
+                        color: Colors.white12,
+                        alignment: Alignment.center,
+                        child: const Icon(
+                          Icons.broken_image,
+                          color: Colors.white60,
+                        ),
+                      ),
+                ),
               ),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    producto.nombre,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      color: Color(0xFF3D1F1F),
-                      fontWeight: FontWeight.w700,
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      producto.nombre,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 16,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 3),
-                  Text(
-                    producto.descripcion,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(color: Color(0xFF6B4A4A)),
-                  ),
-                  const SizedBox(height: 6),
-                  Wrap(
-                    spacing: 6,
-                    runSpacing: 4,
-                    children: [
-                      _DatoMini(
-                        icon: esPlato ? Icons.restaurant : Icons.local_bar,
-                        text: esPlato ? 'Plato' : 'Bebida',
+                    const SizedBox(height: 3),
+                    Text(
+                      producto.descripcion,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: Color(0xFFFFDDDD),
+                        fontSize: 13,
                       ),
-                      _DatoMini(
-                        icon: Icons.access_time,
-                        text: '${producto.tiempoMin} min',
-                      ),
-                      _DatoMini(
-                        icon: Icons.attach_money,
-                        text: '\$${producto.precio.toStringAsFixed(2)}',
-                      ),
-                    ],
-                  ),
-                ],
+                    ),
+                    const SizedBox(height: 6),
+                    Wrap(
+                      spacing: 6,
+                      runSpacing: 4,
+                      children: [
+                        _DatoMini(
+                          icon: esPlato ? Icons.restaurant : Icons.local_bar,
+                          text: esPlato ? 'Plato' : 'Bebida',
+                        ),
+                        _DatoMini(
+                          icon: Icons.access_time,
+                          text: '${producto.tiempoMin} min',
+                        ),
+                        _DatoMini(
+                          icon: Icons.attach_money,
+                          text: '\$${producto.precio.toStringAsFixed(2)}',
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
-            ),
-            const SizedBox(width: 8),
-            const Icon(Icons.chevron_right, color: Color(0xFF7A2021)),
-          ],
+              const SizedBox(width: 8),
+              const Icon(Icons.chevron_right, color: Colors.white70),
+            ],
+          ),
         ),
       ),
     );
   }
 }
 
-class _CantidadProductoDialog extends StatefulWidget {
-  const _CantidadProductoDialog({required this.producto});
+class _DatoMini extends StatelessWidget {
+  const _DatoMini({required this.icon, required this.text});
 
-  final ProductoModel producto;
+  final IconData icon;
+  final String text;
 
   @override
-  State<_CantidadProductoDialog> createState() =>
-      _CantidadProductoDialogState();
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: const Color(0xFF9A3A3A),
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(color: const Color(0xFFFFB9B9)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 13, color: Colors.white70),
+          const SizedBox(width: 4),
+          Text(
+            text,
+            style: const TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: Colors.white,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
-class _CantidadProductoDialogState extends State<_CantidadProductoDialog> {
+// ─────────────────────────────────────────────────────────────
+//  _ProductoClienteCard
+//  Card blanca estilo _MesaEditorCard con carrusel + info tiles
+//  + botones de acción para el flujo de pedidos.
+// ─────────────────────────────────────────────────────────────
+class _ProductoClienteCard extends StatefulWidget {
+  const _ProductoClienteCard({
+    required this.producto,
+    required this.onAgregarAlPedido,
+    required this.onVerDetalle,
+  });
+
+  final ProductoModel producto;
+  final ValueChanged<int> onAgregarAlPedido;
+  final VoidCallback onVerDetalle;
+
+  @override
+  State<_ProductoClienteCard> createState() => _ProductoClienteCardState();
+}
+
+class _ProductoClienteCardState extends State<_ProductoClienteCard> {
+  final PageController _fotoController = PageController();
   final TextEditingController _cantidadController = TextEditingController(
     text: '1',
   );
+
+  int _fotoActual = 0;
   int _cantidad = 1;
 
   @override
   void dispose() {
+    _fotoController.dispose();
     _cantidadController.dispose();
     super.dispose();
   }
@@ -725,149 +813,6 @@ class _CantidadProductoDialogState extends State<_CantidadProductoDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      title: Text(widget.producto.nombre),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Text(
-            widget.producto.descripcion,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: const TextStyle(color: Color(0xFF6B4A4A)),
-          ),
-          const SizedBox(height: 10),
-          Text(
-            '\$${widget.producto.precio.toStringAsFixed(2)} c/u',
-            style: const TextStyle(
-              fontWeight: FontWeight.w700,
-              color: Color(0xFF3D1F1F),
-            ),
-          ),
-          const SizedBox(height: 14),
-          Row(
-            children: [
-              IconButton.filledTonal(
-                onPressed: () => _setCantidad(_cantidad - 1),
-                icon: const Icon(Icons.remove),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: TextField(
-                  controller: _cantidadController,
-                  textAlign: TextAlign.center,
-                  keyboardType: TextInputType.number,
-                  inputFormatters: [
-                    FilteringTextInputFormatter.digitsOnly,
-                    LengthLimitingTextInputFormatter(2),
-                  ],
-                  onChanged: (value) {
-                    final parsed = int.tryParse(value);
-                    if (parsed == null) return;
-                    _setCantidad(parsed);
-                  },
-                  decoration: const InputDecoration(
-                    labelText: 'Cantidad',
-                    border: OutlineInputBorder(),
-                    isDense: true,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 10),
-              IconButton.filled(
-                onPressed: () => _setCantidad(_cantidad + 1),
-                icon: const Icon(Icons.add),
-              ),
-            ],
-          ),
-        ],
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Cancelar'),
-        ),
-        FilledButton.icon(
-          onPressed: () => Navigator.of(context).pop(_cantidad),
-          icon: const Icon(Icons.add_shopping_cart),
-          label: const Text('Agregar'),
-        ),
-      ],
-    );
-  }
-}
-
-class _DatoMini extends StatelessWidget {
-  const _DatoMini({required this.icon, required this.text});
-
-  final IconData icon;
-  final String text;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF2E6E6),
-        borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: const Color(0xFFD8BBBB)),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 13, color: const Color(0xFF7A2021)),
-          const SizedBox(width: 4),
-          Text(
-            text,
-            style: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: Color(0xFF5D3030),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// ─────────────────────────────────────────────────────────────
-//  _ProductoClienteCard
-//  Card blanca estilo _MesaEditorCard con carrusel + info tiles
-//  + botones de acción para el flujo de pedidos.
-// ─────────────────────────────────────────────────────────────
-class _ProductoClienteCard extends StatefulWidget {
-  const _ProductoClienteCard({
-    required this.producto,
-    required this.index,
-    required this.total,
-    required this.onAgregarAlPedido,
-    required this.onVerDetalle,
-  });
-
-  final ProductoModel producto;
-  final int index;
-  final int total;
-  final VoidCallback onAgregarAlPedido;
-  final VoidCallback onVerDetalle;
-
-  @override
-  State<_ProductoClienteCard> createState() => _ProductoClienteCardState();
-}
-
-class _ProductoClienteCardState extends State<_ProductoClienteCard> {
-  final PageController _fotoController = PageController();
-  int _fotoActual = 0;
-
-  @override
-  void dispose() {
-    _fotoController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
     final p = widget.producto;
 
     return Container(
@@ -880,14 +825,6 @@ class _ProductoClienteCardState extends State<_ProductoClienteCard> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // ── Contador de posición ────────────────────────────────
-            Text(
-              'Producto ${widget.index + 1} de ${widget.total}',
-              textAlign: TextAlign.center,
-              style: const TextStyle(color: Color(0xFF6A6A6A)),
-            ),
-            const SizedBox(height: 10),
-
             // ── Título ──────────────────────────────────────────────
             Text(
               p.nombre,
@@ -1032,9 +969,47 @@ class _ProductoClienteCardState extends State<_ProductoClienteCard> {
             ),
             const SizedBox(height: 10),
 
+            // ── Selector de cantidad ────────────────────────────────
+            Row(
+              children: [
+                IconButton.filledTonal(
+                  onPressed: () => _setCantidad(_cantidad - 1),
+                  icon: const Icon(Icons.remove),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: TextField(
+                    controller: _cantidadController,
+                    textAlign: TextAlign.center,
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [
+                      FilteringTextInputFormatter.digitsOnly,
+                      LengthLimitingTextInputFormatter(2),
+                    ],
+                    onChanged: (value) {
+                      final parsed = int.tryParse(value);
+                      if (parsed == null) return;
+                      _setCantidad(parsed);
+                    },
+                    decoration: const InputDecoration(
+                      labelText: 'Cantidad',
+                      border: OutlineInputBorder(),
+                      isDense: true,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                IconButton.filled(
+                  onPressed: () => _setCantidad(_cantidad + 1),
+                  icon: const Icon(Icons.add),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+
             // ── Botón agregar al pedido ─────────────────────────────
             FilledButton.icon(
-              onPressed: widget.onAgregarAlPedido,
+              onPressed: () => widget.onAgregarAlPedido(_cantidad),
               style: FilledButton.styleFrom(
                 minimumSize: const Size.fromHeight(54),
                 backgroundColor: const Color(0xFF2D6A4F),
