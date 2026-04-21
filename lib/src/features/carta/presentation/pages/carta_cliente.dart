@@ -1,6 +1,5 @@
 import 'package:all_food/src/features/carta/data/repositories/carta_repository.dart';
 import 'package:all_food/src/features/carta/data/models/producto_model.dart';
-import 'package:all_food/src/features/carta/presentation/pages/producto_detalle_page.dart';
 import 'package:all_food/src/features/pedidos/data/repositories/pedidos_repository.dart';
 import 'package:all_food/src/shared/errors/app_error_mapper.dart';
 import 'package:all_food/src/shared/widgets/logo_spinner.dart';
@@ -235,13 +234,6 @@ class _CartaClientePageState extends State<CartaClientePage> {
                 onAgregarAlPedido:
                     (cantidadSeleccionada) =>
                         Navigator.of(sheetContext).pop(cantidadSeleccionada),
-                onVerDetalle: () async {
-                  await Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (_) => ProductoDetallePage(producto: producto),
-                    ),
-                  );
-                },
               ),
             ),
           ),
@@ -771,12 +763,10 @@ class _ProductoClienteCard extends StatefulWidget {
   const _ProductoClienteCard({
     required this.producto,
     required this.onAgregarAlPedido,
-    required this.onVerDetalle,
   });
 
   final ProductoModel producto;
   final ValueChanged<int> onAgregarAlPedido;
-  final VoidCallback onVerDetalle;
 
   @override
   State<_ProductoClienteCard> createState() => _ProductoClienteCardState();
@@ -948,24 +938,6 @@ class _ProductoClienteCardState extends State<_ProductoClienteCard> {
               ),
             ),
             const SizedBox(height: 16),
-
-            // ── Botón ver detalle ───────────────────────────────────
-            OutlinedButton.icon(
-              onPressed: widget.onVerDetalle,
-              style: OutlinedButton.styleFrom(
-                foregroundColor: const Color(0xFF7A2021),
-                backgroundColor: const Color(0xFFFFF4F4),
-                side: const BorderSide(color: Color(0xFF7A2021), width: 1.4),
-                minimumSize: const Size.fromHeight(50),
-                textStyle: const TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              icon: const Icon(Icons.info_outline, size: 20),
-              label: const Text('Ver detalle'),
-            ),
-            const SizedBox(height: 10),
 
             // ── Selector de cantidad ────────────────────────────────
             Row(
