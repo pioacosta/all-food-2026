@@ -13,6 +13,7 @@ class AsignarMesaPage extends StatefulWidget {
 
 class _AsignarMesaPageState extends State<AsignarMesaPage> {
   final _repo = MesasRepository();
+  static const int _itemsPorPagina = 4;
 
   List<Map<String, dynamic>> _clientes = [];
   List<Map<String, dynamic>> _mesas = [];
@@ -25,8 +26,8 @@ class _AsignarMesaPageState extends State<AsignarMesaPage> {
 
   // 0 = eligiendo cliente, 1 = eligiendo mesa
   int _paso = 0;
-  int _porPaginaClientes = 0;
-  int _porPaginaMesas = 0;
+  int _paginaClientes = 0;
+  int _paginaMesas = 0;
 
   @override
   void initState() {
@@ -41,30 +42,66 @@ class _AsignarMesaPageState extends State<AsignarMesaPage> {
       setState(() {
         _clientes = clientes;
         _mesas = mesas;
+        _normalizarPaginas();
         _loading = false;
-      });
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (!mounted) return;
-        final altoPagina =
-            MediaQuery.of(context).size.height -
-            MediaQuery.of(context).padding.top -
-            MediaQuery.of(context).padding.bottom -
-            220; // altura aproximada del header + botón
-        const cardHeight = 76.0;
-        const spacing = 8.0;
-        final calculado = ((altoPagina) / (cardHeight + spacing)).floor().clamp(
-          1,
-          5,
-        );
-        setState(() {
-          _porPaginaClientes = calculado;
-          _porPaginaMesas = calculado;
-        });
       });
     } catch (e) {
       _mostrarMensaje('Error al cargar datos', true);
       setState(() => _loading = false);
     }
+  }
+
+  int get _totalPaginasClientes {
+    if (_clientes.isEmpty) return 1;
+    return (_clientes.length / _itemsPorPagina).ceil();
+  }
+
+  int get _totalPaginasMesas {
+    if (_mesas.isEmpty) return 1;
+    return (_mesas.length / _itemsPorPagina).ceil();
+  }
+
+  List<Map<String, dynamic>> get _clientesPagina {
+    final inicio = _paginaClientes * _itemsPorPagina;
+    final fin = (inicio + _itemsPorPagina).clamp(0, _clientes.length);
+    if (inicio >= _clientes.length) return const [];
+    return _clientes.sublist(inicio, fin);
+  }
+
+  List<Map<String, dynamic>> get _mesasPagina {
+    final inicio = _paginaMesas * _itemsPorPagina;
+    final fin = (inicio + _itemsPorPagina).clamp(0, _mesas.length);
+    if (inicio >= _mesas.length) return const [];
+    return _mesas.sublist(inicio, fin);
+  }
+
+  void _normalizarPaginas() {
+    if (_paginaClientes > _totalPaginasClientes - 1) {
+      _paginaClientes = (_totalPaginasClientes - 1).clamp(0, 999999);
+    }
+    if (_paginaMesas > _totalPaginasMesas - 1) {
+      _paginaMesas = (_totalPaginasMesas - 1).clamp(0, 999999);
+    }
+  }
+
+  void _irPaginaAnterior() {
+    setState(() {
+      if (_paso == 0 && _paginaClientes > 0) {
+        _paginaClientes -= 1;
+      } else if (_paso == 1 && _paginaMesas > 0) {
+        _paginaMesas -= 1;
+      }
+    });
+  }
+
+  void _irPaginaSiguiente() {
+    setState(() {
+      if (_paso == 0 && _paginaClientes < _totalPaginasClientes - 1) {
+        _paginaClientes += 1;
+      } else if (_paso == 1 && _paginaMesas < _totalPaginasMesas - 1) {
+        _paginaMesas += 1;
+      }
+    });
   }
 
   Future<void> _asignar() async {
@@ -206,42 +243,87 @@ class _AsignarMesaPageState extends State<AsignarMesaPage> {
 
                 // ── Contenido paginado ────────────────────────────────
                 Expanded(
-                  child:
-                      _paso == 0
-                          ? _ListaPaginada(
-                            items: _clientes,
-                            emptyText: 'No hay clientes disponibles',
-                            porPaginaFijo: _porPaginaClientes,
-                            itemBuilder: (cliente) {
-                              final sel =
-                                  _clienteSeleccionado?['id'] == cliente['id'];
-                              return _ClienteCard(
-                                cliente: cliente,
-                                seleccionado: sel,
-                                onTap:
-                                    () => setState(() {
-                                      _clienteSeleccionado = cliente;
-                                    }),
-                              );
-                            },
-                          )
-                          : _ListaPaginada(
-                            items: _mesas,
-                            emptyText: 'No hay mesas disponibles',
-                            porPaginaFijo: _porPaginaMesas,
-                            itemBuilder: (mesa) {
-                              final sel =
-                                  _mesaSeleccionada?['id'] == mesa['id'];
-                              return _MesaCard(
-                                mesa: mesa,
-                                seleccionado: sel,
-                                onTap:
-                                    () => setState(
-                                      () => _mesaSeleccionada = mesa,
-                                    ),
-                              );
-                            },
-                          ),
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+                    child: Column(
+                      children: [
+                        Expanded(
+                          child:
+                              _paso == 0
+                                  ? (_clientes.isEmpty
+                                      ? const Center(
+                                        child: Text(
+                                          'No hay clientes disponibles',
+                                          style: TextStyle(
+                                            color: Colors.white70,
+                                            fontSize: 16,
+                                          ),
+                                        ),
+                                      )
+                                      : ListView.separated(
+                                        itemCount: _clientesPagina.length,
+                                        separatorBuilder:
+                                            (_, __) => const SizedBox(height: 8),
+                                        itemBuilder: (context, index) {
+                                          final cliente = _clientesPagina[index];
+                                          final sel =
+                                              _clienteSeleccionado?['id'] ==
+                                              cliente['id'];
+                                          return _ClienteCard(
+                                            cliente: cliente,
+                                            seleccionado: sel,
+                                            onTap:
+                                                () => setState(() {
+                                                  _clienteSeleccionado =
+                                                      cliente;
+                                                }),
+                                          );
+                                        },
+                                      ))
+                                  : (_mesas.isEmpty
+                                      ? const Center(
+                                        child: Text(
+                                          'No hay mesas disponibles',
+                                          style: TextStyle(
+                                            color: Colors.white70,
+                                            fontSize: 16,
+                                          ),
+                                        ),
+                                      )
+                                      : ListView.separated(
+                                        itemCount: _mesasPagina.length,
+                                        separatorBuilder:
+                                            (_, __) => const SizedBox(height: 8),
+                                        itemBuilder: (context, index) {
+                                          final mesa = _mesasPagina[index];
+                                          final sel =
+                                              _mesaSeleccionada?['id'] ==
+                                              mesa['id'];
+                                          return _MesaCard(
+                                            mesa: mesa,
+                                            seleccionado: sel,
+                                            onTap:
+                                                () => setState(
+                                                  () => _mesaSeleccionada = mesa,
+                                                ),
+                                          );
+                                        },
+                                      )),
+                        ),
+                        const SizedBox(height: 10),
+                        _PaginacionLista(
+                          paginaActual:
+                              _paso == 0 ? _paginaClientes : _paginaMesas,
+                          totalPaginas:
+                              _paso == 0
+                                  ? _totalPaginasClientes
+                                  : _totalPaginasMesas,
+                          onAnterior: _irPaginaAnterior,
+                          onSiguiente: _irPaginaSiguiente,
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
 
                 // ── Botón / resumen ───────────────────────────────────
@@ -301,56 +383,47 @@ class _AsignarMesaPageState extends State<AsignarMesaPage> {
                         ),
 
                       // Botón
-                      GestureDetector(
-                        onTap:
-                            _asignando
+                      FilledButton(
+                        style: FilledButton.styleFrom(
+                          minimumSize: const Size.fromHeight(52),
+                          backgroundColor: Colors.white,
+                          foregroundColor: const Color(0xFF5B1718),
+                          disabledBackgroundColor: Colors.white24,
+                          disabledForegroundColor: Colors.white54,
+                          textStyle: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        onPressed:
+                            !_botonHabilitado || _asignando
                                 ? null
                                 : () {
                                   if (_paso == 0 &&
                                       _clienteSeleccionado != null) {
-                                    setState(() => _paso = 1);
+                                    setState(() {
+                                      _paso = 1;
+                                      _paginaMesas = 0;
+                                    });
                                   } else if (_paso == 1 &&
                                       _clienteSeleccionado != null &&
                                       _mesaSeleccionada != null) {
                                     _asignar();
                                   }
                                 },
-                        child: AnimatedContainer(
-                          duration: const Duration(milliseconds: 200),
-                          padding: const EdgeInsets.symmetric(vertical: 18),
-                          decoration: BoxDecoration(
-                            color:
-                                _botonHabilitado
-                                    ? Colors.white
-                                    : Colors.white.withValues(alpha: 0.25),
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: Center(
-                            child:
-                                _asignando
-                                    ? const SizedBox(
-                                      width: 22,
-                                      height: 22,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2.5,
-                                        color: Color(0xFF5B1718),
-                                      ),
-                                    )
-                                    : Text(
-                                      _paso == 0
-                                          ? 'Siguiente →'
-                                          : 'Asignar mesa',
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w700,
-                                        color:
-                                            _botonHabilitado
-                                                ? const Color(0xFF5B1718)
-                                                : Colors.white54,
-                                      ),
-                                    ),
-                          ),
-                        ),
+                        child:
+                            _asignando
+                                ? const SizedBox(
+                                  width: 22,
+                                  height: 22,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2.5,
+                                    color: Color(0xFF5B1718),
+                                  ),
+                                )
+                                : Text(
+                                  _paso == 0 ? 'Siguiente →' : 'Asignar mesa',
+                                ),
                       ),
                     ],
                   ),
@@ -369,106 +442,65 @@ class _AsignarMesaPageState extends State<AsignarMesaPage> {
   }
 }
 
-// ─── Lista paginada sin scroll ────────────────────────────────────────────────
-class _ListaPaginada extends StatelessWidget {
-  final List<Map<String, dynamic>> items;
-  final String emptyText;
-  final Widget Function(Map<String, dynamic>) itemBuilder;
-  final int? porPaginaFijo;
-
-  const _ListaPaginada({
-    required this.items,
-    required this.emptyText,
-    required this.itemBuilder,
-    this.porPaginaFijo,
+class _PaginacionLista extends StatelessWidget {
+  const _PaginacionLista({
+    required this.paginaActual,
+    required this.totalPaginas,
+    required this.onAnterior,
+    required this.onSiguiente,
   });
+
+  final int paginaActual;
+  final int totalPaginas;
+  final VoidCallback onAnterior;
+  final VoidCallback onSiguiente;
 
   @override
   Widget build(BuildContext context) {
-    if (items.isEmpty) {
-      return Center(
-        child: Text(
-          emptyText,
-          style: const TextStyle(color: Colors.white70, fontSize: 16),
-        ),
-      );
-    }
+    final puedeAnterior = paginaActual > 0;
+    final puedeSiguiente = paginaActual < totalPaginas - 1;
 
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        const cardHeight = 76.0;
-        const spacing = 8.0;
-        final porPagina =
-            porPaginaFijo != null && porPaginaFijo! > 0
-                ? porPaginaFijo!
-                : ((constraints.maxHeight) / (cardHeight + spacing))
-                    .floor()
-                    .clamp(1, 8);
-
-        final paginas = <List<Map<String, dynamic>>>[];
-        for (var i = 0; i < items.length; i += porPagina) {
-          paginas.add(items.sublist(i, (i + porPagina).clamp(0, items.length)));
-        }
-
-        return Stack(
-          children: [
-            PageView.builder(
-              scrollDirection: Axis.vertical,
-              itemCount: paginas.length,
-              itemBuilder: (context, pageIndex) {
-                final grupo = paginas[pageIndex];
-                // Distribuir el espacio disponible entre las cards
-                return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Column(
-                    children: [
-                      for (var i = 0; i < grupo.length; i++) ...[
-                        Expanded(child: itemBuilder(grupo[i])),
-                        if (i < grupo.length - 1)
-                          const SizedBox(height: spacing),
-                      ],
-                    ],
-                  ),
-                );
-              },
+    return Row(
+      children: [
+        Expanded(
+          child: OutlinedButton.icon(
+            onPressed: puedeAnterior ? onAnterior : null,
+            style: OutlinedButton.styleFrom(
+              minimumSize: const Size.fromHeight(42),
+              foregroundColor: const Color(0xFF4A0E10),
+              backgroundColor: Colors.white,
+              disabledForegroundColor: Colors.white54,
+              disabledBackgroundColor: const Color(0xFF7A2021),
+              side: const BorderSide(color: Colors.white, width: 1.4),
+              textStyle: const TextStyle(fontWeight: FontWeight.w700),
             ),
-            // Hint de deslizar si hay más de una página
-            if (paginas.length > 1)
-              Positioned(
-                bottom: 8,
-                left: 0,
-                right: 0,
-                child: Center(
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.black.withValues(alpha: 0.25),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: const [
-                        Icon(
-                          Icons.keyboard_arrow_down,
-                          color: Colors.white70,
-                          size: 16,
-                        ),
-                        SizedBox(width: 4),
-                        Text(
-                          'Deslizá para ver más',
-                          style: TextStyle(color: Colors.white70, fontSize: 12),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-          ],
-        );
-      },
+            icon: const Icon(Icons.chevron_left),
+            label: const Text('Anterior'),
+          ),
+        ),
+        const SizedBox(width: 10),
+        Text(
+          'Página ${paginaActual + 1} / $totalPaginas',
+          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: OutlinedButton.icon(
+            onPressed: puedeSiguiente ? onSiguiente : null,
+            style: OutlinedButton.styleFrom(
+              minimumSize: const Size.fromHeight(42),
+              foregroundColor: const Color(0xFF4A0E10),
+              backgroundColor: Colors.white,
+              disabledForegroundColor: Colors.white54,
+              disabledBackgroundColor: const Color(0xFF7A2021),
+              side: const BorderSide(color: Colors.white, width: 1.4),
+              textStyle: const TextStyle(fontWeight: FontWeight.w700),
+            ),
+            icon: const Icon(Icons.chevron_right),
+            label: const Text('Siguiente'),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -489,152 +521,88 @@ class _ClienteCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final bool esAnonimo = cliente['perfil'] == 'cliente_anonimo';
     final String etiquetaTexto = esAnonimo ? 'Anónimo' : 'Registrado';
+    final nombreCompleto =
+        esAnonimo
+            ? '${cliente['nombres']}'
+            : '${cliente['nombres']} ${cliente['apellidos']}';
 
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color:
-                seleccionado ? const Color(0xFF5B1718) : Colors.grey.shade200,
-            width: seleccionado ? 2 : 1,
-          ),
+    return Card(
+      margin: EdgeInsets.zero,
+      color: seleccionado ? const Color(0xFF8D2628) : const Color(0xFFA02C2C),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(14),
+        side: BorderSide(
+          color: seleccionado ? const Color(0xFFFFE2A8) : const Color(0xFFFFC9C9),
+          width: seleccionado ? 1.4 : 0.6,
         ),
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            final alto = constraints.maxHeight;
-            final avatarRadius = (alto * 0.34).clamp(24.0, 70.0);
-            final fontSize = (alto * 0.15).clamp(18.0, 22.0);
-            final subFontSize = (alto * 0.10).clamp(14.0, 16.0);
-            final tagFontSize = (alto * 0.10).clamp(12.0, 12.0);
-
-            return Stack(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment:
-                        CrossAxisAlignment
-                            .center, 
-                    children: [
-                      CircleAvatar(
-                        radius: avatarRadius,
-                        backgroundColor:
-                            seleccionado
-                                ? const Color(0xFF5B1718).withValues(alpha: 0.1)
-                                : Colors.grey.shade100,
-                        backgroundImage:
-                            cliente['foto_url'] != null
-                                ? NetworkImage(cliente['foto_url'])
-                                : null,
-                        child:
-                            cliente['foto_url'] == null
-                                ? Icon(
-                                  Icons.person,
-                                  size: avatarRadius,
-                                  color:
-                                      seleccionado
-                                          ? const Color(0xFF5B1718)
-                                          : Colors.grey.shade400,
-                                )
-                                : null,
-                      ),
-                      const SizedBox(width: 14),
-                      Expanded(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              // Si es anónimo, solo nombre. Si no, nombre y apellido.
-                              esAnonimo
-                                  ? '${cliente['nombres']}'
-                                  : '${cliente['nombres']} ${cliente['apellidos']}',
-                              style: TextStyle(
-                                fontSize: fontSize,
-                                fontWeight: FontWeight.w600,
-                                color:
-                                    seleccionado
-                                        ? const Color(0xFF5B1718)
-                                        : const Color(0xFF1A1A1A),
-                              ),
-                            ),
-
-                            // Campos condicionales (Solo si no es anónimo)
-                            if (!esAnonimo) ...[
-                              const SizedBox(height: 4),
-                              Text(
-                                cliente['correo'] ?? '',
-                                style: TextStyle(
-                                  fontSize: subFontSize,
-                                  color: Colors.grey.shade500,
-                                ),
-                              ),
-                              if (cliente['dni'] != null) ...[
-                                const SizedBox(height: 2),
-                                Text(
-                                  'DNI: ${cliente['dni']}',
-                                  style: TextStyle(
-                                    fontSize: subFontSize,
-                                    color: Colors.grey.shade400,
-                                  ),
-                                ),
-                              ],
-                            ],
-                          ],
-                        ),
-                      ),
-                      if (seleccionado)
-                        Icon(
-                          Icons.check_circle,
-                          color: const Color(0xFF5B1718),
-                          size: (avatarRadius * 0.8).clamp(16.0, 28.0),
-                        ),
-                    ],
-                  ),
-                ),
-
-                Positioned(
-                  top: 12,
-                  right: 16,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 3,
-                    ),
-                    decoration: BoxDecoration(
-                      color:
-                          esAnonimo
-                              ? Colors.grey.shade100
-                              : const Color(0xFF5B1718).withValues(alpha: 0.08),
-                      borderRadius: BorderRadius.circular(6),
-                      border: Border.all(
-                        color:
-                            esAnonimo
-                                ? Colors.grey.shade300
-                                : const Color(0xFF5B1718).withValues(alpha: 0.2),
-                      ),
-                    ),
-                    child: Text(
-                      etiquetaTexto.toUpperCase(),
-                      style: TextStyle(
-                        fontSize: tagFontSize,
-                        fontWeight: FontWeight.bold,
-                        color:
-                            esAnonimo
-                                ? Colors.grey.shade600
-                                : const Color(0xFF5B1718),
-                      ),
+      ),
+      elevation: 2,
+      child: InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(14),
+      child: Padding(
+        padding: const EdgeInsets.all(10),
+        child: Row(
+          children: [
+            CircleAvatar(
+              radius: 26,
+              backgroundColor: Colors.white12,
+              backgroundImage:
+                  cliente['foto_url'] != null
+                      ? NetworkImage(cliente['foto_url'])
+                      : null,
+              child:
+                  cliente['foto_url'] == null
+                      ? const Icon(Icons.person, color: Colors.white70)
+                      : null,
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    nombreCompleto,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 15,
                     ),
                   ),
+                  const SizedBox(height: 3),
+                  Text(
+                    esAnonimo ? 'Cliente anónimo' : (cliente['correo'] ?? ''),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(color: Color(0xFFFFDDDD), fontSize: 13),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 8),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(
+                color: Colors.white12,
+                borderRadius: BorderRadius.circular(999),
+                border: Border.all(color: const Color(0xFFFFB9B9)),
+              ),
+              child: Text(
+                etiquetaTexto,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
                 ),
-              ],
-            );
-          },
+              ),
+            ),
+            if (seleccionado) ...[
+              const SizedBox(width: 8),
+              const Icon(Icons.check_circle, color: Color(0xFFFFE2A8)),
+            ],
+          ],
         ),
       ),
     );
@@ -655,87 +623,65 @@ class _MesaCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        decoration: BoxDecoration(
-          color: seleccionado ? const Color(0xFF5B1718) : Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color:
-                seleccionado ? const Color(0xFF5B1718) : Colors.grey.shade200,
-            width: seleccionado ? 2 : 1,
-          ),
+    return Card(
+      margin: EdgeInsets.zero,
+      color: seleccionado ? const Color(0xFF8D2628) : const Color(0xFFA02C2C),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(14),
+        side: BorderSide(
+          color: seleccionado ? const Color(0xFFFFE2A8) : const Color(0xFFFFC9C9),
+          width: seleccionado ? 1.4 : 0.6,
         ),
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            final alto = constraints.maxHeight;
-            final iconSize = (alto * 0.28).clamp(24.0, 52.0);
-            final fontSize = (alto * 0.13).clamp(13.0, 22.0);
-            final subFontSize = (alto * 0.10).clamp(11.0, 16.0);
-
-            return Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Row(
+      ),
+      elevation: 2,
+      child: InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(14),
+      child: Padding(
+        padding: const EdgeInsets.all(10),
+        child: Row(
+          children: [
+            Container(
+              width: 52,
+              height: 52,
+              decoration: BoxDecoration(
+                color: Colors.white12,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Icon(
+                Icons.table_restaurant,
+                color: Colors.white,
+                size: 28,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Container(
-                    width: iconSize * 1.6,
-                    height: iconSize * 1.6,
-                    decoration: BoxDecoration(
-                      color:
-                          seleccionado
-                              ? Colors.white.withValues(alpha: 0.15)
-                              : Colors.grey.shade100,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Icon(
-                      Icons.table_restaurant,
-                      size: iconSize,
-                      color: seleccionado ? Colors.white : Colors.grey.shade400,
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Mesa ${mesa['numero']}',
-                          style: TextStyle(
-                            fontSize: fontSize,
-                            fontWeight: FontWeight.w700,
-                            color:
-                                seleccionado
-                                    ? Colors.white
-                                    : const Color(0xFF1A1A1A),
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          '${mesa['cantidad_lugares']} lugares',
-                          style: TextStyle(
-                            fontSize: subFontSize,
-                            color:
-                                seleccionado
-                                    ? Colors.white70
-                                    : Colors.grey.shade500,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  if (seleccionado)
-                    Icon(
-                      Icons.check_circle,
+                  Text(
+                    'Mesa ${mesa['numero']}',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
                       color: Colors.white,
-                      size: (iconSize * 0.7).clamp(16.0, 28.0),
+                      fontWeight: FontWeight.w700,
+                      fontSize: 15,
                     ),
+                  ),
+                  const SizedBox(height: 3),
+                  Text(
+                    '${mesa['cantidad_lugares']} lugares',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(color: Color(0xFFFFDDDD), fontSize: 13),
+                  ),
                 ],
               ),
-            );
-          },
+            ),
+            if (seleccionado)
+              const Icon(Icons.check_circle, color: Color(0xFFFFE2A8)),
+          ],
         ),
       ),
     );
