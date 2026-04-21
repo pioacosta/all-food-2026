@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:all_food/src/features/carta/presentation/pages/carta_cliente.dart';
 import 'package:all_food/src/features/pedidos/data/repositories/pedidos_repository.dart';
 import 'package:all_food/src/features/pedidos/presentation/pages/encuesta_cliente_page.dart';
@@ -64,10 +66,11 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
                 column: 'mesa_id',
                 value: widget.mesaId,
               ),
-              callback: (_) {
-                if (!mounted || _redireccionando || _procesando || _cargando) {
-                  return;
-                }
+              callback: (payload) {
+                debugPrint(
+                  '[Realtime] estado=$mounted redireccionando=$_redireccionando',
+                );
+                if (!mounted || _redireccionando) return;
                 _cargarSilencioso();
               },
             )
@@ -88,14 +91,23 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
     try {
       final detalle = await _repo.getDetallePedido(widget.mesaId);
       if (!mounted || _redireccionando) return;
+
+      // ← Chequeá el estado ANTES de tocar la UI
+      final estadoNuevo =
+          (detalle['pedido'] as Map<String, dynamic>?)?['estado'] as String?;
+
+      if (estadoNuevo == 'cerrado') {
+        _pedido = detalle['pedido'] as Map<String, dynamic>?;
+        await _verificarCierreYRedirigir(); // redirige sin setState previo
+        return;
+      }
+
       setState(() {
         _pedido = detalle['pedido'] as Map<String, dynamic>?;
         _items = List<Map<String, dynamic>>.from(detalle['items'] as List);
         _tiempoTotal = (detalle['tiempoTotalMin'] as num?)?.toInt() ?? 0;
       });
-      await _verificarCierreYRedirigir();
     } catch (_) {
-      // El refresco silencioso no debe interrumpir al usuario con errores.
     } finally {
       _sincronizandoRealtime = false;
     }
@@ -107,6 +119,26 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
 
     _redireccionando = true;
     await _detenerEscuchaPedidoRealtime();
+
+    // Mostrar modal con cuenta regresiva antes de redirigir
+    await _mostrarModalCierreYRedirigir();
+  }
+
+  Future<void> _mostrarModalCierreYRedirigir() async {
+    if (!mounted) return;
+
+    await showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder:
+          (context) => _CierreCountdownDialog(
+            onComplete: () {
+              Navigator.of(context).pop(); // cierra el dialog
+            },
+          ),
+    );
+
+    if (!mounted) return;
     Navigator.of(context).pushNamedAndRemoveUntil('/home', (route) => false);
   }
 
@@ -116,12 +148,21 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
     try {
       final detalle = await _repo.getDetallePedido(widget.mesaId);
       if (!mounted) return;
+
+      final estadoNuevo =
+          (detalle['pedido'] as Map<String, dynamic>?)?['estado'] as String?;
+
+      if (estadoNuevo == 'cerrado') {
+        _pedido = detalle['pedido'] as Map<String, dynamic>?;
+        await _verificarCierreYRedirigir();
+        return;
+      }
+
       setState(() {
         _pedido = detalle['pedido'] as Map<String, dynamic>?;
         _items = List<Map<String, dynamic>>.from(detalle['items'] as List);
         _tiempoTotal = (detalle['tiempoTotalMin'] as num?)?.toInt() ?? 0;
       });
-      await _verificarCierreYRedirigir();
     } catch (error) {
       if (!mounted) return;
       _mostrarMensaje(
@@ -132,9 +173,7 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
         esError: true,
       );
     } finally {
-      if (mounted) {
-        setState(() => _cargando = false);
-      }
+      if (mounted) setState(() => _cargando = false);
     }
   }
 
@@ -1018,6 +1057,112 @@ class _FilaCuenta extends StatelessWidget {
             style: TextStyle(color: color, fontWeight: FontWeight.w700),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _CierreCountdownDialog extends StatefulWidget {
+  const _CierreCountdownDialog({required this.onComplete});
+
+  final VoidCallback onComplete;
+
+  @override
+  State<_CierreCountdownDialog> createState() => _CierreCountdownDialogState();
+}
+
+class _CierreCountdownDialogState extends State<_CierreCountdownDialog> {
+  static const _segundosInicio = 5;
+  int _segundosRestantes = _segundosInicio;
+  Timer? _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (!mounted) {
+        timer.cancel();
+        return;
+      }
+      setState(() => _segundosRestantes--);
+      if (_segundosRestantes <= 0) {
+        timer.cancel();
+        widget.onComplete();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      backgroundColor: const Color(0xFF2D6A4F),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(
+              Icons.check_circle_outline,
+              color: Colors.white,
+              size: 56,
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              '¡Pago confirmado!',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.w800,
+                fontSize: 20,
+              ),
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              'Gracias por tu visita.\nLa mesa quedó liberada.',
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.white70, fontSize: 14),
+            ),
+            const SizedBox(height: 24),
+            // Indicador circular de progreso
+            SizedBox(
+              width: 64,
+              height: 64,
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  CircularProgressIndicator(
+                    value: _segundosRestantes / _segundosInicio,
+                    strokeWidth: 5,
+                    backgroundColor: Colors.white24,
+                    color: Colors.white,
+                  ),
+                  Center(
+                    child: Text(
+                      '$_segundosRestantes',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 22,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              'Redirigiendo al inicio...',
+              style: TextStyle(color: Colors.white54, fontSize: 12),
+            ),
+          ],
+        ),
       ),
     );
   }

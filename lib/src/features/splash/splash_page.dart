@@ -1,3 +1,4 @@
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -29,10 +30,14 @@ class _SplashPageState extends State<SplashPage>
   late final List<Animation<double>> _letterFades;
   late final List<Animation<double>> _letterScales;
 
+  //sonido de carga
+  final AudioPlayer _player = AudioPlayer();
+
   @override
   void initState() {
     super.initState();
-
+    
+    _playLocalSound('start.mp3');
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 2800),
@@ -110,6 +115,15 @@ class _SplashPageState extends State<SplashPage>
   void dispose() {
     _controller.dispose();
     super.dispose();
+  }
+
+  Future<void> _playLocalSound(String fileName) async {
+    try {
+      await _player.play(AssetSource('sounds/$fileName'));
+    } catch (e) {
+      // Si falla la reproducción, no hacemos nada para no romper la experiencia.
+      print("error: $e");
+    }
   }
 
   @override

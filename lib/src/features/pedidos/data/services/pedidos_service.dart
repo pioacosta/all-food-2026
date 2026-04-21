@@ -167,4 +167,16 @@ class PedidosService {
         .update({'cliente_id': null, 'ocupada': false})
         .eq('id', mesaId);
   }
+
+  Future<Map<String, dynamic>?> getPedidoActivoOCerrado({
+    required String mesaId,
+  }) async {
+    return _client
+        .from('pedidos')
+        .select('*')
+        .eq('mesa_id', mesaId)
+        .order('created_at', ascending: false)
+        .limit(1)
+        .maybeSingle();
+  }
 }

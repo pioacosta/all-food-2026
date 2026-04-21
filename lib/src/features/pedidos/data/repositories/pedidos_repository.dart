@@ -86,7 +86,8 @@ class PedidosRepository {
   }
 
   Future<Map<String, dynamic>> getDetallePedido(String mesaId) async {
-    final pedido = await _service.getPedidoActivo(mesaId: mesaId);
+    // Usamos la query que incluye cerrados para detectar el cierre y redirigir
+    final pedido = await _service.getPedidoActivoOCerrado(mesaId: mesaId);
     if (pedido == null) {
       return {
         'pedido': null,
