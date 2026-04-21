@@ -143,6 +143,11 @@ class _PedidosMozoPageState extends State<PedidosMozoPage> {
       context: context,
       builder:
           (_) => AlertDialog(
+            backgroundColor: const Color(0xFFF7ECEC),
+            surfaceTintColor: Colors.transparent,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(22),
+            ),
             title: const Text('Rechazar pedido'),
             content: TextField(
               controller: motivoController,
@@ -155,10 +160,20 @@ class _PedidosMozoPageState extends State<PedidosMozoPage> {
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(context).pop(false),
-                child: const Text('Cancelar'),
+                style: TextButton.styleFrom(
+                  foregroundColor: const Color(0xFF7A2021),
+                ),
+                child: const Text(
+                  'Cancelar',
+                  style: TextStyle(fontWeight: FontWeight.w700),
+                ),
               ),
               FilledButton(
                 onPressed: () => Navigator.of(context).pop(true),
+                style: FilledButton.styleFrom(
+                  backgroundColor: const Color(0xFFB62F2F),
+                  foregroundColor: Colors.white,
+                ),
                 child: const Text('Rechazar'),
               ),
             ],
@@ -225,17 +240,39 @@ class _PedidosMozoPageState extends State<PedidosMozoPage> {
       context: context,
       builder:
           (_) => AlertDialog(
-            title: const Text('Confirmar pago'),
+            backgroundColor: const Color(0xFFF7ECEC),
+            surfaceTintColor: Colors.transparent,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(22),
+            ),
+            title: const Text(
+              'Confirmar pago',
+              style: TextStyle(
+                color: Color(0xFF2A1414),
+                fontWeight: FontWeight.w700,
+              ),
+            ),
             content: Text(
               '¿Confirmar pago de la mesa $numeroMesa y liberar la mesa?',
+              style: const TextStyle(color: Color(0xFF3A2222), height: 1.35),
             ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(context).pop(false),
-                child: const Text('Cancelar'),
+                style: TextButton.styleFrom(
+                  foregroundColor: const Color(0xFF7A2021),
+                ),
+                child: const Text(
+                  'Cancelar',
+                  style: TextStyle(fontWeight: FontWeight.w700),
+                ),
               ),
               FilledButton(
                 onPressed: () => Navigator.of(context).pop(true),
+                style: FilledButton.styleFrom(
+                  backgroundColor: const Color(0xFF2D6A4F),
+                  foregroundColor: Colors.white,
+                ),
                 child: const Text('Confirmar'),
               ),
             ],
