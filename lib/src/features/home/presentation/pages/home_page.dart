@@ -190,6 +190,12 @@ class _HomePageState extends State<HomePage> {
                 final titulo = row['titulo']?.toString() ?? 'Notificación';
                 final mensaje = row['mensaje']?.toString() ?? '';
                 _mostrarMensaje('$titulo: $mensaje', esError: false);
+
+                // En cliente, la notificación puede implicar cambios de estado
+                // de mesa/pedido, por eso se sincroniza automáticamente.
+                if (_esPerfilCliente(_perfil)) {
+                  _refrescarEstadoMesaCliente();
+                }
               },
             )
             .subscribe();

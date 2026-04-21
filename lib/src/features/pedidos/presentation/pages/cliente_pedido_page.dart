@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:all_food/src/features/carta/presentation/pages/carta_cliente.dart';
 import 'package:all_food/src/features/pedidos/data/repositories/pedidos_repository.dart';
 import 'package:all_food/src/features/pedidos/presentation/pages/encuesta_cliente_page.dart';
@@ -7,6 +5,7 @@ import 'package:all_food/src/features/pedidos/presentation/pages/resultados_encu
 import 'package:all_food/src/shared/errors/app_error_mapper.dart';
 import 'package:all_food/src/shared/widgets/logo_spinner.dart';
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ClientePedidoPage extends StatefulWidget {
   const ClientePedidoPage({
@@ -24,11 +23,12 @@ class ClientePedidoPage extends StatefulWidget {
 
 class _ClientePedidoPageState extends State<ClientePedidoPage> {
   final _repo = PedidosRepository();
-  Timer? _estadoTimer;
+  RealtimeChannel? _pedidoChannel;
 
   bool _cargando = true;
   bool _procesando = false;
   bool _redireccionando = false;
+  bool _sincronizandoRealtime = false;
   Map<String, dynamic>? _pedido;
   List<Map<String, dynamic>> _items = [];
   int _tiempoTotal = 0;
@@ -38,24 +38,53 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
     super.initState();
     // Al entrar, sincroniza el estado actual del pedido de la mesa.
     _cargar();
-    _iniciarRefrescoEstado();
+    _iniciarEscuchaPedidoRealtime();
   }
 
   @override
   void dispose() {
-    _estadoTimer?.cancel();
+    _detenerEscuchaPedidoRealtime();
     super.dispose();
   }
 
-  void _iniciarRefrescoEstado() {
-    _estadoTimer?.cancel();
-    _estadoTimer = Timer.periodic(const Duration(seconds: 4), (_) {
-      if (!mounted || _redireccionando || _procesando || _cargando) return;
-      _cargarSilencioso();
-    });
+  void _iniciarEscuchaPedidoRealtime() {
+    final client = Supabase.instance.client;
+
+    _pedidoChannel?.unsubscribe();
+
+    _pedidoChannel =
+        client
+            .channel('pedido_cliente_${widget.mesaId}')
+            .onPostgresChanges(
+              event: PostgresChangeEvent.all,
+              schema: 'public',
+              table: 'pedidos',
+              filter: PostgresChangeFilter(
+                type: PostgresChangeFilterType.eq,
+                column: 'mesa_id',
+                value: widget.mesaId,
+              ),
+              callback: (_) {
+                if (!mounted || _redireccionando || _procesando || _cargando) {
+                  return;
+                }
+                _cargarSilencioso();
+              },
+            )
+            .subscribe();
+  }
+
+  Future<void> _detenerEscuchaPedidoRealtime() async {
+    final channel = _pedidoChannel;
+    _pedidoChannel = null;
+    if (channel != null) {
+      await channel.unsubscribe();
+    }
   }
 
   Future<void> _cargarSilencioso() async {
+    if (_sincronizandoRealtime) return;
+    _sincronizandoRealtime = true;
     try {
       final detalle = await _repo.getDetallePedido(widget.mesaId);
       if (!mounted || _redireccionando) return;
@@ -67,6 +96,8 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
       await _verificarCierreYRedirigir();
     } catch (_) {
       // El refresco silencioso no debe interrumpir al usuario con errores.
+    } finally {
+      _sincronizandoRealtime = false;
     }
   }
 
@@ -75,7 +106,7 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
     if (estado != 'cerrado' || _redireccionando || !mounted) return;
 
     _redireccionando = true;
-    _estadoTimer?.cancel();
+    await _detenerEscuchaPedidoRealtime();
     Navigator.of(context).pushNamedAndRemoveUntil('/home', (route) => false);
   }
 
