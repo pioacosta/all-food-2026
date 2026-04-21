@@ -85,10 +85,9 @@ class PedidosRepository {
     await _recalcularTotalesPedido(pedidoId);
   }
 
-  // En pedidos_repository.dart
   Future<Map<String, dynamic>> getDetallePedido(
     String mesaId, {
-    bool incluirCerrado = false, // ← nuevo parámetro
+    bool incluirCerrado = false, 
   }) async {
     final pedido =
         incluirCerrado

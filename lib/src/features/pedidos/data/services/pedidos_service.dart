@@ -171,11 +171,11 @@ class PedidosService {
   Future<Map<String, dynamic>?> getPedidoActivoOCerrado({
     required String mesaId,
   }) async {
-    // Primero buscá uno activo (no cerrado)
+    // Primero busca uno activo (no cerrado)
     final activo = await getPedidoActivo(mesaId: mesaId);
     if (activo != null) return activo;
 
-    // Solo si no hay activo, traé el último cerrado
+    // Solo si no hay activo, trae el último cerrado
     // Esto permite detectar el cierre recién ocurrido via Realtime
     // pero nunca confunde un cerrado viejo con un pedido nuevo
     return _client

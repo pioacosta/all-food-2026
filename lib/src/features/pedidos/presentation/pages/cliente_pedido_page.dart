@@ -4,6 +4,7 @@ import 'package:all_food/src/features/carta/presentation/pages/carta_cliente.dar
 import 'package:all_food/src/features/pedidos/data/repositories/pedidos_repository.dart';
 import 'package:all_food/src/features/pedidos/presentation/pages/encuesta_cliente_page.dart';
 import 'package:all_food/src/features/pedidos/presentation/pages/resultados_encuestas_page.dart';
+import 'package:all_food/src/features/pedidos/presentation/widgets/cierre_countdown_dialog.dart';
 import 'package:all_food/src/shared/errors/app_error_mapper.dart';
 import 'package:all_food/src/shared/widgets/logo_spinner.dart';
 import 'package:flutter/material.dart';
@@ -90,7 +91,6 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
     if (_sincronizandoRealtime) return;
     _sincronizandoRealtime = true;
     try {
-      // incluirCerrado: true — Realtime nos avisó que algo cambió, puede ser el cierre
       final detalle = await _repo.getDetallePedido(
         widget.mesaId,
         incluirCerrado: true,
@@ -136,7 +136,7 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
       context: context,
       barrierDismissible: false,
       builder:
-          (context) => _CierreCountdownDialog(
+          (context) => CierreCountdownDialog(
             onComplete: () {
               Navigator.of(context).pop(); // cierra el dialog
             },
@@ -473,7 +473,7 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
                   Container(
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.1),
+                      color: Colors.white.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(10),
                       border: Border.all(color: Colors.white24),
                     ),
@@ -519,7 +519,7 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
                           return Container(
                             padding: const EdgeInsets.all(10),
                             decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.12),
+                              color: Colors.white.withValues(alpha: 0.12),
                               borderRadius: BorderRadius.circular(10),
                               border: Border.all(color: Colors.white24),
                             ),
@@ -651,7 +651,7 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
                         margin: const EdgeInsets.fromLTRB(16, 14, 16, 10),
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.12),
+                          color: Colors.white.withValues(alpha: 0.12),
                           borderRadius: BorderRadius.circular(14),
                           border: Border.all(color: Colors.white24),
                         ),
@@ -738,7 +738,7 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
                                     return Container(
                                       padding: const EdgeInsets.all(10),
                                       decoration: BoxDecoration(
-                                        color: Colors.white.withOpacity(0.1),
+                                        color: Colors.white.withValues(alpha: 0.1),
                                         borderRadius: BorderRadius.circular(12),
                                         border: Border.all(
                                           color: Colors.white24,
@@ -1008,7 +1008,7 @@ class _DatoHeader extends StatelessWidget {
           style: const TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.w800,
-            fontSize: 18, // ← antes era 14 implícito
+            fontSize: 18, 
           ),
         ),
       ],
@@ -1078,108 +1078,4 @@ class _FilaCuenta extends StatelessWidget {
   }
 }
 
-class _CierreCountdownDialog extends StatefulWidget {
-  const _CierreCountdownDialog({required this.onComplete});
 
-  final VoidCallback onComplete;
-
-  @override
-  State<_CierreCountdownDialog> createState() => _CierreCountdownDialogState();
-}
-
-class _CierreCountdownDialogState extends State<_CierreCountdownDialog> {
-  static const _segundosInicio = 5;
-  int _segundosRestantes = _segundosInicio;
-  Timer? _timer;
-
-  @override
-  void initState() {
-    super.initState();
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (!mounted) {
-        timer.cancel();
-        return;
-      }
-      setState(() => _segundosRestantes--);
-      if (_segundosRestantes <= 0) {
-        timer.cancel();
-        widget.onComplete();
-      }
-    });
-  }
-
-  @override
-  void dispose() {
-    _timer?.cancel();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Dialog(
-      backgroundColor: const Color(0xFF2D6A4F),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(
-              Icons.check_circle_outline,
-              color: Colors.white,
-              size: 56,
-            ),
-            const SizedBox(height: 16),
-            const Text(
-              '¡Pago confirmado!',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.w800,
-                fontSize: 20,
-              ),
-            ),
-            const SizedBox(height: 8),
-            const Text(
-              'Gracias por tu visita.\nLa mesa quedó liberada.',
-              textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.white70, fontSize: 14),
-            ),
-            const SizedBox(height: 24),
-            // Indicador circular de progreso
-            SizedBox(
-              width: 64,
-              height: 64,
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  CircularProgressIndicator(
-                    value: _segundosRestantes / _segundosInicio,
-                    strokeWidth: 5,
-                    backgroundColor: Colors.white24,
-                    color: Colors.white,
-                  ),
-                  Center(
-                    child: Text(
-                      '$_segundosRestantes',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w700,
-                        fontSize: 22,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
-            const Text(
-              'Redirigiendo al inicio...',
-              style: TextStyle(color: Colors.white54, fontSize: 12),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
