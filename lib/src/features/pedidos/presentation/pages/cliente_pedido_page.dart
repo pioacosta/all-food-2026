@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:all_food/src/features/carta/presentation/pages/carta_cliente.dart';
 import 'package:all_food/src/features/pedidos/data/repositories/pedidos_repository.dart';
 import 'package:all_food/src/features/pedidos/presentation/pages/encuesta_cliente_page.dart';
@@ -22,9 +24,11 @@ class ClientePedidoPage extends StatefulWidget {
 
 class _ClientePedidoPageState extends State<ClientePedidoPage> {
   final _repo = PedidosRepository();
+  Timer? _estadoTimer;
 
   bool _cargando = true;
   bool _procesando = false;
+  bool _redireccionando = false;
   Map<String, dynamic>? _pedido;
   List<Map<String, dynamic>> _items = [];
   int _tiempoTotal = 0;
@@ -34,6 +38,45 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
     super.initState();
     // Al entrar, sincroniza el estado actual del pedido de la mesa.
     _cargar();
+    _iniciarRefrescoEstado();
+  }
+
+  @override
+  void dispose() {
+    _estadoTimer?.cancel();
+    super.dispose();
+  }
+
+  void _iniciarRefrescoEstado() {
+    _estadoTimer?.cancel();
+    _estadoTimer = Timer.periodic(const Duration(seconds: 4), (_) {
+      if (!mounted || _redireccionando || _procesando || _cargando) return;
+      _cargarSilencioso();
+    });
+  }
+
+  Future<void> _cargarSilencioso() async {
+    try {
+      final detalle = await _repo.getDetallePedido(widget.mesaId);
+      if (!mounted || _redireccionando) return;
+      setState(() {
+        _pedido = detalle['pedido'] as Map<String, dynamic>?;
+        _items = List<Map<String, dynamic>>.from(detalle['items'] as List);
+        _tiempoTotal = (detalle['tiempoTotalMin'] as num?)?.toInt() ?? 0;
+      });
+      await _verificarCierreYRedirigir();
+    } catch (_) {
+      // El refresco silencioso no debe interrumpir al usuario con errores.
+    }
+  }
+
+  Future<void> _verificarCierreYRedirigir() async {
+    final estado = (_pedido?['estado'] as String?) ?? 'sin_pedido';
+    if (estado != 'cerrado' || _redireccionando || !mounted) return;
+
+    _redireccionando = true;
+    _estadoTimer?.cancel();
+    Navigator.of(context).pushNamedAndRemoveUntil('/home', (route) => false);
   }
 
   // Carga pedido + ítems + tiempo estimado acumulado.
@@ -47,6 +90,7 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
         _items = List<Map<String, dynamic>>.from(detalle['items'] as List);
         _tiempoTotal = (detalle['tiempoTotalMin'] as num?)?.toInt() ?? 0;
       });
+      await _verificarCierreYRedirigir();
     } catch (error) {
       if (!mounted) return;
       _mostrarMensaje(
