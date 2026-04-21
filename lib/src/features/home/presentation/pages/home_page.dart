@@ -583,23 +583,27 @@ class _ClienteDashboard extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Container(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(18),
           margin: const EdgeInsets.fromLTRB(16, 16, 16, 12),
           decoration: BoxDecoration(
             color: Colors.white.withOpacity(0.12),
-            borderRadius: BorderRadius.circular(18),
+            borderRadius: BorderRadius.circular(20),
             border: Border.all(color: Colors.white24),
           ),
           child: Row(
             children: [
-              const Icon(Icons.table_restaurant, color: Colors.white, size: 32),
+              const Icon(Icons.table_restaurant, color: Colors.white, size: 36),
               const SizedBox(width: 12),
               Expanded(
                 child:
                     cargandoEstado
                         ? const Text(
                           'Consultando estado de tu mesa...',
-                          style: TextStyle(color: Colors.white),
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
                         )
                         : Text(
                           mesaAsignada
@@ -609,9 +613,11 @@ class _ClienteDashboard extends StatelessWidget {
                               : 'Todavía no solicitaste mesa.',
                           style: const TextStyle(
                             color: Colors.white,
-                            fontSize: 15,
-                            fontWeight: FontWeight.w600,
+                            fontSize: 17,
+                            fontWeight: FontWeight.w700,
                           ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
                         ),
               ),
             ],
@@ -705,15 +711,15 @@ class _ClienteActionCard extends StatelessWidget {
               habilitado
                   ? color.withOpacity(0.88)
                   : Colors.white.withOpacity(0.14),
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(18),
           border: Border.all(color: Colors.white24),
         ),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
           child: Row(
             children: [
-              Icon(icon, color: Colors.white, size: 30),
-              const SizedBox(width: 12),
+              Icon(icon, color: Colors.white, size: 34),
+              const SizedBox(width: 14),
               Expanded(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -723,7 +729,7 @@ class _ClienteActionCard extends StatelessWidget {
                       titulo,
                       style: const TextStyle(
                         color: Colors.white,
-                        fontSize: 18,
+                        fontSize: 20,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
@@ -732,7 +738,8 @@ class _ClienteActionCard extends StatelessWidget {
                       descripcion,
                       style: const TextStyle(
                         color: Colors.white70,
-                        fontSize: 13,
+                        fontSize: 14,
+                        height: 1.25,
                       ),
                       maxLines: 3,
                       overflow: TextOverflow.ellipsis,
