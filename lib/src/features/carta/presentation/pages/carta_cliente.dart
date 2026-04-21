@@ -160,7 +160,6 @@ class _CartaClientePageState extends State<CartaClientePage> {
     if (_paginaActual == 0) return;
     setState(() {
       _paginaActual -= 1;
-      _normalizarPagina();
     });
   }
 
@@ -168,7 +167,6 @@ class _CartaClientePageState extends State<CartaClientePage> {
     if (_paginaActual >= _totalPaginas - 1) return;
     setState(() {
       _paginaActual += 1;
-      _normalizarPagina();
     });
   }
 

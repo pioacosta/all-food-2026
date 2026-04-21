@@ -77,24 +77,77 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
     await _cargar();
   }
 
+  // Recalcula resumen local para evitar recargas completas en ajustes +/-.
+  void _recalcularResumenLocal() {
+    double subtotal = 0;
+    var maxTiempo = 0;
+
+    for (final item in _items) {
+      final cantidad = (item['cantidad'] as num?)?.toInt() ?? 0;
+      final precio = ((item['precio_unitario'] as num?) ?? 0).toDouble();
+      final tiempo = (item['tiempo_elaboracion_min'] as num?)?.toInt() ?? 0;
+
+      if (cantidad <= 0) continue;
+      subtotal += precio * cantidad;
+      if (tiempo > maxTiempo) {
+        maxTiempo = tiempo;
+      }
+    }
+
+    _tiempoTotal = maxTiempo;
+
+    if (_pedido != null) {
+      final estado = (_pedido!['estado'] as String?) ?? 'sin_pedido';
+      final actualizado = Map<String, dynamic>.from(_pedido!);
+      actualizado['subtotal'] = subtotal;
+      if (estado == 'borrador' || estado == 'rechazado_mozo') {
+        actualizado['total'] = subtotal;
+      }
+      _pedido = actualizado;
+    }
+  }
+
   // Incrementa/decrementa cantidad en un ítem del pedido actual.
   Future<void> _cambiarCantidad(Map<String, dynamic> item, int delta) async {
     final pedido = _pedido;
     if (pedido == null) return;
 
-    final actual = (item['cantidad'] as num).toInt();
+    final itemId = item['id'] as String;
+    final index = _items.indexWhere((e) => e['id'] == itemId);
+    if (index < 0) return;
+
+    final snapshotItems =
+        _items.map((e) => Map<String, dynamic>.from(e)).toList();
+    final snapshotPedido =
+        _pedido == null ? null : Map<String, dynamic>.from(_pedido!);
+    final snapshotTiempo = _tiempoTotal;
+
+    final actual = (_items[index]['cantidad'] as num).toInt();
     final nuevaCantidad = actual + delta;
 
     setState(() => _procesando = true);
     try {
+      setState(() {
+        if (nuevaCantidad <= 0) {
+          _items.removeAt(index);
+        } else {
+          _items[index]['cantidad'] = nuevaCantidad;
+        }
+        _recalcularResumenLocal();
+      });
+
       await _repo.cambiarCantidadItem(
         pedidoId: pedido['id'] as String,
-        itemId: item['id'] as String,
+        itemId: itemId,
         nuevaCantidad: nuevaCantidad,
       );
-      await _cargar();
     } catch (error) {
       if (!mounted) return;
+      setState(() {
+        _items = snapshotItems;
+        _pedido = snapshotPedido;
+        _tiempoTotal = snapshotTiempo;
+      });
       _mostrarMensaje(
         AppErrorMapper.toUserMessage(
           error,
