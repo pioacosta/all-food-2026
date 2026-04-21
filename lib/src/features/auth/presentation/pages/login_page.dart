@@ -230,7 +230,7 @@ class _LoginPageState extends State<LoginPage> {
       }
 
       try {
-        await NotificationService().saveTokenForCurrentUser();
+        await NotificationService().init();
       } catch (_) {
         // Si falla no bloqueamos el login
       }

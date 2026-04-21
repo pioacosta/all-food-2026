@@ -3,10 +3,16 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:all_food/firebase_options.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 import 'src/all_food_app.dart';
 import 'src/config/supabase_config.dart';
 
+
+@pragma('vm:entry-point')
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  print('BG Notification: ${message.notification?.title}');
+}
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -14,6 +20,9 @@ Future<void> main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+
 
   try {
     await dotenv.load(fileName: '.env');

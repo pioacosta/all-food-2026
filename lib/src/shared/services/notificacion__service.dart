@@ -2,20 +2,21 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-// ⚠️ Debe ser top-level (fuera de cualquier clase)
-@pragma('vm:entry-point')
-Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  print('BG Notification: ${message.notification?.title}');
-}
-
 class NotificationService {
+  // Singleton
+  static final NotificationService _instance = NotificationService._internal();
+  factory NotificationService() => _instance;
+  NotificationService._internal();
+
   final FirebaseMessaging _messaging = FirebaseMessaging.instance;
   final FlutterLocalNotificationsPlugin _localNotifications =
       FlutterLocalNotificationsPlugin();
 
+  bool _initialized = false;
+
   Future<void> init() async {
-    // Handler para cuando la app está cerrada/background
-    FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+    if (_initialized) return;
+    _initialized = true;
 
     await _requestPermission();
     await _setupLocalNotifications();
@@ -28,7 +29,6 @@ class NotificationService {
     await _messaging.requestPermission();
   }
 
-  // 💾 Guardar token en Supabase
   Future<void> _saveToken() async {
     final token = await _messaging.getToken();
     if (token == null) return;
@@ -44,7 +44,6 @@ class NotificationService {
         .eq('id', userId);
   }
 
-  // 🔄 Si el token cambia, actualizarlo
   void _listenTokenRefresh() {
     _messaging.onTokenRefresh.listen((newToken) async {
       final userId = Supabase.instance.client.auth.currentUser?.id;
@@ -57,28 +56,23 @@ class NotificationService {
     });
   }
 
-  // 🔔 Configurar notificaciones locales (para mostrarlas en foreground)
   Future<void> _setupLocalNotifications() async {
-    const androidSettings = AndroidInitializationSettings(
-      '@mipmap/ic_launcher',
-    );
+    const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
     const initSettings = InitializationSettings(android: androidSettings);
     await _localNotifications.initialize(initSettings);
 
-    // Canal de alta importancia para Android
     const channel = AndroidNotificationChannel(
       'allfood_channel',
       'AllFood Notificaciones',
       importance: Importance.high,
     );
+
     await _localNotifications
-        .resolvePlatformSpecificImplementation<
-          AndroidFlutterLocalNotificationsPlugin
-        >()
+        .resolvePlatformSpecificImplementation
+            <AndroidFlutterLocalNotificationsPlugin>()
         ?.createNotificationChannel(channel);
   }
 
-  // 👂 Mostrar notificación cuando la app está en primer plano
   void _listenForeground() {
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       final notification = message.notification;
@@ -98,9 +92,5 @@ class NotificationService {
         ),
       );
     });
-  }
-
-  Future<void> saveTokenForCurrentUser() async {
-    await _saveToken();
   }
 }
