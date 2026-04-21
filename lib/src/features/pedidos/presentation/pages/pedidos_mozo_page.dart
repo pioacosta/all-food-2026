@@ -2,6 +2,7 @@ import 'package:all_food/src/features/pedidos/data/repositories/pedidos_reposito
 import 'package:all_food/src/shared/errors/app_error_mapper.dart';
 import 'package:all_food/src/shared/widgets/logo_spinner.dart';
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class PedidosMozoPage extends StatefulWidget {
   const PedidosMozoPage({super.key});
@@ -12,9 +13,11 @@ class PedidosMozoPage extends StatefulWidget {
 
 class _PedidosMozoPageState extends State<PedidosMozoPage> {
   final _repo = PedidosRepository();
+  RealtimeChannel? _pedidosChannel;
 
   bool _cargando = true;
   bool _procesando = false;
+  bool _sincronizandoRealtime = false;
   List<Map<String, dynamic>> _pendientes = [];
   List<Map<String, dynamic>> _listosEntrega = [];
   List<Map<String, dynamic>> _pagosPendientes = [];
@@ -24,6 +27,61 @@ class _PedidosMozoPageState extends State<PedidosMozoPage> {
     super.initState();
     // Carga las tres bandejas operativas del mozo.
     _cargar();
+    _iniciarEscuchaPedidosRealtime();
+  }
+
+  @override
+  void dispose() {
+    _detenerEscuchaPedidosRealtime();
+    super.dispose();
+  }
+
+  void _iniciarEscuchaPedidosRealtime() {
+    final client = Supabase.instance.client;
+
+    _pedidosChannel?.unsubscribe();
+
+    _pedidosChannel =
+        client
+            .channel('pedidos_mozo_bandejas')
+            .onPostgresChanges(
+              event: PostgresChangeEvent.all,
+              schema: 'public',
+              table: 'pedidos',
+              callback: (_) {
+                if (!mounted || _cargando || _procesando) return;
+                _cargarSilencioso();
+              },
+            )
+            .subscribe();
+  }
+
+  Future<void> _detenerEscuchaPedidosRealtime() async {
+    final channel = _pedidosChannel;
+    _pedidosChannel = null;
+    if (channel != null) {
+      await channel.unsubscribe();
+    }
+  }
+
+  Future<void> _cargarSilencioso() async {
+    if (_sincronizandoRealtime) return;
+    _sincronizandoRealtime = true;
+    try {
+      final pendientes = await _repo.getPedidosPendientesMozo();
+      final listos = await _repo.getPedidosListosEntrega();
+      final pagos = await _repo.getPedidosPagoPendiente();
+      if (!mounted) return;
+      setState(() {
+        _pendientes = pendientes;
+        _listosEntrega = listos;
+        _pagosPendientes = pagos;
+      });
+    } catch (_) {
+      // Realtime silencioso: no mostrar errores para evitar ruido visual.
+    } finally {
+      _sincronizandoRealtime = false;
+    }
   }
 
   // Sincroniza pedidos pendientes, listos para entregar y pagos pendientes.
