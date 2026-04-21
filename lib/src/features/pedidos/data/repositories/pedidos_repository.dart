@@ -85,9 +85,16 @@ class PedidosRepository {
     await _recalcularTotalesPedido(pedidoId);
   }
 
-  Future<Map<String, dynamic>> getDetallePedido(String mesaId) async {
-    // Usamos la query que incluye cerrados para detectar el cierre y redirigir
-    final pedido = await _service.getPedidoActivoOCerrado(mesaId: mesaId);
+  // En pedidos_repository.dart
+  Future<Map<String, dynamic>> getDetallePedido(
+    String mesaId, {
+    bool incluirCerrado = false, // ← nuevo parámetro
+  }) async {
+    final pedido =
+        incluirCerrado
+            ? await _service.getPedidoActivoOCerrado(mesaId: mesaId)
+            : await _service.getPedidoActivo(mesaId: mesaId);
+
     if (pedido == null) {
       return {
         'pedido': null,

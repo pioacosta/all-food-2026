@@ -53,10 +53,11 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
     final client = Supabase.instance.client;
 
     _pedidoChannel?.unsubscribe();
+    final timestamp = DateTime.now().millisecondsSinceEpoch;
 
     _pedidoChannel =
         client
-            .channel('pedido_cliente_${widget.mesaId}')
+            .channel('pedido_cliente_${widget.mesaId}_$timestamp')
             .onPostgresChanges(
               event: PostgresChangeEvent.all,
               schema: 'public',
@@ -89,16 +90,19 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
     if (_sincronizandoRealtime) return;
     _sincronizandoRealtime = true;
     try {
-      final detalle = await _repo.getDetallePedido(widget.mesaId);
+      // incluirCerrado: true — Realtime nos avisó que algo cambió, puede ser el cierre
+      final detalle = await _repo.getDetallePedido(
+        widget.mesaId,
+        incluirCerrado: true,
+      );
       if (!mounted || _redireccionando) return;
 
-      // ← Chequeá el estado ANTES de tocar la UI
       final estadoNuevo =
           (detalle['pedido'] as Map<String, dynamic>?)?['estado'] as String?;
 
       if (estadoNuevo == 'cerrado') {
         _pedido = detalle['pedido'] as Map<String, dynamic>?;
-        await _verificarCierreYRedirigir(); // redirige sin setState previo
+        await _verificarCierreYRedirigir();
         return;
       }
 
@@ -107,7 +111,8 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
         _items = List<Map<String, dynamic>>.from(detalle['items'] as List);
         _tiempoTotal = (detalle['tiempoTotalMin'] as num?)?.toInt() ?? 0;
       });
-    } catch (_) {
+    } catch (e) {
+      debugPrint('[Realtime] Error en _cargarSilencioso: $e');
     } finally {
       _sincronizandoRealtime = false;
     }
@@ -146,12 +151,14 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
   Future<void> _cargar() async {
     setState(() => _cargando = true);
     try {
+      // incluirCerrado: false (default) — si la page abre y hay un cerrado viejo, lo ignora
       final detalle = await _repo.getDetallePedido(widget.mesaId);
       if (!mounted) return;
 
       final estadoNuevo =
           (detalle['pedido'] as Map<String, dynamic>?)?['estado'] as String?;
 
+      // Con incluirCerrado: false esto nunca será 'cerrado', pero por seguridad:
       if (estadoNuevo == 'cerrado') {
         _pedido = detalle['pedido'] as Map<String, dynamic>?;
         await _verificarCierreYRedirigir();
@@ -491,7 +498,10 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
                   const SizedBox(height: 10),
                   if (lineas.isEmpty)
                     const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 14),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 18,
+                      ),
                       child: Text(
                         'No hay ítems en la cuenta.',
                         textAlign: TextAlign.center,
@@ -547,7 +557,7 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
                         'Propina (${propinaPorcentaje.toStringAsFixed(0)}%)',
                     valor: montoPropina,
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 12),
                   Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 12,
@@ -639,7 +649,7 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
                     children: [
                       Container(
                         margin: const EdgeInsets.fromLTRB(16, 14, 16, 10),
-                        padding: const EdgeInsets.all(12),
+                        padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
                           color: Colors.white.withOpacity(0.12),
                           borderRadius: BorderRadius.circular(14),
@@ -986,13 +996,19 @@ class _DatoHeader extends StatelessWidget {
       children: [
         Text(
           titulo,
-          style: const TextStyle(color: Colors.white70, fontSize: 12),
+          style: const TextStyle(
+            color: Colors.white60,
+            fontSize: 11,
+            letterSpacing: 0.8,
+          ),
         ),
+        const SizedBox(height: 3),
         Text(
           valor,
           style: const TextStyle(
             color: Colors.white,
-            fontWeight: FontWeight.w700,
+            fontWeight: FontWeight.w800,
+            fontSize: 18, // ← antes era 14 implícito
           ),
         ),
       ],
