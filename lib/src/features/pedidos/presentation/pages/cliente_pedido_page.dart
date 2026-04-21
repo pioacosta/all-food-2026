@@ -902,6 +902,14 @@ class _AccionPrincipal extends StatelessWidget {
     return SizedBox(
       width: double.infinity,
       child: FilledButton(
+        style: FilledButton.styleFrom(
+          minimumSize: const Size.fromHeight(46),
+          backgroundColor: const Color(0xFF2D6A4F),
+          foregroundColor: Colors.white,
+          disabledBackgroundColor: const Color(0xFFE8D7B3),
+          disabledForegroundColor: const Color(0xFF4A2B1A),
+          textStyle: const TextStyle(fontWeight: FontWeight.w700),
+        ),
         onPressed: onPressed,
         child:
             loading ? const LogoSpinner(size: 18, strokeWidth: 2) : Text(texto),
