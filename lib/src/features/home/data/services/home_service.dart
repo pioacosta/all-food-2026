@@ -13,6 +13,14 @@ class HomeService {
     return _client.from('perfiles').select('perfil').eq('id', userId).single();
   }
 
+  Future<Map<String, dynamic>> getDatosById(String userId) {
+    return _client
+        .from('perfiles')
+        .select('perfil, nombres, apellidos, correo')
+        .eq('id', userId)
+        .single();
+  }
+
   Future<void> signOut() {
     return _client.auth.signOut();
   }

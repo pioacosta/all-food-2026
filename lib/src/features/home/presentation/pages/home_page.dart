@@ -1,3 +1,4 @@
+import 'package:all_food/src/features/home/presentation/widgets/staff_welcome_card.dart';
 import 'package:all_food/src/features/mesas/data/repositories/mesas_repository.dart';
 import 'package:all_food/src/features/mesas/presentation/pages/ingreso_lista_espera_qr_scanner_page.dart';
 import 'package:all_food/src/features/mesas/presentation/pages/mesa_qr_scanner_page.dart';
@@ -29,7 +30,9 @@ class _HomePageState extends State<HomePage> {
   String? _ultimaNotificacionId;
   final _homeRepository = HomeRepository();
   final _mesasRepository = MesasRepository();
-
+  String? _nombre;
+  String? _apellido;
+  String? _email;
   // List<Map<String, dynamic>> _mesasOcupadas = [];
 
   @override
@@ -48,16 +51,19 @@ class _HomePageState extends State<HomePage> {
     }
 
     try {
-      final perfil = await _homeRepository.getCurrentUserRole();
+      final profileData = await _homeRepository.getCurrentUserProfile();
       if (!mounted) return;
       setState(() {
-        _perfil = perfil;
+        _perfil = profileData?['perfil'] as String?;
+        _nombre = profileData?['nombres'] as String?;
+        _apellido = profileData?['apellidos'] as String?;
+        _email = profileData?['email'] as String?;
         _cargandoPerfil = false;
       });
 
       _iniciarEscuchaNotificaciones();
 
-      if (_esPerfilCliente(perfil)) {
+      if (_esPerfilCliente(_perfil)) {
         await _refrescarEstadoMesaCliente();
       }
     } catch (_) {
@@ -416,50 +422,73 @@ class _HomePageState extends State<HomePage> {
                           Expanded(
                             child: Padding(
                               padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                              child:
-                                  accionesStaff.isEmpty
-                                      ? const Center(
-                                        child: Text(
-                                          'No hay acciones disponibles para este perfil.',
-                                          style: TextStyle(
-                                            color: Colors.white70,
-                                          ),
-                                          textAlign: TextAlign.center,
-                                        ),
-                                      )
-                                      : ListView.separated(
-                                        itemCount:
-                                            accionesStaff.length +
-                                            (accionesStaff.length < 8 ? 1 : 0),
-                                        separatorBuilder:
-                                            (_, __) =>
-                                                const SizedBox(height: 14),
-                                        itemBuilder: (context, index) {
-                                          if (index >= accionesStaff.length) {
-                                            return const Padding(
-                                              padding: EdgeInsets.only(top: 50),
-                                              child: Center(
-                                                child: Text(
-                                                  'No hay más opciones disponibles',
-                                                  style: TextStyle(
-                                                    color: Colors.white70,
-                                                    fontSize: 16,
-                                                    fontWeight: FontWeight.w600,
-                                                  ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  StaffWelcomeCard(
+                                    nombre: _nombre,
+                                    apellido: _apellido,
+                                    email: _email,
+                                    perfil: _perfil,
+                                  ),
+                                  const SizedBox(height: 16),
+                                  Expanded(
+                                    child:
+                                        accionesStaff.isEmpty
+                                            ? const Center(
+                                              child: Text(
+                                                'No hay acciones disponibles para este perfil.',
+                                                style: TextStyle(
+                                                  color: Colors.white70,
                                                 ),
+                                                textAlign: TextAlign.center,
                                               ),
-                                            );
-                                          }
-                                          final accion = accionesStaff[index];
-                                          return _DashboardActionCard(
-                                            icon: accion.icon,
-                                            titulo: accion.titulo,
-                                            descripcion: accion.descripcion,
-                                            color: accion.color,
-                                            onTap: accion.onTap,
-                                          );
-                                        },
-                                      ),
+                                            )
+                                            : ListView.separated(
+                                              itemCount:
+                                                  accionesStaff.length +
+                                                  (accionesStaff.length < 8
+                                                      ? 1
+                                                      : 0),
+                                              separatorBuilder:
+                                                  (_, __) => const SizedBox(
+                                                    height: 14,
+                                                  ),
+                                              itemBuilder: (context, index) {
+                                                if (index >=
+                                                    accionesStaff.length) {
+                                                  return const Padding(
+                                                    padding: EdgeInsets.only(
+                                                      top: 50,
+                                                    ),
+                                                    child: Center(
+                                                      child: Text(
+                                                        'No hay más opciones disponibles',
+                                                        style: TextStyle(
+                                                          color: Colors.white70,
+                                                          fontSize: 16,
+                                                          fontWeight:
+                                                              FontWeight.w600,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  );
+                                                }
+                                                final accion =
+                                                    accionesStaff[index];
+                                                return _DashboardActionCard(
+                                                  icon: accion.icon,
+                                                  titulo: accion.titulo,
+                                                  descripcion:
+                                                      accion.descripcion,
+                                                  color: accion.color,
+                                                  onTap: accion.onTap,
+                                                );
+                                              },
+                                            ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                       ],
@@ -509,7 +538,7 @@ class _DashboardActionCard extends StatelessWidget {
       borderRadius: BorderRadius.circular(16),
       child: Ink(
         decoration: BoxDecoration(
-          color: color.withOpacity(0.88),
+          color: color.withValues(alpha: 0.88),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: Colors.white24),
         ),
@@ -586,7 +615,7 @@ class _ClienteDashboard extends StatelessWidget {
           padding: const EdgeInsets.all(18),
           margin: const EdgeInsets.fromLTRB(16, 16, 16, 12),
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.12),
+            color: Colors.white.withValues(alpha: 0.12),
             borderRadius: BorderRadius.circular(20),
             border: Border.all(color: Colors.white24),
           ),
@@ -709,8 +738,8 @@ class _ClienteActionCard extends StatelessWidget {
         decoration: BoxDecoration(
           color:
               habilitado
-                  ? color.withOpacity(0.88)
-                  : Colors.white.withOpacity(0.14),
+                  ? color.withValues(alpha: 0.88)
+                  : Colors.white.withValues(alpha: 0.14),
           borderRadius: BorderRadius.circular(18),
           border: Border.all(color: Colors.white24),
         ),

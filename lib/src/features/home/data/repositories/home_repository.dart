@@ -15,6 +15,20 @@ class HomeRepository {
     return profile['perfil'] as String?;
   }
 
+  Future<Map<String, dynamic>?> getCurrentUserProfile() async {
+    final userId = _service.currentUserId;
+    if (userId == null) return null;
+
+    final profile = await _service.getDatosById(userId);
+
+    return {
+      'perfil': profile['perfil'] as String?,
+      'nombres': profile['nombres'] as String?,
+      'apellidos': profile['apellidos'] as String?,
+      'email': profile['correo'] as String?,
+    };
+  }
+
   // Cierra la sesion actual del usuario.
   Future<void> signOut() {
     return _service.signOut();
