@@ -1,4 +1,5 @@
 import 'package:all_food/src/features/mesas/data/repositories/mesas_repository.dart';
+import 'package:all_food/src/features/mesas/presentation/widgets/qr_success_dialog.dart';
 import 'package:all_food/src/features/pedidos/presentation/pages/resultados_encuestas_page.dart';
 import 'package:all_food/src/shared/errors/app_error_mapper.dart';
 import 'package:all_food/src/shared/widgets/logo_spinner.dart';
@@ -26,6 +27,8 @@ class _IngresoListaEsperaQrScannerPageState
   bool _procesando = false;
   bool _modalAbierto = false;
 
+  static const _colorPrimario = Color(0xFF8D2628);
+
   @override
   void dispose() {
     _controller.dispose();
@@ -50,55 +53,10 @@ class _IngresoListaEsperaQrScannerPageState
         _modalAbierto = true;
       });
 
-      final accion = await showModalBottomSheet<_IngresoAccion>(
+      final accion = await showDialog<IngresoAccion>(
         context: context,
-        backgroundColor: const Color(0xFF8D2628),
-        builder:
-            (_) => SafeArea(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 16, 16, 20),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    const Text(
-                      'QR de entrada validado',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w700,
-                        fontSize: 18,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    FilledButton(
-                      onPressed: () {
-                        Navigator.of(context).pop(_IngresoAccion.listaEspera);
-                      },
-                      child: const Text('Anotarme en lista de espera'),
-                    ),
-                    const SizedBox(height: 8),
-                    FilledButton.tonal(
-                      onPressed: () {
-                        Navigator.of(context).pop(_IngresoAccion.verEncuestas);
-                      },
-                      child: const Text('Ver resultados de encuestas'),
-                    ),
-                    const SizedBox(height: 8),
-                    OutlinedButton(
-                      onPressed: () {
-                        Navigator.of(context).pop(_IngresoAccion.cancelar);
-                      },
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: Colors.white,
-                        side: const BorderSide(color: Colors.white70),
-                      ),
-                      child: const Text('Cancelar'),
-                    ),
-                  ],
-                ),
-              ),
-            ),
+        barrierColor: Colors.black.withValues(alpha: 0.6),
+        builder: (_) => const QrSuccessDialog(),
       );
 
       if (!mounted) return;
@@ -107,7 +65,7 @@ class _IngresoListaEsperaQrScannerPageState
         _modalAbierto = false;
       });
 
-      if (accion == _IngresoAccion.listaEspera) {
+      if (accion == IngresoAccion.listaEspera) {
         setState(() => _procesando = true);
         await _repo.solicitarMesaClienteActual();
         if (!mounted) return;
@@ -115,7 +73,7 @@ class _IngresoListaEsperaQrScannerPageState
         return;
       }
 
-      if (accion == _IngresoAccion.verEncuestas) {
+      if (accion == IngresoAccion.verEncuestas) {
         await Navigator.of(context).push(
           MaterialPageRoute(builder: (_) => const ResultadosEncuestasPage()),
         );
@@ -147,24 +105,33 @@ class _IngresoListaEsperaQrScannerPageState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Escanear QR de entrada')),
+      appBar: AppBar(
+        backgroundColor: _colorPrimario,
+        foregroundColor: Colors.white,
+        title: const Text(
+          'Escanear QR de entrada',
+          style: TextStyle(fontWeight: FontWeight.w700),
+        ),
+        elevation: 0,
+      ),
       body: Stack(
         children: [
           MobileScanner(controller: _controller, onDetect: _onDetect),
+          // Overlay hint en la parte inferior
           Positioned(
             left: 16,
             right: 16,
             bottom: 20,
             child: Container(
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               decoration: BoxDecoration(
                 color: Colors.black.withValues(alpha: 0.62),
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(14),
               ),
               child: const Text(
-                'Escaneá el QR de entrada para anotarte en lista de espera o ver encuestas previas.',
+                'Apuntá la cámara al QR de entrada del local',
                 textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.white),
+                style: TextStyle(color: Colors.white, fontSize: 14),
               ),
             ),
           ),
@@ -180,4 +147,5 @@ class _IngresoListaEsperaQrScannerPageState
   }
 }
 
-enum _IngresoAccion { listaEspera, verEncuestas, cancelar }
+
+
