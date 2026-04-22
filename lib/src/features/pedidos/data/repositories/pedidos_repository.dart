@@ -1,4 +1,5 @@
 import 'package:all_food/src/features/carta/data/models/producto_model.dart';
+import 'package:all_food/src/features/chat/data/services/chat-service.dart';
 import 'package:all_food/src/features/pedidos/data/services/pedidos_service.dart';
 import 'package:all_food/src/shared/errors/app_exception.dart';
 import 'package:all_food/src/shared/services/notificaciones_service.dart';
@@ -15,6 +16,7 @@ class PedidosRepository {
 
   final PedidosService _service;
   final NotificacionesService _notificacionesService = NotificacionesService();
+  final ChatService _chatService = ChatService();
 
   static const List<int> propinasPermitidas = [0, 5, 10, 15, 20];
 
@@ -87,7 +89,7 @@ class PedidosRepository {
 
   Future<Map<String, dynamic>> getDetallePedido(
     String mesaId, {
-    bool incluirCerrado = false, 
+    bool incluirCerrado = false,
   }) async {
     final pedido =
         incluirCerrado
@@ -457,6 +459,8 @@ class PedidosRepository {
       pedidoId: pedidoId,
       payload: {'estado': 'cerrado'},
     );
+
+    await _chatService.cerrarConsultaPorMesa(mesaId);
     await _service.liberarMesa(mesaId);
 
     final pedido = await _service.getPedidoById(pedidoId);

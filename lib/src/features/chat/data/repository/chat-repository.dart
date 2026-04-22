@@ -1,8 +1,7 @@
 import 'package:all_food/src/features/chat/data/services/chat-service.dart';
 
 class ChatRepository {
-  ChatRepository({ChatService? service})
-      : _service = service ?? ChatService();
+  ChatRepository({ChatService? service}) : _service = service ?? ChatService();
 
   final ChatService _service;
 
@@ -12,20 +11,18 @@ class ChatRepository {
     required String mesaId,
     required String clienteId,
   }) {
-    return _service.obtenerOCrearConsulta(
-      mesaId: mesaId,
-      clienteId: clienteId,
-    );
+    return _service.obtenerOCrearConsulta(mesaId: mesaId, clienteId: clienteId);
+  }
+
+  Future<void> cerrarConsultaPorMesa(String mesaId) {
+    return _service.cerrarConsultaPorMesa(mesaId);
   }
 
   Future<void> enviarMensaje({
     required String consultaId,
     required String mensaje,
   }) {
-    return _service.enviarMensaje(
-      consultaId: consultaId,
-      mensaje: mensaje,
-    );
+    return _service.enviarMensaje(consultaId: consultaId, mensaje: mensaje);
   }
 
   Stream<List<Map<String, dynamic>>> mensajes(String consultaId) {

@@ -49,6 +49,14 @@ class ChatService {
     return await crearConsulta(mesaId: mesaId, clienteId: clienteId);
   }
 
+  Future<void> cerrarConsultaPorMesa(String mesaId) async {
+    await _client
+        .from('consultas_mozo')
+        .update({'estado': 'cerrada'})
+        .eq('mesa_id', mesaId)
+        .eq('estado', 'abierta');
+  }
+
   // ─────────────── MENSAJES ───────────────
 
   Future<void> enviarMensaje({
