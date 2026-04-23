@@ -121,7 +121,18 @@ class _HomePageState extends State<HomePage> {
     setState(() => _solicitandoMesa = false);
 
     if (resultado != IngresoQrResultado.listaEspera) return;
+    try {
+    final nombreCliente = [_nombre, _apellido]
+        .where((s) => s != null && s.isNotEmpty)
+        .join(' ');
 
+    await Supabase.instance.client.functions.invoke(
+      'notificar-cliente-espera',
+      body: {'clienteNombre': nombreCliente.isNotEmpty ? nombreCliente : 'Un cliente'},
+    );
+  } catch (_) {
+    
+  }
     _mostrarMensaje(
       'Solicitud enviada. Espera a que el metre te asigne una mesa.',
       esError: false,
