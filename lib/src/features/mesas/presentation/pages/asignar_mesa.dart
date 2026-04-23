@@ -1,6 +1,7 @@
 import 'package:all_food/src/features/mesas/data/repositories/mesas_repository.dart';
 import 'package:all_food/src/shared/widgets/logo_spinner.dart';
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class AsignarMesaPage extends StatefulWidget {
   const AsignarMesaPage({required this.supabaseReady, super.key});
@@ -115,6 +116,19 @@ class _AsignarMesaPageState extends State<AsignarMesaPage> {
         cliente: _clienteSeleccionado!,
         mesa: _mesaSeleccionada!,
       );
+
+      try {
+      await Supabase.instance.client.functions.invoke(
+        'notificar-mesa-asignada',
+        body: {
+          'clienteId': _clienteSeleccionado!['id'],
+          'numeroMesa': _mesaSeleccionada!['numero'],
+        },
+      );
+    } catch (_) {
+      // Si falla la notificación no bloqueamos el flujo
+    }
+
       _mostrarMensaje(
         'Mesa ${_mesaSeleccionada!['numero']} asignada a '
         '${_clienteSeleccionado!['nombres']} correctamente.',
