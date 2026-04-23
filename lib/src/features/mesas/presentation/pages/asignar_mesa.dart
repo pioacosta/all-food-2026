@@ -125,9 +125,7 @@ class _AsignarMesaPageState extends State<AsignarMesaPage> {
           'numeroMesa': _mesaSeleccionada!['numero'],
         },
       );
-    } catch (_) {
-      // Si falla la notificación no bloqueamos el flujo
-    }
+    } catch (_) {}
 
       _mostrarMensaje(
         'Mesa ${_mesaSeleccionada!['numero']} asignada a '

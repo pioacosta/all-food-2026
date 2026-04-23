@@ -2,6 +2,7 @@ import 'package:all_food/src/features/home/presentation/widgets/staff_welcome_ca
 import 'package:all_food/src/features/mesas/data/repositories/mesas_repository.dart';
 import 'package:all_food/src/features/mesas/presentation/pages/ingreso_lista_espera_qr_scanner_page.dart';
 import 'package:all_food/src/features/mesas/presentation/pages/mesa_qr_scanner_page.dart';
+import 'package:all_food/src/shared/services/notificacion__service.dart';
 import 'package:flutter/material.dart';
 import 'package:all_food/src/features/home/data/repositories/home_repository.dart';
 import 'package:all_food/src/shared/errors/app_error_mapper.dart';
@@ -41,7 +42,7 @@ class _HomePageState extends State<HomePage> {
     _cargarPerfil();
   }
 
-  Future<void> _cargarPerfil() async {
+    Future<void> _cargarPerfil() async {
     if (!widget.supabaseReady) {
       setState(() {
         _perfil = null;
@@ -60,6 +61,9 @@ class _HomePageState extends State<HomePage> {
         _email = profileData?['email'] as String?;
         _cargandoPerfil = false;
       });
+
+      // 🔔 Inicializar notificaciones cuando ya hay sesión activa
+      NotificationService().init();
 
       _iniciarEscuchaNotificaciones();
 
@@ -174,7 +178,7 @@ class _HomePageState extends State<HomePage> {
       if (mounted) setState(() => _cerrandoSesion = false);
     }
   }
-
+  
   void _iniciarEscuchaNotificaciones() {
     if (!widget.supabaseReady) return;
 

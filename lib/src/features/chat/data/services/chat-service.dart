@@ -59,22 +59,60 @@ class ChatService {
 
   // ─────────────── MENSAJES ───────────────
 
-  Future<void> enviarMensaje({
-    required String consultaId,
-    required String mensaje,
-  }) async {
-    final userId = currentUserId;
+Future<void> enviarMensaje({
+  required String consultaId,
+  required String mensaje,
+}) async {
+  final userId = currentUserId;
+  if (userId == null) throw Exception('Usuario no autenticado');
 
-    if (userId == null) {
-      throw Exception('Usuario no autenticado');
+  await _client.from('mensajes_consulta').insert({
+    'consulta_id': consultaId,
+    'emisor_id': userId,
+    'mensaje': mensaje,
+  });
+
+  // Obtener perfil del emisor y datos de la consulta
+  try {
+    final perfilData = await _client
+        .from('perfiles')
+        .select('perfil, nombres')
+        .eq('id', userId)
+        .single();
+
+    final consultaData = await _client
+        .from('consultas_mozo')
+        .select('cliente_id')
+        .eq('id', consultaId)
+        .single();
+
+    final perfil = perfilData['perfil'] as String?;
+    final nombres = perfilData['nombres'] as String? ?? 'Usuario';
+
+    if (perfil == 'cliente_registrado' || perfil == 'cliente_anonimo') {
+      // Cliente envía → notificar a todos los mozos
+      await _client.functions.invoke(
+        'notificar-consulta-cliente',
+        body: {
+          'clienteNombre': nombres,
+          'mensaje': mensaje,
+        },
+      );
+    } else if (perfil == 'mozo') {
+      // Mozo responde → notificar al cliente
+      await _client.functions.invoke(
+        'notificar-respuesta-mozo',
+        body: {
+          'clienteId': consultaData['cliente_id'],
+          'mozoNombre': nombres,
+          'mensaje': mensaje,
+        },
+      );
     }
-
-    await _client.from('mensajes_consulta').insert({
-      'consulta_id': consultaId,
-      'emisor_id': userId,
-      'mensaje': mensaje,
-    });
+  } catch (_) {
+    // Si falla la notificación no bloqueamos el chat
   }
+}
 
   Stream<List<Map<String, dynamic>>> escucharMensajes(String consultaId) {
     // 1. Escuchamos los cambios en la tabla de mensajes
