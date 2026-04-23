@@ -1,5 +1,6 @@
 import 'package:all_food/src/features/clientes/data/repository/cliente_repository.dart';
 import 'package:all_food/src/shared/widgets/logo_spinner.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 class ClientesPendientesPage extends StatefulWidget {
@@ -358,18 +359,27 @@ class _ClienteSwipeCardState extends State<_ClienteSwipeCard>
                           CircleAvatar(
                             radius: 80,
                             backgroundColor: const Color(0xFF3D272C),
-                            backgroundImage:
-                                widget.cliente['foto_url'] != null
-                                    ? NetworkImage(widget.cliente['foto_url'])
-                                    : null,
-                            child:
-                                widget.cliente['foto_url'] == null
-                                    ? Icon(
-                                      Icons.person,
-                                      size: 52,
-                                      color: const Color(0xFFE8CACC),
-                                    )
-                                    : null,
+                            child: ClipOval(
+                              child:
+                                  widget.cliente['foto_url'] != null
+                                      ? CachedNetworkImage(
+                                        imageUrl: widget.cliente['foto_url'],
+                                        width: 160,
+                                        height: 160,
+                                        fit: BoxFit.cover,
+                                        placeholder:
+                                            (context, url) =>
+                                                const LogoSpinner(size: 30, strokeWidth: 1),
+                                        errorWidget:
+                                            (context, url, error) =>
+                                                const Icon(Icons.error),
+                                      )
+                                      : Icon(
+                                        Icons.person,
+                                        size: 52,
+                                        color: const Color(0xFFE8CACC),
+                                      ),
+                            ),
                           ),
                           const SizedBox(height: 20),
                           Text(

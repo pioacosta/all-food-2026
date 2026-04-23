@@ -6,6 +6,7 @@ import 'package:all_food/src/features/carta/presentation/widgets/foto_visor_dial
 import 'package:all_food/src/features/pedidos/data/repositories/pedidos_repository.dart';
 import 'package:all_food/src/shared/errors/app_error_mapper.dart';
 import 'package:all_food/src/shared/widgets/logo_spinner.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -71,10 +72,12 @@ class _CartaClientePageState extends State<CartaClientePage> {
   @override
   void initState() {
     super.initState();
+
     final initial = widget.initialCategoria;
     if (initial == 'plato' || initial == 'bebida') {
       _categoria = initial!;
     }
+
     _cargar();
   }
 
@@ -785,6 +788,21 @@ class _ProductoClienteCardState extends State<_ProductoClienteCard> {
   int _cantidad = 1;
 
   @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final fotos = widget.producto.fotos;
+
+      for (var url in fotos) {
+        if (url.isNotEmpty) {
+          precacheImage(CachedNetworkImageProvider(url), context);
+        }
+      }
+    });
+  }
+
+  @override
   void dispose() {
     _fotoController.dispose();
     _cantidadController.dispose();
@@ -836,38 +854,43 @@ class _ProductoClienteCardState extends State<_ProductoClienteCard> {
                 height: 280,
                 child: Stack(
                   children: [
-                    PageView.builder(
+                    PageView(
                       controller: _fotoController,
-                      itemCount: p.fotos.length,
                       onPageChanged: (i) => setState(() => _fotoActual = i),
-                      itemBuilder:
-                          (_, i) => GestureDetector(
-                            onTap: () => _abrirVisorFoto(context, i),
-                            child: Image.network(
-                              p.fotos[i],
-                              fit: BoxFit.cover,
-                              width: double.infinity,
-                              loadingBuilder:
-                                  (_, child, progress) =>
-                                      progress == null
-                                          ? child
-                                          : const Center(
-                                            child: CircularProgressIndicator(
-                                              color: Color(0xFF7A2021),
-                                            ),
-                                          ),
-                              errorBuilder:
-                                  (_, __, ___) => Container(
-                                    color: const Color(0xFFF0F0F0),
-                                    alignment: Alignment.center,
-                                    child: const Icon(
-                                      Icons.broken_image,
-                                      color: Color(0xFF8A8A8A),
-                                      size: 48,
-                                    ),
+                      children:
+                          p.fotos.map((url) {
+                            return GestureDetector(
+                              onTap:
+                                  () => _abrirVisorFoto(
+                                    context,
+                                    p.fotos.indexOf(url),
                                   ),
-                            ),
-                          ),
+                              child: CachedNetworkImage(
+                                imageUrl: url,
+                                fit: BoxFit.cover,
+                                width: double.infinity,
+
+                                placeholder:
+                                    (context, url) => const Center(
+                                      child: LogoSpinner(
+                                        size: 40,
+                                        color: Color(0xFF3D1F1F),
+                                      ),
+                                    ),
+
+                                errorWidget:
+                                    (context, url, error) => Container(
+                                      color: const Color(0xFFF0F0F0),
+                                      alignment: Alignment.center,
+                                      child: const Icon(
+                                        Icons.broken_image,
+                                        color: Color(0xFF8A8A8A),
+                                        size: 48,
+                                      ),
+                                    ),
+                              ),
+                            );
+                          }).toList(),
                     ),
 
                     // Indicadores de puntos

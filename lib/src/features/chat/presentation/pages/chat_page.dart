@@ -161,7 +161,7 @@ class _ChatPageState extends State<ChatPage> {
                                     child: LogoSpinner(
                                       size: 88,
                                       strokeWidth: 5,
-                                      color: Color(0xFF9E2325),
+                                      color: Color(0xFFFFFFFF),
                                     ),
                                   );
                                 }

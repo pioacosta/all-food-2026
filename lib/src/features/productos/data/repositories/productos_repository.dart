@@ -1,5 +1,6 @@
 import 'package:all_food/src/features/productos/data/services/productos_service.dart';
 import 'package:all_food/src/shared/errors/app_exception.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:image_picker/image_picker.dart';
 
 /// Excepción de dominio para flujos de productos.
@@ -10,7 +11,7 @@ class ProductosFlowException extends AppException {
 /// Coordina upload de imágenes y persistencia de productos.
 class ProductosRepository {
   ProductosRepository({ProductosService? service})
-      : _service = service ?? ProductosService();
+    : _service = service ?? ProductosService();
 
   final ProductosService _service;
 
@@ -20,8 +21,18 @@ class ProductosRepository {
     required String fileName,
   }) async {
     final bytes = await image.readAsBytes();
+
+    // Comprimir antes de subir
+    final compressedBytes = await FlutterImageCompress.compressWithList(
+      bytes,
+      quality: 70,
+      format: CompressFormat.jpeg,
+      minWidth: 800,
+      minHeight: 800,
+    );
+
     final path = 'productos/$fileName';
-    await _service.uploadProductImage(path: path, bytes: bytes);
+    await _service.uploadProductImage(path: path, bytes: compressedBytes);
     return _service.getProductImagePublicUrl(path);
   }
 
@@ -84,9 +95,7 @@ class ProductosRepository {
     final userId = _service.currentUserId;
 
     if (userId == null) {
-      throw const ProductosFlowException(
-        'No hay un usuario autenticado.',
-      );
+      throw const ProductosFlowException('No hay un usuario autenticado.');
     }
 
     return userId;
