@@ -282,32 +282,44 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
   }
 
   // Envía el pedido para validación del mozo.
-  Future<void> _enviarPedido() async {
-    final pedido = _pedido;
-    if (pedido == null) return;
+Future<void> _enviarPedido() async {
+  final pedido = _pedido;
+  if (pedido == null) return;
 
-    setState(() => _procesando = true);
+  setState(() => _procesando = true);
+  try {
+    await _repo.enviarPedidoAMozo(pedido['id'] as String);
+    if (!mounted) return;
+
+    
     try {
-      await _repo.enviarPedidoAMozo(pedido['id'] as String);
-      if (!mounted) return;
-      _mostrarMensaje(
-        'Pedido enviado al mozo para confirmación.',
-        esError: false,
+      await Supabase.instance.client.functions.invoke(
+        'notificar-pedido-cliente',
+        body: {
+          'numeroMesa': widget.numeroMesa,
+          'pedidoId': pedido['id'],
+        },
       );
-      await _cargar();
-    } catch (error) {
-      if (!mounted) return;
-      _mostrarMensaje(
-        AppErrorMapper.toUserMessage(
-          error,
-          fallbackMessage: 'No se pudo enviar el pedido.',
-        ),
-        esError: true,
-      );
-    } finally {
-      if (mounted) setState(() => _procesando = false);
-    }
+    } catch (_) {}
+
+    _mostrarMensaje(
+      'Pedido enviado al mozo para confirmación.',
+      esError: false,
+    );
+    await _cargar();
+  } catch (error) {
+    if (!mounted) return;
+    _mostrarMensaje(
+      AppErrorMapper.toUserMessage(
+        error,
+        fallbackMessage: 'No se pudo enviar el pedido.',
+      ),
+      esError: true,
+    );
+  } finally {
+    if (mounted) setState(() => _procesando = false);
   }
+}
 
   // Cliente confirma recepción luego de entrega del mozo.
   Future<void> _confirmarRecepcion() async {
@@ -335,95 +347,119 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
   }
 
   // Cliente solicita cuenta al mozo (paso previo al pago simulado).
-  Future<void> _solicitarCuenta() async {
-    final pedido = _pedido;
-    if (pedido == null) return;
+Future<void> _solicitarCuenta() async {
+  final pedido = _pedido;
+  if (pedido == null) return;
 
-    setState(() => _procesando = true);
+  setState(() => _procesando = true);
+  try {
+    await _repo.solicitarCuenta(pedido['id'] as String);
+
+    //  Notificar al mozo
     try {
-      await _repo.solicitarCuenta(pedido['id'] as String);
-      if (!mounted) return;
-      _mostrarMensaje('Cuenta solicitada al mozo.', esError: false);
-      await _cargar();
-    } catch (error) {
-      if (!mounted) return;
-      _mostrarMensaje(
-        AppErrorMapper.toUserMessage(
-          error,
-          fallbackMessage: 'No se pudo solicitar la cuenta.',
-        ),
-        esError: true,
+      await Supabase.instance.client.functions.invoke(
+        'notificar-sector',
+        body: {
+          'sector': 'mozo',
+          'numeroMesa': widget.numeroMesa.toString(),
+          'mensaje': '🧾 La mesa ${widget.numeroMesa} solicita la cuenta',
+        },
       );
-    } finally {
-      if (mounted) setState(() => _procesando = false);
-    }
+    } catch (_) {}
+
+    if (!mounted) return;
+    _mostrarMensaje('Cuenta solicitada al mozo.', esError: false);
+    await _cargar();
+  } catch (error) {
+    if (!mounted) return;
+    _mostrarMensaje(
+      AppErrorMapper.toUserMessage(
+        error,
+        fallbackMessage: 'No se pudo solicitar la cuenta.',
+      ),
+      esError: true,
+    );
+  } finally {
+    if (mounted) setState(() => _procesando = false);
   }
+}
 
   // Simula escaneo de QR de propina con opciones cerradas por consigna.
-  Future<void> _simularPagoConPropina() async {
-    final pedido = _pedido;
-    if (pedido == null) return;
+Future<void> _simularPagoConPropina() async {
+  final pedido = _pedido;
+  if (pedido == null) return;
 
-    final seleccion = await showModalBottomSheet<int>(
-      context: context,
-      backgroundColor: const Color(0xFF8D2628),
-      builder:
-          (context) => SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 20),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  const Text(
-                    'QR de propina (simulado)',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w700,
-                      fontSize: 18,
-                    ),
+  final seleccion = await showModalBottomSheet<int>(
+    context: context,
+    backgroundColor: const Color(0xFF8D2628),
+    builder:
+        (context) => SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const Text(
+                  'QR de propina (simulado)',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w700,
+                    fontSize: 18,
                   ),
-                  const SizedBox(height: 10),
-                  _propinaTile(context, 20, 'Excelente'),
-                  _propinaTile(context, 15, 'Muy bueno'),
-                  _propinaTile(context, 10, 'Bueno'),
-                  _propinaTile(context, 5, 'Regular'),
-                  _propinaTile(context, 0, 'Malo'),
-                ],
-              ),
+                ),
+                const SizedBox(height: 10),
+                _propinaTile(context, 20, 'Excelente'),
+                _propinaTile(context, 15, 'Muy bueno'),
+                _propinaTile(context, 10, 'Bueno'),
+                _propinaTile(context, 5, 'Regular'),
+                _propinaTile(context, 0, 'Malo'),
+              ],
             ),
           ),
-    );
-
-    if (seleccion == null) return;
-
-    setState(() => _procesando = true);
-    try {
-      final resumen = await _repo.prepararPagoConPropina(
-        pedidoId: pedido['id'] as String,
-        propinaPorcentaje: seleccion,
-      );
-      if (!mounted) return;
-      _mostrarMensaje(
-        'Pago simulado enviado. Total: \$${(resumen['total'] as num).toStringAsFixed(2)}',
-        esError: false,
-      );
-      await _cargar();
-    } catch (error) {
-      if (!mounted) return;
-      _mostrarMensaje(
-        AppErrorMapper.toUserMessage(
-          error,
-          fallbackMessage: 'No se pudo registrar el pago simulado.',
         ),
-        esError: true,
-      );
-    } finally {
-      if (mounted) setState(() => _procesando = false);
-    }
-  }
+  );
 
+  if (seleccion == null) return;
+
+  setState(() => _procesando = true);
+  try {
+    final resumen = await _repo.prepararPagoConPropina(
+      pedidoId: pedido['id'] as String,
+      propinaPorcentaje: seleccion,
+    );
+    if (!mounted) return;
+
+    // Notificar al mozo, dueño y supervisor
+    try {
+      await Supabase.instance.client.functions.invoke(
+        'notificar-pago-cliente',
+        body: {
+          'numeroMesa': widget.numeroMesa,
+          'total': resumen['total'],
+        },
+      );
+    } catch (_) {}
+
+    _mostrarMensaje(
+      'Pago simulado enviado. Total: \$${(resumen['total'] as num).toStringAsFixed(2)}',
+      esError: false,
+    );
+    await _cargar();
+  } catch (error) {
+    if (!mounted) return;
+    _mostrarMensaje(
+      AppErrorMapper.toUserMessage(
+        error,
+        fallbackMessage: 'No se pudo registrar el pago simulado.',
+      ),
+      esError: true,
+    );
+  } finally {
+    if (mounted) setState(() => _procesando = false);
+  }
+}
   // Muestra desglose completo de cuenta: ítems, descuento, propina y total.
   Future<void> _mostrarDetalleCuenta() async {
     setState(() => _procesando = true);
