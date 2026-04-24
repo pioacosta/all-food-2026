@@ -70,15 +70,13 @@ Future<void> _marcarListo(Map<String, dynamic> item) async {
       // Buscar todos los items del pedido y su estado
       final todosItems = await Supabase.instance.client
           .from('pedido_items')
-          .select('estado')
+          .select('estado, id')
           .eq('pedido_id', pedidoId);
-
       final todosListos = todosItems.every(
-        (i) => i['estado']?.toString() == 'listo',
+        (i) => i['estado']?.toString() == 'listo' || i['id'] == item['id'],
       );
 
       if (todosListos) {
-        // Notificar al mozo que el pedido completo está listo
         await Supabase.instance.client.functions.invoke(
           'notificar-sector',
           body: {
