@@ -280,77 +280,86 @@ Future<void> _confirmarPedido(String pedidoId) async {
   }
 
   // Confirma pago final y libera la mesa para reutilización.
-  Future<void> _confirmarPago(Map<String, dynamic> pedido) async {
-    final mesa = pedido['mesas'] as Map<String, dynamic>?;
-    final numeroMesa = mesa?['numero']?.toString() ?? '-';
+Future<void> _confirmarPago(Map<String, dynamic> pedido) async {
+  final mesa = pedido['mesas'] as Map<String, dynamic>?;
+  final numeroMesa = mesa?['numero']?.toString() ?? '-';
 
-    final confirmar = await showDialog<bool>(
-      context: context,
-      builder:
-          (_) => AlertDialog(
-            backgroundColor: const Color(0xFFF7ECEC),
-            surfaceTintColor: Colors.transparent,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(22),
-            ),
-            title: const Text(
-              'Confirmar pago',
-              style: TextStyle(
-                color: Color(0xFF2A1414),
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-            content: Text(
-              '¿Confirmar pago de la mesa $numeroMesa y liberar la mesa?',
-              style: const TextStyle(color: Color(0xFF3A2222), height: 1.35),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(false),
-                style: TextButton.styleFrom(
-                  foregroundColor: const Color(0xFF7A2021),
-                ),
-                child: const Text(
-                  'Cancelar',
-                  style: TextStyle(fontWeight: FontWeight.w700),
-                ),
-              ),
-              FilledButton(
-                onPressed: () => Navigator.of(context).pop(true),
-                style: FilledButton.styleFrom(
-                  backgroundColor: const Color(0xFF2D6A4F),
-                  foregroundColor: Colors.white,
-                ),
-                child: const Text('Confirmar'),
-              ),
-            ],
+  final confirmar = await showDialog<bool>(
+    context: context,
+    builder:
+        (_) => AlertDialog(
+          backgroundColor: const Color(0xFFF7ECEC),
+          surfaceTintColor: Colors.transparent,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(22),
           ),
+          title: const Text(
+            'Confirmar pago',
+            style: TextStyle(
+              color: Color(0xFF2A1414),
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          content: Text(
+            '¿Confirmar pago de la mesa $numeroMesa y liberar la mesa?',
+            style: const TextStyle(color: Color(0xFF3A2222), height: 1.35),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              style: TextButton.styleFrom(
+                foregroundColor: const Color(0xFF7A2021),
+              ),
+              child: const Text(
+                'Cancelar',
+                style: TextStyle(fontWeight: FontWeight.w700),
+              ),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              style: FilledButton.styleFrom(
+                backgroundColor: const Color(0xFF2D6A4F),
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('Confirmar'),
+            ),
+          ],
+        ),
+  );
+
+  if (confirmar != true) return;
+
+  setState(() => _procesando = true);
+  try {
+    await _repo.confirmarPagoMozo(
+      pedidoId: pedido['id'] as String,
+      mesaId: pedido['mesa_id'] as String,
     );
 
-    if (confirmar != true) return;
-
-    setState(() => _procesando = true);
+    // 🔔 Notificar al dueño y supervisor
     try {
-      await _repo.confirmarPagoMozo(
-        pedidoId: pedido['id'] as String,
-        mesaId: pedido['mesa_id'] as String,
+      await Supabase.instance.client.functions.invoke(
+        'notificar-pago-confirmado',
+        body: {'numeroMesa': numeroMesa},
       );
-      await _cargar();
-      if (!mounted) return;
-      _mostrarMensaje('Pago confirmado y mesa liberada.', esError: false);
-    } catch (error) {
-      if (!mounted) return;
-      _mostrarMensaje(
-        AppErrorMapper.toUserMessage(
-          error,
-          fallbackMessage: 'No se pudo confirmar pago.',
-        ),
-        esError: true,
-      );
-    } finally {
-      if (mounted) setState(() => _procesando = false);
-    }
+    } catch (_) {}
+
+    await _cargar();
+    if (!mounted) return;
+    _mostrarMensaje('Pago confirmado y mesa liberada.', esError: false);
+  } catch (error) {
+    if (!mounted) return;
+    _mostrarMensaje(
+      AppErrorMapper.toUserMessage(
+        error,
+        fallbackMessage: 'No se pudo confirmar pago.',
+      ),
+      esError: true,
+    );
+  } finally {
+    if (mounted) setState(() => _procesando = false);
   }
+}
 
   // Modal de control para validar importes antes de cerrar cobro.
   Future<void> _mostrarDetalleCuenta(Map<String, dynamic> pedido) async {
