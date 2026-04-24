@@ -112,102 +112,150 @@ class _PedidosMozoPageState extends State<PedidosMozoPage> {
   }
 
   // Confirmación inicial del mozo para derivar pedido a sectores.
-  Future<void> _confirmarPedido(String pedidoId) async {
-    setState(() => _procesando = true);
+Future<void> _confirmarPedido(String pedidoId) async {
+  setState(() => _procesando = true);
+  try {
+    await _repo.confirmarPedido(pedidoId);
+
+    //  Notificar a cocina y/o bar según los items
     try {
-      await _repo.confirmarPedido(pedidoId);
-      await _cargar();
-      if (!mounted) return;
-      _mostrarMensaje(
-        'Pedido confirmado y enviado a sectores.',
-        esError: false,
-      );
-    } catch (error) {
-      if (!mounted) return;
-      _mostrarMensaje(
-        AppErrorMapper.toUserMessage(
-          error,
-          fallbackMessage: 'No se pudo confirmar.',
-        ),
-        esError: true,
-      );
-    } finally {
-      if (mounted) setState(() => _procesando = false);
-    }
+      final items = await _repo.getItemsPedidoById(pedidoId);
+
+      final tieneComida = items.any((item) =>
+          item['tipo_producto']?.toString() == 'plato');
+      final tieneBebida = items.any((item) =>
+          item['tipo_producto']?.toString() == 'bebida');
+
+      final pedidoData = await Supabase.instance.client
+          .from('pedidos')
+          .select('mesas(numero)')
+          .eq('id', pedidoId)
+          .single();
+
+      final numeroMesa = pedidoData['mesas']?['numero']?.toString() ?? '-';
+
+      if (tieneComida) {
+        await Supabase.instance.client.functions.invoke(
+          'notificar-sector',
+          body: {
+            'sector': 'cocinero',
+            'numeroMesa': numeroMesa,
+            'mensaje': '🍽️ Nuevo pedido de cocina - Mesa $numeroMesa',
+          },
+        );
+      }
+
+      if (tieneBebida) {
+        await Supabase.instance.client.functions.invoke(
+          'notificar-sector',
+          body: {
+            'sector': 'cantinero',
+            'numeroMesa': numeroMesa,
+            'mensaje': '🍹 Nuevo pedido de bar - Mesa $numeroMesa',
+          },
+        );
+      }
+    } catch (_) {}
+
+    await _cargar();
+    if (!mounted) return;
+    _mostrarMensaje('Pedido confirmado y enviado a sectores.', esError: false);
+  } catch (error) {
+    if (!mounted) return;
+    _mostrarMensaje(
+      AppErrorMapper.toUserMessage(error, fallbackMessage: 'No se pudo confirmar.'),
+      esError: true,
+    );
+  } finally {
+    if (mounted) setState(() => _procesando = false);
   }
+}
 
   // Rechaza pedido y devuelve al cliente para corrección.
   Future<void> _rechazarPedido(String pedidoId) async {
-    final motivoController = TextEditingController();
-    final confirmar = await showDialog<bool>(
-      context: context,
-      builder:
-          (_) => AlertDialog(
-            backgroundColor: const Color(0xFFF7ECEC),
-            surfaceTintColor: Colors.transparent,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(22),
-            ),
-            title: const Text('Rechazar pedido'),
-            content: TextField(
-              controller: motivoController,
-              maxLines: 3,
-              decoration: const InputDecoration(
-                labelText: 'Motivo del rechazo',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(false),
-                style: TextButton.styleFrom(
-                  foregroundColor: const Color(0xFF7A2021),
-                ),
-                child: const Text(
-                  'Cancelar',
-                  style: TextStyle(fontWeight: FontWeight.w700),
-                ),
-              ),
-              FilledButton(
-                onPressed: () => Navigator.of(context).pop(true),
-                style: FilledButton.styleFrom(
-                  backgroundColor: const Color(0xFFB62F2F),
-                  foregroundColor: Colors.white,
-                ),
-                child: const Text('Rechazar'),
-              ),
-            ],
+  final motivoController = TextEditingController();
+  final confirmar = await showDialog<bool>(
+    context: context,
+    builder: (_) => AlertDialog(
+      backgroundColor: const Color(0xFFF7ECEC),
+      surfaceTintColor: Colors.transparent,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
+      title: const Text('Rechazar pedido'),
+      content: TextField(
+        controller: motivoController,
+        maxLines: 3,
+        decoration: const InputDecoration(
+          labelText: 'Motivo del rechazo',
+          border: OutlineInputBorder(),
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(false),
+          style: TextButton.styleFrom(foregroundColor: const Color(0xFF7A2021)),
+          child: const Text('Cancelar', style: TextStyle(fontWeight: FontWeight.w700)),
+        ),
+        FilledButton(
+          onPressed: () => Navigator.of(context).pop(true),
+          style: FilledButton.styleFrom(
+            backgroundColor: const Color(0xFFB62F2F),
+            foregroundColor: Colors.white,
           ),
+          child: const Text('Rechazar'),
+        ),
+      ],
+    ),
+  );
+
+  if (confirmar != true) return;
+
+  setState(() => _procesando = true);
+  try {
+    await _repo.rechazarPedido(
+      pedidoId: pedidoId,
+      motivo: motivoController.text,
     );
 
-    if (confirmar != true) return;
-
-    setState(() => _procesando = true);
+    // Notificar al cliente que su pedido fue rechazado
     try {
-      await _repo.rechazarPedido(
-        pedidoId: pedidoId,
-        motivo: motivoController.text,
-      );
-      await _cargar();
-      if (!mounted) return;
-      _mostrarMensaje(
-        'Pedido rechazado para modificación del cliente.',
-        esError: false,
-      );
-    } catch (error) {
-      if (!mounted) return;
-      _mostrarMensaje(
-        AppErrorMapper.toUserMessage(
-          error,
-          fallbackMessage: 'No se pudo rechazar.',
-        ),
-        esError: true,
-      );
-    } finally {
-      motivoController.dispose();
-      if (mounted) setState(() => _procesando = false);
-    }
+      // Buscar el cliente_id del pedido
+      final pedidoData = await Supabase.instance.client
+          .from('pedidos')
+          .select('cliente_id, mesas(numero)')
+          .eq('id', pedidoId)
+          .single();
+
+      final clienteId = pedidoData['cliente_id'] as String?;
+      final numeroMesa = pedidoData['mesas']?['numero']?.toString() ?? '-';
+
+      if (clienteId != null) {
+        await Supabase.instance.client.functions.invoke(
+          'notificar-pedido-rechazado',
+          body: {
+            'clienteId': clienteId,
+            'numeroMesa': numeroMesa,
+            'motivo': motivoController.text.isNotEmpty
+                ? motivoController.text
+                : 'Sin motivo especificado',
+          },
+        );
+      }
+    } catch (_) {}
+
+    await _cargar();
+    if (!mounted) return;
+    _mostrarMensaje('Pedido rechazado para modificación del cliente.', esError: false);
+  } catch (error) {
+    if (!mounted) return;
+    _mostrarMensaje(
+      AppErrorMapper.toUserMessage(error, fallbackMessage: 'No se pudo rechazar.'),
+      esError: true,
+    );
+  } finally {
+    motivoController.dispose();
+    if (mounted) setState(() => _procesando = false);
   }
+}
 
   // Marca pedido completo como entregado al cliente.
   Future<void> _marcarEntregado(Map<String, dynamic> pedido) async {

@@ -282,32 +282,44 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
   }
 
   // Envía el pedido para validación del mozo.
-  Future<void> _enviarPedido() async {
-    final pedido = _pedido;
-    if (pedido == null) return;
+Future<void> _enviarPedido() async {
+  final pedido = _pedido;
+  if (pedido == null) return;
 
-    setState(() => _procesando = true);
+  setState(() => _procesando = true);
+  try {
+    await _repo.enviarPedidoAMozo(pedido['id'] as String);
+    if (!mounted) return;
+
+    
     try {
-      await _repo.enviarPedidoAMozo(pedido['id'] as String);
-      if (!mounted) return;
-      _mostrarMensaje(
-        'Pedido enviado al mozo para confirmación.',
-        esError: false,
+      await Supabase.instance.client.functions.invoke(
+        'notificar-pedido-cliente',
+        body: {
+          'numeroMesa': widget.numeroMesa,
+          'pedidoId': pedido['id'],
+        },
       );
-      await _cargar();
-    } catch (error) {
-      if (!mounted) return;
-      _mostrarMensaje(
-        AppErrorMapper.toUserMessage(
-          error,
-          fallbackMessage: 'No se pudo enviar el pedido.',
-        ),
-        esError: true,
-      );
-    } finally {
-      if (mounted) setState(() => _procesando = false);
-    }
+    } catch (_) {}
+
+    _mostrarMensaje(
+      'Pedido enviado al mozo para confirmación.',
+      esError: false,
+    );
+    await _cargar();
+  } catch (error) {
+    if (!mounted) return;
+    _mostrarMensaje(
+      AppErrorMapper.toUserMessage(
+        error,
+        fallbackMessage: 'No se pudo enviar el pedido.',
+      ),
+      esError: true,
+    );
+  } finally {
+    if (mounted) setState(() => _procesando = false);
   }
+}
 
   // Cliente confirma recepción luego de entrega del mozo.
   Future<void> _confirmarRecepcion() async {
@@ -335,29 +347,42 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
   }
 
   // Cliente solicita cuenta al mozo (paso previo al pago simulado).
-  Future<void> _solicitarCuenta() async {
-    final pedido = _pedido;
-    if (pedido == null) return;
+Future<void> _solicitarCuenta() async {
+  final pedido = _pedido;
+  if (pedido == null) return;
 
-    setState(() => _procesando = true);
+  setState(() => _procesando = true);
+  try {
+    await _repo.solicitarCuenta(pedido['id'] as String);
+
+    //  Notificar al mozo
     try {
-      await _repo.solicitarCuenta(pedido['id'] as String);
-      if (!mounted) return;
-      _mostrarMensaje('Cuenta solicitada al mozo.', esError: false);
-      await _cargar();
-    } catch (error) {
-      if (!mounted) return;
-      _mostrarMensaje(
-        AppErrorMapper.toUserMessage(
-          error,
-          fallbackMessage: 'No se pudo solicitar la cuenta.',
-        ),
-        esError: true,
+      await Supabase.instance.client.functions.invoke(
+        'notificar-sector',
+        body: {
+          'sector': 'mozo',
+          'numeroMesa': widget.numeroMesa.toString(),
+          'mensaje': '🧾 La mesa ${widget.numeroMesa} solicita la cuenta',
+        },
       );
-    } finally {
-      if (mounted) setState(() => _procesando = false);
-    }
+    } catch (_) {}
+
+    if (!mounted) return;
+    _mostrarMensaje('Cuenta solicitada al mozo.', esError: false);
+    await _cargar();
+  } catch (error) {
+    if (!mounted) return;
+    _mostrarMensaje(
+      AppErrorMapper.toUserMessage(
+        error,
+        fallbackMessage: 'No se pudo solicitar la cuenta.',
+      ),
+      esError: true,
+    );
+  } finally {
+    if (mounted) setState(() => _procesando = false);
   }
+}
 
   // Simula escaneo de QR de propina con opciones cerradas por consigna.
   Future<void> _simularPagoConPropina() async {
