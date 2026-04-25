@@ -45,7 +45,16 @@ flutter run
 
 Para anotarse en la lista de espera, el cliente debe escanear el QR de entrada.
 
-![QR de entrada](./assets/images/qrcode.png)
+![QR de entrada]<img src="./assets/images/qrcode.png" width="200"/>
+
+----
+## QR Mesas
+| Mesa | QR |
+|------|----|
+| Mesa 1 | <img src="./assets/images/qrMesas/qrMesa1.png" width=""/> |
+| Mesa 2 | <img src="./assets/images/qrMesas/qrMesa2.png" width=""/> |
+| Mesa 3 | <img src="./assets/images/qrMesas/qrMesa3.png" width=""/> |
+
 
 ## Lista de tareas realizadas
 
@@ -106,3 +115,20 @@ Para anotarse en la lista de espera, el cliente debe escanear el QR de entrada.
 5. Implementación de lógica para el envío automático de correos electrónicos al aceptar o rechazar una cuenta con perfil de dueño o supervisor. | Fecha de inicio de la tarea: 16/04/2026 | Fecha de finalización de la tarea: 16/04/2026
 
 6. Configuracion e implementacion de notificaciones push para el aviso a dueño o supervisor de un nuevo cliente registrado | Fecha de inicio de la tarea: 17/04/2026 | Fecha de finalización de la tarea: 20/04/2026
+
+7. Configuración e implementación de notificaciones push para todo el flujo de pedido | Fecha de inicio de la tarea: 17/04/2026 | Fecha de finalización de la tarea: 24/04/2026
+
+8. Se implementó la lectura de QR para seleccionar el porcentaje de propina al momento del pago. El cliente escanea el QR correspondiente a su nivel de satisfacción (Excelente 20%, Muy bueno 15%, Bueno 10%, Regular 5%, Malo 0%) y el monto se aplica automáticamente al total antes de confirmar el pago.Fecha de inicio de la tarea: 24/04/2026 | Fecha de finalización de la tarea: 25/04/2026
+
+---
+
+
+# Qr de propinas
+
+| Nivel       | Propina | QR |
+|------------|--------|----|
+| Excelente  | 20%    | <img src="./assets/images/qrPropina/20%25.png" width="250"/> |
+| Muy Bueno  | 15%    | <img src="./assets/images/qrPropina/15%25.png" width="250"/> |
+| Bueno      | 10%    | <img src="./assets/images/qrPropina/10%25.png" width="250"/> |
+| Regular    | 5%     | <img src="./assets/images/qrPropina/5%25.png" width="250"/> |
+| Malo       | 0%     | <img src="./assets/images/qrPropina/0%25.png" width="250"/> |

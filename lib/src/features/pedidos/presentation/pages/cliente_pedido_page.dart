@@ -10,6 +10,8 @@ import 'package:all_food/src/shared/widgets/logo_spinner.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import 'package:all_food/src/features/pedidos/presentation/pages/propina_qr_scanner_page.dart';
+
 class ClientePedidoPage extends StatefulWidget {
   const ClientePedidoPage({
     required this.mesaId,
@@ -388,41 +390,15 @@ Future<void> _solicitarCuenta() async {
 Future<void> _simularPagoConPropina() async {
   final pedido = _pedido;
   if (pedido == null) return;
-
-  final seleccion = await showModalBottomSheet<int>(
-    context: context,
-    backgroundColor: const Color(0xFF8D2628),
-    builder:
-        (context) => SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 20),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const Text(
-                  'QR de propina (simulado)',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w700,
-                    fontSize: 18,
-                  ),
-                ),
-                const SizedBox(height: 10),
-                _propinaTile(context, 20, 'Excelente'),
-                _propinaTile(context, 15, 'Muy bueno'),
-                _propinaTile(context, 10, 'Bueno'),
-                _propinaTile(context, 5, 'Regular'),
-                _propinaTile(context, 0, 'Malo'),
-              ],
-            ),
-          ),
-        ),
+ 
+  // Abre el scanner de QR de propina
+  final seleccion = await Navigator.of(context).push<int>(
+    MaterialPageRoute(builder: (_) => const PropinaScannerPage()),
   );
-
+ 
+  // Si el usuario cerró sin escanear, no hace nada
   if (seleccion == null) return;
-
+ 
   setState(() => _procesando = true);
   try {
     final resumen = await _repo.prepararPagoConPropina(
@@ -430,7 +406,7 @@ Future<void> _simularPagoConPropina() async {
       propinaPorcentaje: seleccion,
     );
     if (!mounted) return;
-
+ 
     // Notificar al mozo, dueño y supervisor
     try {
       await Supabase.instance.client.functions.invoke(
@@ -441,7 +417,7 @@ Future<void> _simularPagoConPropina() async {
         },
       );
     } catch (_) {}
-
+ 
     _mostrarMensaje(
       'Pago simulado enviado. Total: \$${(resumen['total'] as num).toStringAsFixed(2)}',
       esError: false,
