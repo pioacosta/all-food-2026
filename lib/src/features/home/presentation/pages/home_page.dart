@@ -8,7 +8,6 @@ import 'package:all_food/src/features/home/data/repositories/home_repository.dar
 import 'package:all_food/src/shared/errors/app_error_mapper.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../../shared/widgets/logo_spinner.dart';
-import '../../../auth/presentation/pages/login_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({required this.supabaseReady, super.key});
@@ -42,7 +41,7 @@ class _HomePageState extends State<HomePage> {
     _cargarPerfil();
   }
 
-    Future<void> _cargarPerfil() async {
+  Future<void> _cargarPerfil() async {
     if (!widget.supabaseReady) {
       setState(() {
         _perfil = null;
@@ -126,17 +125,19 @@ class _HomePageState extends State<HomePage> {
 
     if (resultado != IngresoQrResultado.listaEspera) return;
     try {
-    final nombreCliente = [_nombre, _apellido]
-        .where((s) => s != null && s.isNotEmpty)
-        .join(' ');
+      final nombreCliente = [
+        _nombre,
+        _apellido,
+      ].where((s) => s != null && s.isNotEmpty).join(' ');
 
-    await Supabase.instance.client.functions.invoke(
-      'notificar-cliente-espera',
-      body: {'clienteNombre': nombreCliente.isNotEmpty ? nombreCliente : 'Un cliente'},
-    );
-  } catch (_) {
-    
-  }
+      await Supabase.instance.client.functions.invoke(
+        'notificar-cliente-espera',
+        body: {
+          'clienteNombre':
+              nombreCliente.isNotEmpty ? nombreCliente : 'Un cliente',
+        },
+      );
+    } catch (_) {}
     _mostrarMensaje(
       'Solicitud enviada. Espera a que el metre te asigne una mesa.',
       esError: false,
@@ -150,21 +151,15 @@ class _HomePageState extends State<HomePage> {
 
     try {
       await _detenerEscuchaNotificaciones();
+      await Supabase.instance.client.removeAllChannels();
+
       if (widget.supabaseReady) {
         await _homeRepository.signOut();
       }
-
       if (!mounted) return;
-      Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(
-          builder:
-              (_) => LoginPage(
-                supabaseReady: widget.supabaseReady,
-                successMessage: 'Sesión cerrada correctamente.',
-              ),
-        ),
-        (route) => false,
-      );
+      Navigator.of(
+        context,
+      ).pushNamedAndRemoveUntil('/session', (route) => false);
     } catch (error) {
       if (!mounted) return;
       _mostrarMensaje(
@@ -178,7 +173,7 @@ class _HomePageState extends State<HomePage> {
       if (mounted) setState(() => _cerrandoSesion = false);
     }
   }
-  
+
   void _iniciarEscuchaNotificaciones() {
     if (!widget.supabaseReady) return;
 
