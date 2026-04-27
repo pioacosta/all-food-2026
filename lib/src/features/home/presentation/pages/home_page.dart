@@ -2,6 +2,7 @@ import 'package:all_food/src/features/home/presentation/widgets/staff_welcome_ca
 import 'package:all_food/src/features/mesas/data/repositories/mesas_repository.dart';
 import 'package:all_food/src/features/mesas/presentation/pages/ingreso_lista_espera_qr_scanner_page.dart';
 import 'package:all_food/src/features/mesas/presentation/pages/mesa_qr_scanner_page.dart';
+import 'package:all_food/src/features/pedidos/presentation/pages/resultados_encuestas_page.dart';
 import 'package:all_food/src/shared/services/notificacion__service.dart';
 import 'package:flutter/material.dart';
 import 'package:all_food/src/features/home/data/repositories/home_repository.dart';
@@ -707,6 +708,23 @@ class _ClienteDashboard extends StatelessWidget {
                             : 'Se habilita cuando el metre te asigne una mesa.',
                     habilitado: mesaAsignada,
                     onTap: onEscanearQr,
+                    loading: false,
+                    color: const Color(0xFF7A2021),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Expanded(
+                  child: _ClienteActionCard(
+                    icon: Icons.add_chart_sharp,
+                    titulo: 'Ver Encuestas',
+                    descripcion: 'Ver encuestas',
+                    habilitado: true,
+                    onTap:
+                        () => Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => const ResultadosEncuestasPage(),
+                          ),
+                        ),
                     loading: false,
                     color: const Color(0xFF7A2021),
                   ),
