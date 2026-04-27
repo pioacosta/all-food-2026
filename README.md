@@ -34,7 +34,7 @@ Base funcional implementada:
 - Adrián Lezcano
 
 ## Índice
-* [Splash Screen](#splash-screen)
+* [Splash Screen](#splashscreen)
 
 ## Comandos útiles
 
