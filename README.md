@@ -55,6 +55,10 @@ Para anotarse en la lista de espera, el cliente debe escanear el QR de entrada.
 | Mesa 2 | <img src="./assets/images/qrMesas/qrMesa2.png" width=""/> |
 | Mesa 3 | <img src="./assets/images/qrMesas/qrMesa3.png" width=""/> |
 
+Pantallas de la aplicación
+
+SplashScreen
+<img width="392" height="849" alt="splashgif-ezgif com-crop (1)" src="https://github.com/user-attachments/assets/e57449a8-908e-439f-8d35-cd25e1b530b5" />
 
 ## Lista de tareas realizadas
 
