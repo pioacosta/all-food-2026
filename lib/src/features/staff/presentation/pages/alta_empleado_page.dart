@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:all_food/src/features/staff/data/repositories/staff_repository.dart';
 import 'package:all_food/src/shared/errors/app_error_mapper.dart';
+import 'package:all_food/src/shared/utils/error_feedback.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
@@ -209,6 +210,10 @@ class _AltaEmpleadoPageState extends State<AltaEmpleadoPage> {
   }
 
   void _mostrarMensaje(String mensaje, {required bool esError}) {
+    if (esError) {
+      ErrorFeedback.vibrate();
+    }
+
     ScaffoldMessenger.of(context)
       ..clearSnackBars()
       ..showSnackBar(
@@ -234,18 +239,44 @@ class _AltaEmpleadoPageState extends State<AltaEmpleadoPage> {
   }
 
   void _mostrarDialogoError(String mensaje) {
-    showDialog<void>(
+    showModalBottomSheet<void>(
       context: context,
+      backgroundColor: const Color(0xFF2A1414),
       builder: (context) {
-        return AlertDialog(
-          title: const Text('Error al crear empleado'),
-          content: SingleChildScrollView(child: SelectableText(mensaje)),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Cerrar'),
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const Text(
+                  'Error al crear empleado',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                ConstrainedBox(
+                  constraints: const BoxConstraints(maxHeight: 220),
+                  child: SingleChildScrollView(
+                    child: SelectableText(
+                      mensaje,
+                      style: const TextStyle(color: Colors.white70),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 14),
+                FilledButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: const Text('Cerrar'),
+                ),
+              ],
             ),
-          ],
+          ),
         );
       },
     );
