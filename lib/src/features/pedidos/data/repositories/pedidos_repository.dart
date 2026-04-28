@@ -260,6 +260,42 @@ class PedidosRepository {
     }
   }
 
+  Future<bool> esClienteRegistradoActual() async {
+    final perfil = await _service.getMiPerfil();
+    return perfil['perfil'] == 'cliente_registrado';
+  }
+
+  Future<bool> aplicarDescuentoJuego({
+    required String pedidoId,
+    required int porcentaje,
+  }) async {
+    if (porcentaje != 10 && porcentaje != 15 && porcentaje != 20) {
+      throw const PedidosFlowException('El descuento del juego es inválido.');
+    }
+
+    final pedido = await _service.getPedidoById(pedidoId);
+    if (pedido == null) {
+      throw const PedidosFlowException('No se encontró el pedido.');
+    }
+
+    final descuentoActual =
+        ((pedido['descuento_juego_porcentaje'] as num?) ?? 0).toDouble();
+    if (descuentoActual > 0) return false;
+
+    final subtotal = ((pedido['subtotal'] as num?) ?? 0).toDouble();
+    final totalConDescuento = subtotal * (1 - (porcentaje / 100));
+
+    await _service.updatePedido(
+      pedidoId: pedidoId,
+      payload: {
+        'descuento_juego_porcentaje': porcentaje,
+        'total': totalConDescuento,
+      },
+    );
+
+    return true;
+  }
+
   Future<void> confirmarPedido(String pedidoId) async {
     await _service.updatePedido(
       pedidoId: pedidoId,

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:all_food/src/features/carta/presentation/pages/carta_cliente.dart';
 import 'package:all_food/src/features/pedidos/data/repositories/pedidos_repository.dart';
 import 'package:all_food/src/features/pedidos/presentation/pages/encuesta_cliente_page.dart';
+import 'package:all_food/src/features/pedidos/presentation/pages/juegos_descuento_page.dart';
 import 'package:all_food/src/features/pedidos/presentation/pages/resultados_encuestas_page.dart';
 import 'package:all_food/src/features/pedidos/presentation/widgets/cierre_countdown_dialog.dart';
 import 'package:all_food/src/shared/errors/app_error_mapper.dart';
@@ -612,17 +613,6 @@ Future<void> _simularPagoConPropina() async {
     }
   }
 
-  Widget _propinaTile(BuildContext context, int porcentaje, String texto) {
-    return ListTile(
-      title: Text(
-        '$texto - $porcentaje%',
-        style: const TextStyle(color: Colors.white),
-      ),
-      trailing: const Icon(Icons.chevron_right, color: Colors.white),
-      onTap: () => Navigator.of(context).pop(porcentaje),
-    );
-  }
-
   void _mostrarMensaje(String mensaje, {required bool esError}) {
     ScaffoldMessenger.of(context)
       ..clearSnackBars()
@@ -927,9 +917,33 @@ Future<void> _simularPagoConPropina() async {
                                 loading: false,
                               ),
                               const SizedBox(height: 8),
-                              const _AccionPrincipal(
-                                texto: 'Juegos (a cargo de otro módulo)',
-                                onPressed: null,
+                              _AccionPrincipal(
+                                texto: 'Juegos y descuentos',
+                                onPressed:
+                                    _procesando
+                                        ? null
+                                        : () async {
+                                          if (_pedido == null) return;
+                                          final pedidoId =
+                                              _pedido!['id'] as String;
+                                          final descuentoActual =
+                                              ((_pedido!['descuento_juego_porcentaje']
+                                                          as num?) ??
+                                                      0)
+                                                  .toDouble();
+
+                                          await Navigator.of(context).push(
+                                            MaterialPageRoute(
+                                              builder:
+                                                  (_) => JuegosDescuentoPage(
+                                                    pedidoId: pedidoId,
+                                                    descuentoActual:
+                                                        descuentoActual,
+                                                  ),
+                                            ),
+                                          );
+                                          await _cargar();
+                                        },
                                 loading: false,
                               ),
                             ],
