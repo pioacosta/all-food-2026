@@ -78,7 +78,7 @@ class _JuegosDescuentoPageState extends State<JuegosDescuentoPage> {
   }
 
   Future<void> _jugarNumero10() async {
-    if (_procesando || _intentoConsumido[10] == true) return;
+    if (_procesando) return;
     if (!_clienteRegistrado) {
       _mostrarMensaje(
         'Solo clientes registrados pueden obtener descuentos con juegos.',
@@ -86,6 +86,8 @@ class _JuegosDescuentoPageState extends State<JuegosDescuentoPage> {
       );
       return;
     }
+
+    final primerIntentoDisponible = _intentoConsumido[10] != true;
 
     final eleccion = await showModalBottomSheet<int>(
       context: context,
@@ -127,14 +129,26 @@ class _JuegosDescuentoPageState extends State<JuegosDescuentoPage> {
     if (eleccion == null) return;
 
     final acierto = _random.nextInt(6) + 1 == eleccion;
-    await _guardarIntento(10);
-    if (!mounted) return;
-    setState(() => _intentoConsumido[10] = true);
+    if (primerIntentoDisponible) {
+      await _guardarIntento(10);
+      if (!mounted) return;
+      setState(() => _intentoConsumido[10] = true);
+    }
 
     if (!acierto) {
       _mostrarMensaje(
-        'No acertaste. Solo cuenta el primer intento.',
+        primerIntentoDisponible
+            ? 'No acertaste. Solo cuenta el primer intento.'
+            : 'No acertaste. Rejugar no otorga descuento.',
         esError: true,
+      );
+      return;
+    }
+
+    if (!primerIntentoDisponible) {
+      _mostrarMensaje(
+        'Ganaste, pero ya consumiste el primer intento: no se aplica descuento.',
+        esError: false,
       );
       return;
     }
@@ -143,7 +157,7 @@ class _JuegosDescuentoPageState extends State<JuegosDescuentoPage> {
   }
 
   Future<void> _jugarComidas15() async {
-    if (_procesando || _intentoConsumido[15] == true) return;
+    if (_procesando) return;
     if (!_clienteRegistrado) {
       _mostrarMensaje(
         'Solo clientes registrados pueden obtener descuentos con juegos.',
@@ -152,19 +166,33 @@ class _JuegosDescuentoPageState extends State<JuegosDescuentoPage> {
       return;
     }
 
+    final primerIntentoDisponible = _intentoConsumido[15] != true;
+
     final gano = await Navigator.of(
       context,
     ).push<bool>(MaterialPageRoute(builder: (_) => const _JuegoComidasPage()));
     if (gano == null) return;
 
-    await _guardarIntento(15);
-    if (!mounted) return;
-    setState(() => _intentoConsumido[15] = true);
+    if (primerIntentoDisponible) {
+      await _guardarIntento(15);
+      if (!mounted) return;
+      setState(() => _intentoConsumido[15] = true);
+    }
 
     if (!gano) {
       _mostrarMensaje(
-        'No alcanzaste la meta del juego de comidas.',
+        primerIntentoDisponible
+            ? 'No alcanzaste la meta del juego de comidas.'
+            : 'No alcanzaste la meta. Rejugar no otorga descuento.',
         esError: true,
+      );
+      return;
+    }
+
+    if (!primerIntentoDisponible) {
+      _mostrarMensaje(
+        'Ganaste, pero ya consumiste el primer intento: no se aplica descuento.',
+        esError: false,
       );
       return;
     }
@@ -173,7 +201,7 @@ class _JuegosDescuentoPageState extends State<JuegosDescuentoPage> {
   }
 
   Future<void> _jugarSnake20() async {
-    if (_procesando || _intentoConsumido[20] == true) return;
+    if (_procesando) return;
     if (!_clienteRegistrado) {
       _mostrarMensaje(
         'Solo clientes registrados pueden obtener descuentos con juegos.',
@@ -182,19 +210,33 @@ class _JuegosDescuentoPageState extends State<JuegosDescuentoPage> {
       return;
     }
 
+    final primerIntentoDisponible = _intentoConsumido[20] != true;
+
     final gano = await Navigator.of(
       context,
     ).push<bool>(MaterialPageRoute(builder: (_) => const _JuegoSnakePage()));
     if (gano == null) return;
 
-    await _guardarIntento(20);
-    if (!mounted) return;
-    setState(() => _intentoConsumido[20] = true);
+    if (primerIntentoDisponible) {
+      await _guardarIntento(20);
+      if (!mounted) return;
+      setState(() => _intentoConsumido[20] = true);
+    }
 
     if (!gano) {
       _mostrarMensaje(
-        'Perdiste en Snake. Necesitabas comer al menos 15 veces sin perder.',
+        primerIntentoDisponible
+            ? 'Perdiste en Snake. Necesitabas comer al menos 15 veces sin perder.'
+            : 'Perdiste en Snake. Rejugar no otorga descuento.',
         esError: true,
+      );
+      return;
+    }
+
+    if (!primerIntentoDisponible) {
+      _mostrarMensaje(
+        'Ganaste, pero ya consumiste el primer intento: no se aplica descuento.',
+        esError: false,
       );
       return;
     }
@@ -383,10 +425,10 @@ class _JuegoCard extends StatelessWidget {
           SizedBox(
             width: double.infinity,
             child: FilledButton.icon(
-              onPressed: intentoUsado ? null : onPlay,
-              icon: Icon(intentoUsado ? Icons.lock_clock : Icons.play_arrow),
+              onPressed: onPlay,
+              icon: Icon(intentoUsado ? Icons.refresh : Icons.play_arrow),
               label: Text(
-                intentoUsado ? 'Primer intento consumido' : 'Jugar ahora',
+                intentoUsado ? 'Rejugar (sin descuento)' : 'Jugar ahora',
               ),
             ),
           ),
