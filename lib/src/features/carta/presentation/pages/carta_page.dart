@@ -240,7 +240,7 @@ class _CartaPageState extends State<CartaPage> {
                         LengthLimitingTextInputFormatter(_maxDescripcion),
                       ],
                       decoration: InputDecoration(
-                        labelText: 'DescripciÃƒÂ³n',
+                        labelText: 'Descripci?f�n',
                         labelStyle: const TextStyle(color: Color(0xFF5D3030)),
                         filled: true,
                         fillColor: Colors.white,
@@ -275,7 +275,7 @@ class _CartaPageState extends State<CartaPage> {
                       validator:
                           (v) =>
                               int.tryParse(v ?? '') == null
-                                  ? 'NÃƒÂºmero invÃƒÂ¡lido'
+                                  ? 'N?f�mero inv?f�lido'
                                   : null,
                       onChanged: (v) => tiempoTexto = v,
                     ),
@@ -302,7 +302,7 @@ class _CartaPageState extends State<CartaPage> {
                       validator:
                           (v) =>
                               double.tryParse(v ?? '') == null
-                                  ? 'NÃƒÂºmero invÃƒÂ¡lido'
+                                  ? 'N?f�mero inv?f�lido'
                                   : null,
                       onChanged: (v) => precioTexto = v,
                     ),
@@ -416,7 +416,7 @@ class _CartaPageState extends State<CartaPage> {
                 ),
                 const SizedBox(height: 14),
                 Text(
-                  'Se eliminarÃ¡ "${producto.nombre}" de la carta. Esta acciÃ³n no se puede deshacer.',
+                  'Se eliminar� "${producto.nombre}" de la carta. Esta acci�n no se puede deshacer.',
                   style: const TextStyle(
                     color: Color(0xFF3A2222),
                     height: 1.35,
@@ -719,7 +719,7 @@ class _CartaPageState extends State<CartaPage> {
                                 ),
                                 const SizedBox(width: 12),
                                 Text(
-                                  'PÃƒÂ¡gina ${_paginaActual + 1} / $_totalPaginas',
+                                  'P?f�gina ${_paginaActual + 1} / $_totalPaginas',
                                   style: const TextStyle(
                                     color: Color(0xFFFFE9E9),
                                     fontWeight: FontWeight.w700,
@@ -774,9 +774,9 @@ class _ProductoCard extends StatelessWidget {
 
   static String _limitarTexto(String value, int maxChars) {
     final limpio = value.trim();
-    if (maxChars <= 1) return limpio.isEmpty ? '' : 'Ã¢â‚¬Â¦';
+    if (maxChars <= 1) return limpio.isEmpty ? '' : '�?,?�';
     if (limpio.length <= maxChars) return limpio;
-    return '${limpio.substring(0, maxChars - 1)}Ã¢â‚¬Â¦';
+    return '${limpio.substring(0, maxChars - 1)}�?,?�';
   }
 
   @override
@@ -979,7 +979,7 @@ class _SlotVacioProducto extends StatelessWidget {
       child:
           mostrarMensaje
               ? const Text(
-                'No hay mÃƒÂ¡s productos',
+                'No hay m?f�s productos',
                 style: TextStyle(
                   color: Colors.white70,
                   fontWeight: FontWeight.w600,

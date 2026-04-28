@@ -185,7 +185,7 @@ class _VerEditarMesasPageState extends State<VerEditarMesasPage> {
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  'Se eliminarÃ¡ la mesa ${mesa.numeroController.text.trim()}. Esta acciÃ³n no se puede deshacer.',
+                  'Se eliminará la mesa ${mesa.numeroController.text.trim()}. Esta acción no se puede deshacer.',
                   style: const TextStyle(
                     color: Color(0xFF3A2222),
                     height: 1.35,

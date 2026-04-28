@@ -55,7 +55,7 @@ class _CrearProductoPageState extends State<CrearProductoPage> {
             children: [
               ListTile(
                 leading: const Icon(Icons.camera_alt),
-                title: const Text('CÃƒÂ¡mara'),
+                title: const Text('C�f¡mara'),
                 onTap: () async {
                   Navigator.pop(context);
                   final imagen = await _picker.pickImage(
@@ -69,7 +69,7 @@ class _CrearProductoPageState extends State<CrearProductoPage> {
               ),
               ListTile(
                 leading: const Icon(Icons.photo),
-                title: const Text('GalerÃƒÂ­a'),
+                title: const Text('Galer�f­a'),
                 onTap: () async {
                   Navigator.pop(context);
                   final imagen = await _picker.pickImage(
@@ -108,7 +108,7 @@ class _CrearProductoPageState extends State<CrearProductoPage> {
     if (perfil == 'cantinero') return 'bebida';
 
     throw const ProductosFlowException(
-      'Perfil no vÃƒÂ¡lido para crear productos.',
+      'Perfil no v�f¡lido para crear productos.',
     );
   }
 
@@ -118,7 +118,7 @@ class _CrearProductoPageState extends State<CrearProductoPage> {
     if (!_formKey.currentState!.validate()) return;
 
     if (_imagenes.contains(null)) {
-      _mostrarMensaje('Debes cargar las 3 imÃƒÂ¡genes', esError: true);
+      _mostrarMensaje('Debes cargar las 3 im�f¡genes', esError: true);
       return;
     }
 
@@ -295,7 +295,7 @@ class _CrearProductoPageState extends State<CrearProductoPage> {
                       ),
                       const SizedBox(height: 16),
 
-                      // DESCRIPCIÃƒâ€œN
+                      // DESCRIPCI�f�?oN
                       TextFormField(
                         controller: _descripcionController,
                         style: const TextStyle(color: Colors.white),
@@ -305,7 +305,7 @@ class _CrearProductoPageState extends State<CrearProductoPage> {
                           LengthLimitingTextInputFormatter(_maxDescripcion),
                         ],
                         decoration: const InputDecoration(
-                          labelText: 'DescripciÃƒÂ³n',
+                          labelText: 'Descripci�f³n',
                         ),
                         validator:
                             (v) => v == null || v.isEmpty ? 'Requerido' : null,
@@ -327,7 +327,7 @@ class _CrearProductoPageState extends State<CrearProductoPage> {
                         validator:
                             (v) =>
                                 int.tryParse(v ?? '') == null
-                                    ? 'NÃƒÂºmero invÃƒÂ¡lido'
+                                    ? 'N�fºmero inv�f¡lido'
                                     : null,
                       ),
                       const SizedBox(height: 16),
@@ -345,12 +345,12 @@ class _CrearProductoPageState extends State<CrearProductoPage> {
                         validator:
                             (v) =>
                                 double.tryParse(v ?? '') == null
-                                    ? 'NÃƒÂºmero invÃƒÂ¡lido'
+                                    ? 'N�fºmero inv�f¡lido'
                                     : null,
                       ),
                       const SizedBox(height: 16),
 
-                      // IMÃƒÂGENES
+                      // IM�fGENES
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: List.generate(3, (index) {

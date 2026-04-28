@@ -190,7 +190,7 @@ class _PedidosMozoPageState extends State<PedidosMozoPage> {
                   const Text('Rechazar pedido'),
                   const SizedBox(height: 12),
                   const Text(
-                    'El pedido serÃ¡ rechazado y el cliente podrÃ¡ modificarlo.',
+                    'El pedido será rechazado y el cliente podrá modificarlo.',
                   ),
                   const SizedBox(height: 14),
                   Row(
@@ -253,7 +253,7 @@ class _PedidosMozoPageState extends State<PedidosMozoPage> {
       await _cargar();
       if (!mounted) return;
       _mostrarMensaje(
-        'Pedido rechazado para modificaciÃƒÂ³n del cliente.',
+        'Pedido rechazado para modificaci�f³n del cliente.',
         esError: false,
       );
     } catch (error) {
@@ -319,7 +319,7 @@ class _PedidosMozoPageState extends State<PedidosMozoPage> {
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    'Â¿Confirmar pago de la mesa $numeroMesa y liberar la mesa?',
+                    '¿Confirmar pago de la mesa $numeroMesa y liberar la mesa?',
                     style: const TextStyle(
                       color: Color(0xFF3A2222),
                       height: 1.35,
@@ -464,7 +464,7 @@ class _PedidosMozoPageState extends State<PedidosMozoPage> {
                     const Padding(
                       padding: EdgeInsets.symmetric(vertical: 14),
                       child: Text(
-                        'No hay ÃƒÂ­tems en la cuenta.',
+                        'No hay �f­tems en la cuenta.',
                         textAlign: TextAlign.center,
                         style: TextStyle(color: Colors.white70),
                       ),
@@ -618,7 +618,7 @@ class _PedidosMozoPageState extends State<PedidosMozoPage> {
       case 'confirmado_mozo':
         return 'Confirmado';
       case 'en_preparacion':
-        return 'En preparaciÃƒÂ³n';
+        return 'En preparaci�f³n';
       case 'listo_para_entrega':
         return 'Listo para entrega';
       case 'entregado_por_mozo':
@@ -657,7 +657,7 @@ class _PedidosMozoPageState extends State<PedidosMozoPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('GestiÃƒÂ³n')),
+      appBar: AppBar(title: const Text('Gesti�f³n')),
       body: Container(
         width: double.infinity,
         decoration: const BoxDecoration(
@@ -721,7 +721,7 @@ class _PedidosMozoPageState extends State<PedidosMozoPage> {
                               ),
                               _EstadoList(
                                 vacio:
-                                    'No hay pagos pendientes de confirmaciÃƒÂ³n.',
+                                    'No hay pagos pendientes de confirmaci�f³n.',
                                 pedidos: _pagosPendientes,
                                 formatearFechaHora: _formatearFechaHora,
                                 actionLabel: 'Confirmar pago',
@@ -767,7 +767,7 @@ class _PendientesList extends StatelessWidget {
     if (pedidos.isEmpty) {
       return const Center(
         child: Text(
-          'No hay pedidos pendientes de confirmaciÃƒÂ³n.',
+          'No hay pedidos pendientes de confirmaci�f³n.',
           style: TextStyle(color: Colors.white70),
         ),
       );
@@ -1023,7 +1023,7 @@ class _DetallePedidoPendientePage extends StatelessWidget {
                       items.isEmpty
                           ? const Center(
                             child: Text(
-                              'Este pedido no tiene ÃƒÂ­tems.',
+                              'Este pedido no tiene �f­tems.',
                               style: TextStyle(color: Colors.white70),
                             ),
                           )
