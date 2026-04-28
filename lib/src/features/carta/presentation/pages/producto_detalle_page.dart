@@ -1,4 +1,5 @@
 import 'package:all_food/src/features/carta/data/models/producto_model.dart';
+import 'package:all_food/src/shared/widgets/logo_spinner.dart';
 import 'package:flutter/material.dart';
 
 class ProductoDetallePage extends StatefulWidget {
@@ -61,9 +62,7 @@ class _ProductoDetallePageState extends State<ProductoDetallePage> {
                                   progress == null
                                       ? child
                                       : const Center(
-                                        child: CircularProgressIndicator(
-                                          color: Colors.white,
-                                        ),
+                                        child: LogoSpinner(size: 22, strokeWidth: 2),
                                       ),
                           errorBuilder:
                               (_, __, ___) => const Center(

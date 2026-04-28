@@ -3,6 +3,8 @@ import 'package:all_food/src/features/auth/widgets/auth_card.dart';
 import 'package:all_food/src/shared/errors/app_error_mapper.dart';
 import 'package:all_food/src/shared/theme/app_ui.dart';
 import 'package:all_food/src/shared/widgets/logo_spinner.dart';
+import 'package:all_food/src/shared/services/session_audio_service.dart';
+import 'package:all_food/src/shared/utils/error_feedback.dart';
 import 'package:flutter/material.dart';
 import 'package:all_food/src/features/auth/data/repositories/auth_repository.dart';
 import '../../../../config/demo_accounts.dart';
@@ -57,7 +59,7 @@ class _LoginPageState extends State<LoginPage> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 const Text(
-                  'Ingreso rapido',
+                  'Ingreso rÃ¡pido',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     color: Colors.white,
@@ -72,7 +74,7 @@ class _LoginPageState extends State<LoginPage> {
                     color: Colors.white,
                   ),
                   title: const Text(
-                    'Duenio',
+                    'DueÃ±o',
                     style: TextStyle(color: Colors.white),
                   ),
                   onTap: () => Navigator.of(context).pop('duenio'),
@@ -235,6 +237,7 @@ class _LoginPageState extends State<LoginPage> {
       } catch (_) {
         // Si falla no bloqueamos el login
       }
+      await SessionAudioService.playLogin();
     } catch (error) {
       _mostrarMensaje(
         AppErrorMapper.toUserMessage(
@@ -295,6 +298,10 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void _mostrarMensaje(String mensaje, {required bool esError}) {
+    if (esError) {
+      ErrorFeedback.vibrate();
+    }
+
     // Centraliza mensajes de error/exito en un mismo estilo visual.
     ScaffoldMessenger.of(context)
       ..clearSnackBars()
@@ -581,7 +588,7 @@ class _LoginPageState extends State<LoginPage> {
                             fontWeight: FontWeight.w600,
                           ),
                         ),
-                        child: const Text('Ingresar como cliente anonimo'),
+                        child: const Text('Ingresar como cliente anónimo'),
                       ),
                       const SizedBox(height: 20),
                       Align(
@@ -594,7 +601,7 @@ class _LoginPageState extends State<LoginPage> {
                             fontSize: 17,
                             fontWeight: FontWeight.w700,
                           ),
-                          label: const Text('Ingreso rapido'),
+                          label: const Text('Ingreso rápido'),
                         ),
                       ),
                       const SizedBox(height: 4),

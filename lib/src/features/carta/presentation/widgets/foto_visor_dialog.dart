@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'package:all_food/src/shared/widgets/logo_spinner.dart';
 import 'package:flutter/material.dart';
 
 class FotoVisorDialog extends StatefulWidget {
@@ -83,9 +84,7 @@ class FotoVisorDialogState extends State<FotoVisorDialog> {
                                     progress == null
                                         ? child
                                         : const Center(
-                                          child: CircularProgressIndicator(
-                                            color: Colors.white,
-                                          ),
+                                          child: LogoSpinner(size: 22, strokeWidth: 2),
                                         ),
                             errorBuilder:
                                 (_, __, ___) => Container(

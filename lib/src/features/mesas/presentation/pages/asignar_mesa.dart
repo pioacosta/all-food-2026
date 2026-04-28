@@ -432,10 +432,7 @@ class _AsignarMesaPageState extends State<AsignarMesaPage> {
                                 ? const SizedBox(
                                   width: 22,
                                   height: 22,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2.5,
-                                    color: Color(0xFF5B1718),
-                                  ),
+                                  child: LogoSpinner(size: 22, strokeWidth: 2.5),
                                 )
                                 : Text(
                                   _paso == 0 ? 'Siguiente →' : 'Asignar mesa',

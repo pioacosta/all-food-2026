@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:all_food/src/features/auth/data/repositories/auth_repository.dart';
 import 'package:all_food/src/features/auth/widgets/auth_background.dart';
 import 'package:all_food/src/shared/errors/app_error_mapper.dart';
+import 'package:all_food/src/shared/utils/error_feedback.dart';
 import 'package:all_food/src/shared/widgets/logo_spinner.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -69,14 +70,14 @@ class _AnonymousClientPageState extends State<AnonymousClientPage> {
 
       if (!mounted) return;
 
-      _mostrarMensaje('Cliente anonimo creado y habilitado.', esError: false);
+      _mostrarMensaje('Cliente anónimo creado y habilitado.', esError: false);
       Navigator.of(context).pop(true);
     } catch (error) {
       if (!mounted) return;
       _mostrarMensaje(
         AppErrorMapper.toUserMessage(
           error,
-          fallbackMessage: 'No se pudo crear el cliente anonimo.',
+          fallbackMessage: 'No se pudo crear el cliente anónimo.',
         ),
         esError: true,
       );
@@ -90,6 +91,10 @@ class _AnonymousClientPageState extends State<AnonymousClientPage> {
   }
 
   void _mostrarMensaje(String mensaje, {required bool esError}) {
+    if (esError) {
+      ErrorFeedback.vibrate();
+    }
+
     ScaffoldMessenger.of(context)
       ..clearSnackBars()
       ..showSnackBar(
@@ -133,7 +138,7 @@ class _AnonymousClientPageState extends State<AnonymousClientPage> {
                               crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
                                 const Text(
-                                  'Ingreso anonimo',
+                                  'Ingreso anónimo',
                                   textAlign: TextAlign.center,
                                   style: TextStyle(
                                     fontFamily: 'ArchivoBlack',
@@ -167,7 +172,7 @@ class _AnonymousClientPageState extends State<AnonymousClientPage> {
                                       return 'Debes ingresar un nombre.';
                                     }
                                     if (text.length < 2) {
-                                      return 'Nombre invalido.';
+                                      return 'Nombre inválido.';
                                     }
                                     return null;
                                   },
@@ -235,7 +240,7 @@ class _AnonymousClientPageState extends State<AnonymousClientPage> {
                                             ),
                                           )
                                           : const Text(
-                                            'Continuar como anonimo',
+                                            'Continuar como anónimo',
                                           ),
                                 ),
                                 const SizedBox(height: 10),

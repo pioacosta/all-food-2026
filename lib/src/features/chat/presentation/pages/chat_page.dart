@@ -275,10 +275,7 @@ class _ChatPageState extends State<ChatPage> {
                             _enviando
                                 ? const Padding(
                                   padding: EdgeInsets.all(12),
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    color: Color(0xFF5B1718),
-                                  ),
+                                  child: LogoSpinner(size: 22, strokeWidth: 2),
                                 )
                                 : const Icon(
                                   Icons.send_rounded,

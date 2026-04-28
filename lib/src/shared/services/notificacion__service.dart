@@ -93,4 +93,20 @@ class NotificationService {
       );
     });
   }
+
+  Future<void> resetSessionIdentifier() async {
+    try {
+      final userId = Supabase.instance.client.auth.currentUser?.id;
+      if (userId != null) {
+        await Supabase.instance.client
+            .from('perfiles')
+            .update({'fcm_token': null})
+            .eq('id', userId);
+      }
+    } catch (_) {}
+
+    try {
+      await _messaging.deleteToken();
+    } catch (_) {}
+  }
 }

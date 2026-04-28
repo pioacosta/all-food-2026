@@ -598,7 +598,7 @@ class _MesaEditorCard extends StatelessWidget {
                             ? const SizedBox(
                               width: 20,
                               height: 20,
-                              child: CircularProgressIndicator(strokeWidth: 2),
+                              child: LogoSpinner(size: 20, strokeWidth: 2),
                             )
                             : const Icon(
                               Icons.delete,
@@ -782,10 +782,7 @@ class _MesaEditorCard extends StatelessWidget {
                           ? const SizedBox(
                             width: 18,
                             height: 18,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Colors.white,
-                            ),
+                            child: LogoSpinner(size: 18, strokeWidth: 2),
                           )
                           : const Icon(Icons.save),
                   label: Text(

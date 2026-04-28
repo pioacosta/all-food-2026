@@ -4,6 +4,8 @@ import 'package:all_food/src/features/mesas/presentation/pages/ingreso_lista_esp
 import 'package:all_food/src/features/mesas/presentation/pages/mesa_qr_scanner_page.dart';
 import 'package:all_food/src/features/pedidos/presentation/pages/resultados_encuestas_page.dart';
 import 'package:all_food/src/shared/services/notificacion__service.dart';
+import 'package:all_food/src/shared/services/session_audio_service.dart';
+import 'package:all_food/src/shared/utils/error_feedback.dart';
 import 'package:flutter/material.dart';
 import 'package:all_food/src/features/home/data/repositories/home_repository.dart';
 import 'package:all_food/src/shared/errors/app_error_mapper.dart';
@@ -151,6 +153,8 @@ class _HomePageState extends State<HomePage> {
     setState(() => _cerrandoSesion = true);
 
     try {
+      await SessionAudioService.playLogout();
+      await NotificationService().resetSessionIdentifier();
       await _detenerEscuchaNotificaciones();
       await Supabase.instance.client.removeAllChannels();
 
@@ -233,6 +237,10 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _mostrarMensaje(String mensaje, {required bool esError}) {
+    if (esError) {
+      ErrorFeedback.vibrate();
+    }
+
     ScaffoldMessenger.of(context)
       ..clearSnackBars()
       ..showSnackBar(
