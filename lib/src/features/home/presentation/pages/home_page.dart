@@ -64,7 +64,7 @@ class _HomePageState extends State<HomePage> {
         _cargandoPerfil = false;
       });
 
-      // Inicializar notificaciones cuando ya hay sesión activa
+      // Inicializar notificaciones cuando ya hay sesiÃ³n activa
       NotificationService().init();
 
       _iniciarEscuchaNotificaciones();
@@ -321,7 +321,7 @@ class _HomePageState extends State<HomePage> {
       if (esMozo)
         _DashboardAction(
           icon: Icons.receipt_long_outlined,
-          titulo: 'Gesti?n',
+          titulo: 'Gestión',
           color: const Color(0xFF4F46E5),
           onTap: () => Navigator.pushNamed(context, '/pedidos-mozo'),
         ),
@@ -390,7 +390,7 @@ class _HomePageState extends State<HomePage> {
                       width: 18,
                       child: LogoSpinner(size: 18, strokeWidth: 2),
                     )
-                    : const Text('Cerrar sesi?n'),
+                    : const Text('Cerrar sesión'),
           ),
         ],
       ),
@@ -642,8 +642,8 @@ class _ClienteDashboard extends StatelessWidget {
                           mesaAsignada
                               ? 'Mesa asignada: $numeroMesaAsignada'
                               : esperandoMetre
-                              ? 'Solicitud enviada. Esperando asignación del metre.'
-                              : 'Todavía no solicitaste mesa.',
+                              ? 'Solicitud enviada. Esperando asignaciÃ³n del metre.'
+                              : 'TodavÃ­a no solicitaste mesa.',
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 17,
@@ -667,10 +667,10 @@ class _ClienteDashboard extends StatelessWidget {
                     titulo: 'Escanear QR de entrada',
                     descripcion:
                         puedeSolicitar
-                            ? 'Escaneá el QR de entrada para anotarte en la lista de espera.'
+                            ? 'EscaneÃ¡ el QR de entrada para anotarte en la lista de espera.'
                             : esperandoMetre
-                            ? 'Ya estás en lista de espera. Aguarda asignación del metre.'
-                            : 'Ya tenés una mesa asignada, no hace falta escanear nuevamente.',
+                            ? 'Ya estÃ¡s en lista de espera. Aguarda asignaciÃ³n del metre.'
+                            : 'Ya tenÃ©s una mesa asignada, no hace falta escanear nuevamente.',
                     habilitado: puedeSolicitar && !solicitandoMesa,
                     onTap: onEscanearQrIngreso,
                     loading: solicitandoMesa,
@@ -683,7 +683,7 @@ class _ClienteDashboard extends StatelessWidget {
                     icon: Icons.sync,
                     titulo: 'Actualizar estado',
                     descripcion:
-                        'Consultá si el metre ya te asignó una mesa para continuar.',
+                        'ConsultÃ¡ si el metre ya te asignÃ³ una mesa para continuar.',
                     habilitado: !cargandoEstado,
                     onTap: onRefrescarEstado,
                     loading: cargandoEstado,
@@ -697,7 +697,7 @@ class _ClienteDashboard extends StatelessWidget {
                     titulo: 'Escanear QR de mesa',
                     descripcion:
                         mesaAsignada
-                            ? 'Validá el QR de tu mesa para entrar a carta y consultas al mozo.'
+                            ? 'ValidÃ¡ el QR de tu mesa para entrar a carta y consultas al mozo.'
                             : 'Se habilita cuando el metre te asigne una mesa.',
                     habilitado: mesaAsignada,
                     onTap: onEscanearQr,

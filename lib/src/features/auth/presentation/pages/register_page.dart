@@ -107,7 +107,7 @@ class _RegisterPageState extends State<RegisterPage> {
     // Frenar envio si Supabase no esta configurado/inicializado.
     if (!widget.supabaseReady) {
       _mostrarMensaje(
-        'No hay conexi�f³n a Supabase. Revisa las variables de entorno.',
+        'No hay conexión a Supabase. Revisa las variables de entorno.',
         esError: true,
       );
       return;
@@ -148,7 +148,7 @@ class _RegisterPageState extends State<RegisterPage> {
       if (!mounted) return;
 
       _mostrarMensaje(
-        'Registro exitoso. Esperando aprobaci�f³n.',
+        'Registro exitoso. Esperando aprobación.',
         esError: false,
       );
 
@@ -157,7 +157,7 @@ class _RegisterPageState extends State<RegisterPage> {
       _mostrarMensaje(
         AppErrorMapper.toUserMessage(
           error,
-          fallbackMessage: 'Ocurri�f³ un error inesperado al registrar.',
+          fallbackMessage: 'Ocurrió un error inesperado al registrar.',
         ),
         esError: true,
       );
@@ -317,10 +317,10 @@ class _RegisterPageState extends State<RegisterPage> {
                                 validator: (value) {
                                   final text = value?.trim() ?? '';
                                   if (!RegExp(r'^\d+$').hasMatch(text)) {
-                                    return 'El DNI debe ser num�f©rico.';
+                                    return 'El DNI debe ser numérico.';
                                   }
                                   if (text.length < 7) {
-                                    return 'DNI inv�f¡lido.';
+                                    return 'DNI inválido.';
                                   }
                                   return null;
                                 },
@@ -354,7 +354,7 @@ class _RegisterPageState extends State<RegisterPage> {
                           style: const TextStyle(color: Colors.white),
                           keyboardType: TextInputType.emailAddress,
                           decoration: const InputDecoration(
-                            labelText: 'Correo electr�f³nico',
+                            labelText: 'Correo electrónico',
                             border: OutlineInputBorder(),
                           ),
                           validator: (value) {
@@ -363,7 +363,7 @@ class _RegisterPageState extends State<RegisterPage> {
                               r'^[^@\s]+@[^@\s]+\.[^@\s]+$',
                             );
                             if (!pattern.hasMatch(email)) {
-                              return 'Correo electr�f³nico inv�f¡lido.';
+                              return 'Correo electrónico inválido.';
                             }
                             return null;
                           },
@@ -410,7 +410,7 @@ class _RegisterPageState extends State<RegisterPage> {
                           style: const TextStyle(color: Colors.white),
                           obscureText: !_mostrarPassword,
                           decoration: InputDecoration(
-                            labelText: 'Contrase�f±a',
+                            labelText: 'Contraseña',
                             border: const OutlineInputBorder(),
                             suffixIcon: IconButton(
                               onPressed: () {
@@ -429,7 +429,7 @@ class _RegisterPageState extends State<RegisterPage> {
                           validator: (value) {
                             final password = value ?? '';
                             if (password.length < 6) {
-                              return 'La contrase�f±a debe tener al menos 6 caracteres.';
+                              return 'La contraseña debe tener al menos 6 caracteres.';
                             }
                             return null;
                           },
@@ -445,7 +445,7 @@ class _RegisterPageState extends State<RegisterPage> {
                           style: const TextStyle(color: Colors.white),
                           obscureText: !_mostrarConfirmPassword,
                           decoration: InputDecoration(
-                            labelText: 'Confirmar contrase�f±a',
+                            labelText: 'Confirmar contraseña',
                             border: const OutlineInputBorder(),
                             suffixIcon: IconButton(
                               onPressed: () {
@@ -464,7 +464,7 @@ class _RegisterPageState extends State<RegisterPage> {
                           ),
                           validator: (value) {
                             if (value != _passwordController.text) {
-                              return 'Las contrase�f±as no coinciden.';
+                              return 'Las contraseñas no coinciden.';
                             }
                             return null;
                           },
@@ -511,7 +511,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                 Navigator.of(context).pop();
                               },
                       child: const Text(
-                        '�,¿Ya ten�f©s cuenta? Ingres�f¡ ac�f¡',
+                        '¿Ya tenés cuenta? Ingresá acá',
                         textAlign: TextAlign.center,
                       ),
                     ),

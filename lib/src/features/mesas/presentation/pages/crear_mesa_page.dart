@@ -116,7 +116,7 @@ class _CrearMesaPageState extends State<CrearMesaPage> {
 
     if (numero == null || numero <= 0) {
       _mostrarMensaje(
-        'El n�fºmero de mesa debe ser un entero positivo.',
+        'El número de mesa debe ser un entero positivo.',
         esError: true,
       );
       return;
@@ -135,7 +135,7 @@ class _CrearMesaPageState extends State<CrearMesaPage> {
     try {
       final existe = await _repository.tableNumberExists(numero);
       if (existe) {
-        _mostrarMensaje('Ya existe una mesa con ese n�fºmero.', esError: true);
+        _mostrarMensaje('Ya existe una mesa con ese número.', esError: true);
         return;
       }
 
@@ -186,7 +186,7 @@ class _CrearMesaPageState extends State<CrearMesaPage> {
           child: Padding(
             padding: EdgeInsets.all(24),
             child: Text(
-              'Acceso denegado. Esta funcionalidad est�f¡ disponible solo para due�f±o y supervisor habilitados.',
+              'Acceso denegado. Esta funcionalidad está disponible solo para dueño y supervisor habilitados.',
               textAlign: TextAlign.center,
             ),
           ),
@@ -256,7 +256,7 @@ class _CrearMesaPageState extends State<CrearMesaPage> {
                           FilteringTextInputFormatter.digitsOnly,
                         ],
                         decoration: const InputDecoration(
-                          labelText: 'N�fºmero de mesa',
+                          labelText: 'Número de mesa',
                           border: OutlineInputBorder(),
                         ),
                       ),
@@ -286,7 +286,7 @@ class _CrearMesaPageState extends State<CrearMesaPage> {
                           DropdownMenuItem(value: 'vip', child: Text('VIP')),
                           DropdownMenuItem(
                             value: 'estandar',
-                            child: Text('Est�f¡ndar'),
+                            child: Text('Estándar'),
                           ),
                           DropdownMenuItem(
                             value: 'movilidad_reducida',
