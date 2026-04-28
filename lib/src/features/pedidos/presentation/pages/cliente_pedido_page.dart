@@ -198,7 +198,9 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
             ),
       ),
     );
-    await _cargar();
+    await _detenerEscuchaPedidoRealtime();
+    if (!mounted) return;
+    Navigator.of(context).pushNamedAndRemoveUntil('/home', (route) => false);
   }
 
   // Recalcula resumen local para evitar recargas completas en ajustes +/-.
@@ -447,7 +449,6 @@ Future<void> _simularPagoConPropina() async {
       final lineas = List<Map<String, dynamic>>.from(
         detalle['lineas'] as List<Map<String, dynamic>>? ?? const [],
       );
-      final subtotal = ((detalle['subtotal'] as num?) ?? 0).toDouble();
       final estadoCuenta = detalle['estado']?.toString() ?? 'sin_pedido';
       final emitidoAt = DateTime.tryParse(
         detalle['emitidoAt']?.toString() ?? '',
@@ -558,7 +559,6 @@ Future<void> _simularPagoConPropina() async {
                       ),
                     ),
                   const SizedBox(height: 10),
-                  _FilaCuenta(titulo: 'Subtotal', valor: subtotal),
                   _FilaCuenta(
                     titulo:
                         'Descuento por juego (${descuentoPorcentaje.toStringAsFixed(0)}%)',
@@ -586,7 +586,7 @@ Future<void> _simularPagoConPropina() async {
                       style: const TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.w800,
-                        fontSize: 20,
+                        fontSize: 30,
                       ),
                     ),
                   ),
@@ -639,7 +639,6 @@ Future<void> _simularPagoConPropina() async {
   Widget build(BuildContext context) {
     final estado = (_pedido?['estado'] as String?) ?? 'sin_pedido';
     final editable = estado == 'borrador' || estado == 'rechazado_mozo';
-    final subtotal = ((_pedido?['subtotal'] as num?) ?? 0).toDouble();
     final total = ((_pedido?['total'] as num?) ?? 0).toDouble();
     final encuestaCompletada = _pedido?['encuesta_completada'] == true;
 
@@ -687,21 +686,26 @@ Future<void> _simularPagoConPropina() async {
                               ],
                             ),
                             const SizedBox(height: 8),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: _DatoHeader(
-                                    titulo: 'Subtotal',
-                                    valor: '\$${subtotal.toStringAsFixed(2)}',
-                                  ),
+                            Container(
+                              width: double.infinity,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 12,
+                              ),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF2D6A4F),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Text(
+                                'TOTAL: \$${total.toStringAsFixed(2)}',
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w900,
+                                  fontSize: 34,
+                                  letterSpacing: 0.2,
                                 ),
-                                Expanded(
-                                  child: _DatoHeader(
-                                    titulo: 'Total',
-                                    valor: '\$${total.toStringAsFixed(2)}',
-                                  ),
-                                ),
-                              ],
+                              ),
                             ),
                             if ((_pedido?['observaciones_rechazo'] as String?)
                                     ?.isNotEmpty ==
@@ -775,7 +779,7 @@ Future<void> _simularPagoConPropina() async {
                                                 ),
                                                 const SizedBox(height: 2),
                                                 Text(
-                                                  '\$${((item['precio_unitario'] as num?) ?? 0).toStringAsFixed(2)} c/u',
+                                                  '\$${((item['precio_unitario'] as num?) ?? 0).toStringAsFixed(2)}',
                                                   style: const TextStyle(
                                                     color: Colors.white70,
                                                   ),
