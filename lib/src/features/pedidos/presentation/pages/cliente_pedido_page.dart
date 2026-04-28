@@ -152,18 +152,18 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
     Navigator.of(context).pushNamedAndRemoveUntil('/home', (route) => false);
   }
 
-  // Carga pedido + ?f�tems + tiempo estimado acumulado.
+  // Carga pedido + ?f?tems + tiempo estimado acumulado.
   Future<void> _cargar() async {
     setState(() => _cargando = true);
     try {
-      // incluirCerrado: false (default) �?,???? si la page abre y hay un cerrado viejo, lo ignora
+      // incluirCerrado: false (default) ??,???? si la page abre y hay un cerrado viejo, lo ignora
       final detalle = await _repo.getDetallePedido(widget.mesaId);
       if (!mounted) return;
 
       final estadoNuevo =
           (detalle['pedido'] as Map<String, dynamic>?)?['estado'] as String?;
 
-      // Con incluirCerrado: false esto nunca ser?f� 'cerrado', pero por seguridad:
+      // Con incluirCerrado: false esto nunca ser?f? 'cerrado', pero por seguridad:
       if (estadoNuevo == 'cerrado') {
         _pedido = detalle['pedido'] as Map<String, dynamic>?;
         await _verificarCierreYRedirigir();
@@ -189,7 +189,7 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
     }
   }
 
-  // Abre carta unificada y refresca para reflejar cambios de ?f�tems.
+  // Abre carta unificada y refresca para reflejar cambios de ?f?tems.
   Future<void> _abrirCarta() async {
     await Navigator.of(context).push(
       MaterialPageRoute(
@@ -235,7 +235,7 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
     }
   }
 
-  // Incrementa/decrementa cantidad en un ?f�tem del pedido actual.
+  // Incrementa/decrementa cantidad en un ?f?tem del pedido actual.
   Future<void> _cambiarCantidad(Map<String, dynamic> item, int delta) async {
     final pedido = _pedido;
     if (pedido == null) return;
@@ -288,7 +288,7 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
     }
   }
 
-  // Env?f�a el pedido para validaci?f�n del mozo.
+  // Env?f?a el pedido para validaci?f?n del mozo.
   Future<void> _enviarPedido() async {
     final pedido = _pedido;
     if (pedido == null) return;
@@ -306,7 +306,7 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
       } catch (_) {}
 
       _mostrarMensaje(
-        'Pedido enviado al mozo para confirmaci?f�n.',
+        'Pedido enviado al mozo para confirmación.',
         esError: false,
       );
       await _cargar();
@@ -324,7 +324,7 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
     }
   }
 
-  // Cliente confirma recepci?f�n luego de entrega del mozo.
+  // Cliente confirma recepci?f?n luego de entrega del mozo.
   Future<void> _confirmarRecepcion() async {
     final pedido = _pedido;
     if (pedido == null) return;
@@ -333,14 +333,14 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
     try {
       await _repo.confirmarRecepcionCliente(pedido['id'] as String);
       if (!mounted) return;
-      _mostrarMensaje('Recepci?f�n confirmada.', esError: false);
+      _mostrarMensaje('Recepción confirmada.', esError: false);
       await _cargar();
     } catch (error) {
       if (!mounted) return;
       _mostrarMensaje(
         AppErrorMapper.toUserMessage(
           error,
-          fallbackMessage: 'No se pudo confirmar la recepci?f�n.',
+        fallbackMessage: 'No se pudo confirmar la recepción.',
         ),
         esError: true,
       );
@@ -365,7 +365,7 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
           body: {
             'sector': 'mozo',
             'numeroMesa': widget.numeroMesa.toString(),
-            'mensaje': '�Y�� La mesa ${widget.numeroMesa} solicita la cuenta',
+            'mensaje': '?Y?? La mesa ${widget.numeroMesa} solicita la cuenta',
           },
         );
       } catch (_) {}
@@ -397,7 +397,7 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
       context,
     ).push<int>(MaterialPageRoute(builder: (_) => const PropinaScannerPage()));
 
-    // Si el usuario cerr?f� sin escanear, no hace nada
+    // Si el usuario cerr?f? sin escanear, no hace nada
     if (seleccion == null) return;
 
     setState(() => _procesando = true);
@@ -408,7 +408,7 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
       );
       if (!mounted) return;
 
-      // Notificar al mozo, due?f�o y supervisor
+      // Notificar al mozo, due?f?o y supervisor
       try {
         await Supabase.instance.client.functions.invoke(
           'notificar-pago-cliente',
@@ -435,7 +435,7 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
     }
   }
 
-  // Muestra desglose completo de cuenta: ?f�tems, descuento, propina y total.
+  // Muestra desglose completo de cuenta: ?f?tems, descuento, propina y total.
   Future<void> _mostrarDetalleCuenta() async {
     setState(() => _procesando = true);
     try {
@@ -513,7 +513,7 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
                         vertical: 18,
                       ),
                       child: Text(
-                        'No hay ?f�tems en la cuenta.',
+                    'No hay ítems en la cuenta.',
                         textAlign: TextAlign.center,
                         style: TextStyle(color: Colors.white70),
                       ),
@@ -722,7 +722,7 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
                             _items.isEmpty
                                 ? const Center(
                                   child: Text(
-                                    'A?f�n no hay productos en el pedido.',
+                'Aún no hay productos en el pedido.',
                                     style: TextStyle(color: Colors.white70),
                                   ),
                                 )
@@ -842,7 +842,7 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
                               ),
                             if (estado == 'entregado_por_mozo')
                               _AccionPrincipal(
-                                texto: 'Confirmar recepci?f�n',
+                      texto: 'Confirmar recepción',
                                 onPressed:
                                     _procesando ? null : _confirmarRecepcion,
                                 loading: _procesando,
@@ -959,7 +959,7 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
                               const Padding(
                                 padding: EdgeInsets.only(top: 8),
                                 child: Text(
-                                  'Pago enviado. Esperando confirmaci?f�n del mozo.',
+                'Pago enviado. Esperando confirmación del mozo.',
                                   style: TextStyle(color: Colors.white70),
                                 ),
                               ),
@@ -992,7 +992,7 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
       case 'confirmado_mozo':
         return 'Confirmado';
       case 'en_preparacion':
-        return 'En preparaci?f�n';
+        return 'En preparación';
       case 'listo_para_entrega':
         return 'Listo para entrega';
       case 'entregado_por_mozo':

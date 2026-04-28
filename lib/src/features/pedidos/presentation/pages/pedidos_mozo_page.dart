@@ -190,7 +190,7 @@ class _PedidosMozoPageState extends State<PedidosMozoPage> {
                   const Text('Rechazar pedido'),
                   const SizedBox(height: 12),
                   const Text(
-                    'El pedido serÃ¡ rechazado y el cliente podrÃ¡ modificarlo.',
+      'El pedido será rechazado y el cliente podrá modificarlo.',
                   ),
                   const SizedBox(height: 14),
                   Row(
@@ -319,7 +319,7 @@ class _PedidosMozoPageState extends State<PedidosMozoPage> {
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    'Â¿Confirmar pago de la mesa $numeroMesa y liberar la mesa?',
+      '¿Confirmar pago de la mesa $numeroMesa y liberar la mesa?',
                     style: const TextStyle(
                       color: Color(0xFF3A2222),
                       height: 1.35,

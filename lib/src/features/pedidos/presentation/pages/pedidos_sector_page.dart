@@ -64,7 +64,7 @@ class _PedidosSectorPageState extends State<PedidosSectorPage> {
         itemId: item['id'] as String,
       );
 
-      // �Y?????? Verificar si el pedido completo est?f� listo
+      // ?Y?????? Verificar si el pedido completo est?f? listo
       try {
         final mesaMap = pedido?['mesas'] as Map<String, dynamic>?;
         final numeroMesa = mesaMap?['numero']?.toString() ?? '-';
@@ -85,21 +85,21 @@ class _PedidosSectorPageState extends State<PedidosSectorPage> {
               'sector': 'mozo',
               'numeroMesa': numeroMesa,
               'mensaje':
-                  '�?"??? Pedido completo listo para entregar - Mesa $numeroMesa',
+                  '??"??? Pedido completo listo para entregar - Mesa $numeroMesa',
             },
           );
         }
       } catch (_) {}
 
       if (!mounted) return;
-      _mostrarMensaje('?f�tem marcado como listo.', esError: false);
+      _mostrarMensaje('Ítem marcado como listo.', esError: false);
       await _cargar();
     } catch (error) {
       if (!mounted) return;
       _mostrarMensaje(
         AppErrorMapper.toUserMessage(
           error,
-          fallbackMessage: 'No se pudo marcar el ?f�tem.',
+        fallbackMessage: 'No se pudo marcar el ítem.',
         ),
         esError: true,
       );
