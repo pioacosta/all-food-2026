@@ -313,7 +313,7 @@ class _HomePageState extends State<HomePage> {
       if (esMozo)
         _DashboardAction(
           icon: Icons.receipt_long_outlined,
-          titulo: 'Pedidos y pagos',
+          titulo: 'Gestión',
           color: const Color(0xFF4F46E5),
           onTap: () => Navigator.pushNamed(context, '/pedidos-mozo'),
         ),
