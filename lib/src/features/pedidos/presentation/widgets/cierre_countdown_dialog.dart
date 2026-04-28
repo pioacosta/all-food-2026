@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:all_food/src/shared/widgets/logo_spinner.dart';
 import 'package:flutter/material.dart';
 
 class CierreCountdownDialog extends StatefulWidget {
@@ -70,19 +71,13 @@ class _CierreCountdownDialogState extends State<CierreCountdownDialog> {
               style: TextStyle(color: Colors.white70, fontSize: 14),
             ),
             const SizedBox(height: 24),
-            // Indicador circular de progreso
             SizedBox(
               width: 64,
               height: 64,
               child: Stack(
                 fit: StackFit.expand,
                 children: [
-                  CircularProgressIndicator(
-                    value: _segundosRestantes / _segundosInicio,
-                    strokeWidth: 5,
-                    backgroundColor: Colors.white24,
-                    color: Colors.white,
-                  ),
+                  const LogoSpinner(size: 64, strokeWidth: 4),
                   Center(
                     child: Text(
                       '$_segundosRestantes',

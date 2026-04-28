@@ -1,8 +1,10 @@
+import 'package:flutter/material.dart';
 import 'package:all_food/src/features/pedidos/data/repositories/pedidos_repository.dart';
 import 'package:all_food/src/shared/errors/app_error_mapper.dart';
 import 'package:all_food/src/shared/widgets/logo_spinner.dart';
-import 'package:flutter/material.dart';
+import 'package:all_food/src/shared/utils/error_feedback.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+
 class PedidosSectorPage extends StatefulWidget {
   const PedidosSectorPage({required this.sector, super.key});
 
@@ -50,62 +52,66 @@ class _PedidosSectorPageState extends State<PedidosSectorPage> {
     }
   }
 
-Future<void> _marcarListo(Map<String, dynamic> item) async {
-  final pedido = item['pedidos'] as Map<String, dynamic>?;
-  final pedidoId = pedido?['id'] as String?;
-  if (pedidoId == null) return;
+  Future<void> _marcarListo(Map<String, dynamic> item) async {
+    final pedido = item['pedidos'] as Map<String, dynamic>?;
+    final pedidoId = pedido?['id'] as String?;
+    if (pedidoId == null) return;
 
-  setState(() => _procesando = true);
-  try {
-    await _repo.marcarItemListo(
-      pedidoId: pedidoId,
-      itemId: item['id'] as String,
-    );
-
-    // 🔔 Verificar si el pedido completo está listo
+    setState(() => _procesando = true);
     try {
-      final mesaMap = pedido?['mesas'] as Map<String, dynamic>?;
-      final numeroMesa = mesaMap?['numero']?.toString() ?? '-';
-
-      // Buscar todos los items del pedido y su estado
-      final todosItems = await Supabase.instance.client
-          .from('pedido_items')
-          .select('estado, id')
-          .eq('pedido_id', pedidoId);
-      final todosListos = todosItems.every(
-        (i) => i['estado']?.toString() == 'listo' || i['id'] == item['id'],
+      await _repo.marcarItemListo(
+        pedidoId: pedidoId,
+        itemId: item['id'] as String,
       );
 
-      if (todosListos) {
-        await Supabase.instance.client.functions.invoke(
-          'notificar-sector',
-          body: {
-            'sector': 'mozo',
-            'numeroMesa': numeroMesa,
-            'mensaje': '✅ Pedido completo listo para entregar - Mesa $numeroMesa',
-          },
-        );
-      }
-    } catch (_) {}
+      // Ã°Å¸â€â€ Verificar si el pedido completo estÃƒÂ¡ listo
+      try {
+        final mesaMap = pedido?['mesas'] as Map<String, dynamic>?;
+        final numeroMesa = mesaMap?['numero']?.toString() ?? '-';
 
-    if (!mounted) return;
-    _mostrarMensaje('Ítem marcado como listo.', esError: false);
-    await _cargar();
-  } catch (error) {
-    if (!mounted) return;
-    _mostrarMensaje(
-      AppErrorMapper.toUserMessage(
-        error,
-        fallbackMessage: 'No se pudo marcar el ítem.',
-      ),
-      esError: true,
-    );
-  } finally {
-    if (mounted) setState(() => _procesando = false);
+        // Buscar todos los items del pedido y su estado
+        final todosItems = await Supabase.instance.client
+            .from('pedido_items')
+            .select('estado, id')
+            .eq('pedido_id', pedidoId);
+        final todosListos = todosItems.every(
+          (i) => i['estado']?.toString() == 'listo' || i['id'] == item['id'],
+        );
+
+        if (todosListos) {
+          await Supabase.instance.client.functions.invoke(
+            'notificar-sector',
+            body: {
+              'sector': 'mozo',
+              'numeroMesa': numeroMesa,
+              'mensaje':
+                  'Ã¢Å“â€¦ Pedido completo listo para entregar - Mesa $numeroMesa',
+            },
+          );
+        }
+      } catch (_) {}
+
+      if (!mounted) return;
+      _mostrarMensaje('ÃƒÂtem marcado como listo.', esError: false);
+      await _cargar();
+    } catch (error) {
+      if (!mounted) return;
+      _mostrarMensaje(
+        AppErrorMapper.toUserMessage(
+          error,
+          fallbackMessage: 'No se pudo marcar el ÃƒÂ­tem.',
+        ),
+        esError: true,
+      );
+    } finally {
+      if (mounted) setState(() => _procesando = false);
+    }
   }
-}
 
   void _mostrarMensaje(String mensaje, {required bool esError}) {
+    if (esError) {
+      ErrorFeedback.vibrate();
+    }
     ScaffoldMessenger.of(context)
       ..clearSnackBars()
       ..showSnackBar(

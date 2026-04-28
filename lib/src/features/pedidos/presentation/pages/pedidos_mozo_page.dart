@@ -1,8 +1,9 @@
+import 'package:flutter/material.dart';
 import 'package:all_food/src/features/pedidos/data/repositories/pedidos_repository.dart';
 import 'package:all_food/src/shared/errors/app_error_mapper.dart';
 import 'package:all_food/src/shared/utils/buenos_aires_time.dart';
 import 'package:all_food/src/shared/widgets/logo_spinner.dart';
-import 'package:flutter/material.dart';
+import 'package:all_food/src/shared/utils/error_feedback.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class PedidosMozoPage extends StatefulWidget {
@@ -112,10 +113,12 @@ class _PedidosMozoPageState extends State<PedidosMozoPage> {
       await _repo.confirmarPedido(pedidoId);
       try {
         final items = await _repo.getItemsPedidoById(pedidoId);
-        final tieneComida =
-            items.any((item) => item['tipo_producto']?.toString() == 'plato');
-        final tieneBebida =
-            items.any((item) => item['tipo_producto']?.toString() == 'bebida');
+        final tieneComida = items.any(
+          (item) => item['tipo_producto']?.toString() == 'plato',
+        );
+        final tieneBebida = items.any(
+          (item) => item['tipo_producto']?.toString() == 'bebida',
+        );
 
         final pedidoData =
             await Supabase.instance.client
@@ -150,11 +153,17 @@ class _PedidosMozoPageState extends State<PedidosMozoPage> {
 
       await _cargar();
       if (!mounted) return;
-      _mostrarMensaje('Pedido confirmado y enviado a sectores.', esError: false);
+      _mostrarMensaje(
+        'Pedido confirmado y enviado a sectores.',
+        esError: false,
+      );
     } catch (error) {
       if (!mounted) return;
       _mostrarMensaje(
-        AppErrorMapper.toUserMessage(error, fallbackMessage: 'No se pudo confirmar.'),
+        AppErrorMapper.toUserMessage(
+          error,
+          fallbackMessage: 'No se pudo confirmar.',
+        ),
         esError: true,
       );
     } finally {
@@ -166,32 +175,51 @@ class _PedidosMozoPageState extends State<PedidosMozoPage> {
     final confirmar = await showDialog<bool>(
       context: context,
       builder:
-          (_) => AlertDialog(
+          (_) => Dialog(
             backgroundColor: const Color(0xFFF7ECEC),
             surfaceTintColor: Colors.transparent,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
-            title: const Text('Rechazar pedido'),
-            content: const Text(
-              'El pedido será rechazado y el cliente podrá modificarlo.',
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(22),
             ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(false),
-                style: TextButton.styleFrom(foregroundColor: const Color(0xFF7A2021)),
-                child: const Text(
-                  'Cancelar',
-                  style: TextStyle(fontWeight: FontWeight.w700),
-                ),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(20, 18, 20, 16),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('Rechazar pedido'),
+                  const SizedBox(height: 12),
+                  const Text(
+                    'El pedido serÃ¡ rechazado y el cliente podrÃ¡ modificarlo.',
+                  ),
+                  const SizedBox(height: 14),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(false),
+                        style: TextButton.styleFrom(
+                          foregroundColor: const Color(0xFF7A2021),
+                        ),
+                        child: const Text(
+                          'Cancelar',
+                          style: TextStyle(fontWeight: FontWeight.w700),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      FilledButton(
+                        onPressed: () => Navigator.of(context).pop(true),
+                        style: FilledButton.styleFrom(
+                          backgroundColor: const Color(0xFFB62F2F),
+                          foregroundColor: Colors.white,
+                        ),
+                        child: const Text('Rechazar'),
+                      ),
+                    ],
+                  ),
+                ],
               ),
-              FilledButton(
-                onPressed: () => Navigator.of(context).pop(true),
-                style: FilledButton.styleFrom(
-                  backgroundColor: const Color(0xFFB62F2F),
-                  foregroundColor: Colors.white,
-                ),
-                child: const Text('Rechazar'),
-              ),
-            ],
+            ),
           ),
     );
     if (confirmar != true) return;
@@ -224,11 +252,17 @@ class _PedidosMozoPageState extends State<PedidosMozoPage> {
 
       await _cargar();
       if (!mounted) return;
-      _mostrarMensaje('Pedido rechazado para modificación del cliente.', esError: false);
+      _mostrarMensaje(
+        'Pedido rechazado para modificaciÃƒÂ³n del cliente.',
+        esError: false,
+      );
     } catch (error) {
       if (!mounted) return;
       _mostrarMensaje(
-        AppErrorMapper.toUserMessage(error, fallbackMessage: 'No se pudo rechazar.'),
+        AppErrorMapper.toUserMessage(
+          error,
+          fallbackMessage: 'No se pudo rechazar.',
+        ),
         esError: true,
       );
     } finally {
@@ -264,36 +298,61 @@ class _PedidosMozoPageState extends State<PedidosMozoPage> {
     final confirmar = await showDialog<bool>(
       context: context,
       builder:
-          (_) => AlertDialog(
+          (_) => Dialog(
             backgroundColor: const Color(0xFFF7ECEC),
             surfaceTintColor: Colors.transparent,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
-            title: const Text(
-              'Confirmar pago',
-              style: TextStyle(color: Color(0xFF2A1414), fontWeight: FontWeight.w700),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(22),
             ),
-            content: Text(
-              '¿Confirmar pago de la mesa $numeroMesa y liberar la mesa?',
-              style: const TextStyle(color: Color(0xFF3A2222), height: 1.35),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(20, 18, 20, 16),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Confirmar pago',
+                    style: TextStyle(
+                      color: Color(0xFF2A1414),
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    'Â¿Confirmar pago de la mesa $numeroMesa y liberar la mesa?',
+                    style: const TextStyle(
+                      color: Color(0xFF3A2222),
+                      height: 1.35,
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(false),
+                        style: TextButton.styleFrom(
+                          foregroundColor: const Color(0xFF7A2021),
+                        ),
+                        child: const Text(
+                          'Cancelar',
+                          style: TextStyle(fontWeight: FontWeight.w700),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      FilledButton(
+                        onPressed: () => Navigator.of(context).pop(true),
+                        style: FilledButton.styleFrom(
+                          backgroundColor: const Color(0xFF2D6A4F),
+                          foregroundColor: Colors.white,
+                        ),
+                        child: const Text('Confirmar'),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(false),
-                style: TextButton.styleFrom(foregroundColor: const Color(0xFF7A2021)),
-                child: const Text(
-                  'Cancelar',
-                  style: TextStyle(fontWeight: FontWeight.w700),
-                ),
-              ),
-              FilledButton(
-                onPressed: () => Navigator.of(context).pop(true),
-                style: FilledButton.styleFrom(
-                  backgroundColor: const Color(0xFF2D6A4F),
-                  foregroundColor: Colors.white,
-                ),
-                child: const Text('Confirmar'),
-              ),
-            ],
           ),
     );
     if (confirmar != true) return;
@@ -342,13 +401,16 @@ class _PedidosMozoPageState extends State<PedidosMozoPage> {
       final subtotal = ((detalle['subtotal'] as num?) ?? 0).toDouble();
       final descuentoPorcentaje =
           ((detalle['descuentoPorcentaje'] as num?) ?? 0).toDouble();
-      final montoDescuento = ((detalle['montoDescuento'] as num?) ?? 0).toDouble();
+      final montoDescuento =
+          ((detalle['montoDescuento'] as num?) ?? 0).toDouble();
       final propinaPorcentaje =
           ((detalle['propinaPorcentaje'] as num?) ?? 0).toDouble();
       final montoPropina = ((detalle['montoPropina'] as num?) ?? 0).toDouble();
       final total = ((detalle['total'] as num?) ?? 0).toDouble();
       final estado = detalle['estado']?.toString() ?? 'sin_pedido';
-      final emitidoAt = DateTime.tryParse(detalle['emitidoAt']?.toString() ?? '');
+      final emitidoAt = DateTime.tryParse(
+        detalle['emitidoAt']?.toString() ?? '',
+      );
 
       await showModalBottomSheet<void>(
         context: context,
@@ -402,7 +464,7 @@ class _PedidosMozoPageState extends State<PedidosMozoPage> {
                     const Padding(
                       padding: EdgeInsets.symmetric(vertical: 14),
                       child: Text(
-                        'No hay ítems en la cuenta.',
+                        'No hay ÃƒÂ­tems en la cuenta.',
                         textAlign: TextAlign.center,
                         style: TextStyle(color: Colors.white70),
                       ),
@@ -452,12 +514,16 @@ class _PedidosMozoPageState extends State<PedidosMozoPage> {
                     color: const Color(0xFFB8F5C3),
                   ),
                   _FilaCuentaMozo(
-                    titulo: 'Propina (${propinaPorcentaje.toStringAsFixed(0)}%)',
+                    titulo:
+                        'Propina (${propinaPorcentaje.toStringAsFixed(0)}%)',
                     valor: montoPropina,
                   ),
                   const SizedBox(height: 8),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 14,
+                    ),
                     decoration: BoxDecoration(
                       color: const Color(0xFF2D6A4F),
                       borderRadius: BorderRadius.circular(12),
@@ -492,7 +558,9 @@ class _PedidosMozoPageState extends State<PedidosMozoPage> {
     }
   }
 
-  Future<void> _mostrarDetallePedidoPendiente(Map<String, dynamic> pedido) async {
+  Future<void> _mostrarDetallePedidoPendiente(
+    Map<String, dynamic> pedido,
+  ) async {
     final pedidoId = pedido['id'] as String?;
     if (pedidoId == null) return;
     setState(() => _procesando = true);
@@ -503,7 +571,9 @@ class _PedidosMozoPageState extends State<PedidosMozoPage> {
       final mesa = pedido['mesas'] as Map<String, dynamic>?;
       final numeroMesa = mesa?['numero']?.toString() ?? '-';
       final cliente = pedido['cliente_nombre']?.toString() ?? 'Cliente';
-      final creadoAt = DateTime.tryParse(pedido['created_at']?.toString() ?? '');
+      final creadoAt = DateTime.tryParse(
+        pedido['created_at']?.toString() ?? '',
+      );
 
       setState(() => _procesando = false);
       final accion = await Navigator.of(context).push<_AccionPedidoPendiente>(
@@ -548,7 +618,7 @@ class _PedidosMozoPageState extends State<PedidosMozoPage> {
       case 'confirmado_mozo':
         return 'Confirmado';
       case 'en_preparacion':
-        return 'En preparación';
+        return 'En preparaciÃƒÂ³n';
       case 'listo_para_entrega':
         return 'Listo para entrega';
       case 'entregado_por_mozo':
@@ -566,9 +636,13 @@ class _PedidosMozoPageState extends State<PedidosMozoPage> {
     }
   }
 
-  String _formatearFechaHora(DateTime? fecha) => BuenosAiresTime.formatDateTime(fecha);
+  String _formatearFechaHora(DateTime? fecha) =>
+      BuenosAiresTime.formatDateTime(fecha);
 
   void _mostrarMensaje(String mensaje, {required bool esError}) {
+    if (esError) {
+      ErrorFeedback.vibrate();
+    }
     ScaffoldMessenger.of(context)
       ..clearSnackBars()
       ..showSnackBar(
@@ -583,7 +657,7 @@ class _PedidosMozoPageState extends State<PedidosMozoPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Gestión')),
+      appBar: AppBar(title: const Text('GestiÃƒÂ³n')),
       body: Container(
         width: double.infinity,
         decoration: const BoxDecoration(
@@ -641,18 +715,25 @@ class _PedidosMozoPageState extends State<PedidosMozoPage> {
                                 formatearFechaHora: _formatearFechaHora,
                                 actionLabel: 'Marcar entregado',
                                 onAction:
-                                    _procesando ? null : (p) => _marcarEntregado(p),
+                                    _procesando
+                                        ? null
+                                        : (p) => _marcarEntregado(p),
                               ),
                               _EstadoList(
-                                vacio: 'No hay pagos pendientes de confirmación.',
+                                vacio:
+                                    'No hay pagos pendientes de confirmaciÃƒÂ³n.',
                                 pedidos: _pagosPendientes,
                                 formatearFechaHora: _formatearFechaHora,
                                 actionLabel: 'Confirmar pago',
                                 onAction:
-                                    _procesando ? null : (p) => _confirmarPago(p),
+                                    _procesando
+                                        ? null
+                                        : (p) => _confirmarPago(p),
                                 secondaryLabel: 'Ver cuenta',
                                 onSecondary:
-                                    _procesando ? null : (p) => _mostrarDetalleCuenta(p),
+                                    _procesando
+                                        ? null
+                                        : (p) => _mostrarDetalleCuenta(p),
                               ),
                             ],
                           ),
@@ -686,7 +767,7 @@ class _PendientesList extends StatelessWidget {
     if (pedidos.isEmpty) {
       return const Center(
         child: Text(
-          'No hay pedidos pendientes de confirmación.',
+          'No hay pedidos pendientes de confirmaciÃƒÂ³n.',
           style: TextStyle(color: Colors.white70),
         ),
       );
@@ -842,7 +923,8 @@ class _EstadoList extends StatelessWidget {
                       const SizedBox(width: 8),
                     Expanded(
                       child: FilledButton(
-                        onPressed: onAction == null ? null : () => onAction!(pedido),
+                        onPressed:
+                            onAction == null ? null : () => onAction!(pedido),
                         style: FilledButton.styleFrom(
                           textStyle: const TextStyle(
                             fontSize: 16,
@@ -941,18 +1023,23 @@ class _DetallePedidoPendientePage extends StatelessWidget {
                       items.isEmpty
                           ? const Center(
                             child: Text(
-                              'Este pedido no tiene ítems.',
+                              'Este pedido no tiene ÃƒÂ­tems.',
                               style: TextStyle(color: Colors.white70),
                             ),
                           )
                           : ListView.separated(
                             itemCount: items.length,
-                            separatorBuilder: (_, __) => const SizedBox(height: 8),
+                            separatorBuilder:
+                                (_, __) => const SizedBox(height: 8),
                             itemBuilder: (context, index) {
                               final item = items[index];
-                              final nombre = item['nombre_snapshot']?.toString() ?? '-';
-                              final cantidad = (item['cantidad'] as num?)?.toInt() ?? 0;
-                              final precio = ((item['precio_unitario'] as num?) ?? 0).toDouble();
+                              final nombre =
+                                  item['nombre_snapshot']?.toString() ?? '-';
+                              final cantidad =
+                                  (item['cantidad'] as num?)?.toInt() ?? 0;
+                              final precio =
+                                  ((item['precio_unitario'] as num?) ?? 0)
+                                      .toDouble();
                               return Container(
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 14,

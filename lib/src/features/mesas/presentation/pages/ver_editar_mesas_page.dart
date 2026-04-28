@@ -1,10 +1,11 @@
+import 'package:flutter/material.dart';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 import 'package:all_food/src/features/mesas/data/repositories/mesas_repository.dart';
 import 'package:all_food/src/shared/errors/app_error_mapper.dart';
 import 'package:all_food/src/shared/widgets/logo_spinner.dart';
-import 'package:flutter/material.dart';
+import 'package:all_food/src/shared/utils/error_feedback.dart';
 import 'package:flutter/services.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
@@ -90,6 +91,9 @@ class _VerEditarMesasPageState extends State<VerEditarMesasPage> {
   }
 
   void _mostrarMensaje(String mensaje, {required bool esError}) {
+    if (esError) {
+      ErrorFeedback.vibrate();
+    }
     ScaffoldMessenger.of(context)
       ..clearSnackBars()
       ..showSnackBar(
@@ -160,50 +164,67 @@ class _VerEditarMesasPageState extends State<VerEditarMesasPage> {
     final confirmar = await showDialog<bool>(
       context: context,
       builder: (context) {
-        return AlertDialog(
+        return Dialog(
           backgroundColor: const Color(0xFFFFF7EF),
           surfaceTintColor: Colors.transparent,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-          title: const Text(
-            'Eliminar mesa',
-            style: TextStyle(
-              color: Color(0xFF2A1414),
-              fontWeight: FontWeight.w800,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(18),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 18, 20, 16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Eliminar mesa',
+                  style: TextStyle(
+                    color: Color(0xFF2A1414),
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  'Se eliminarÃ¡ la mesa ${mesa.numeroController.text.trim()}. Esta acciÃ³n no se puede deshacer.',
+                  style: const TextStyle(
+                    color: Color(0xFF3A2222),
+                    height: 1.35,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(false),
+                      style: TextButton.styleFrom(
+                        foregroundColor: const Color(0xFF6E3B3B),
+                        textStyle: const TextStyle(
+                          fontWeight: FontWeight.w700,
+                          fontSize: 15,
+                        ),
+                      ),
+                      child: const Text('Cancelar'),
+                    ),
+                    const SizedBox(width: 10),
+                    FilledButton(
+                      onPressed: () => Navigator.of(context).pop(true),
+                      style: FilledButton.styleFrom(
+                        backgroundColor: const Color(0xFFB62F2F),
+                        foregroundColor: Colors.white,
+                        textStyle: const TextStyle(
+                          fontWeight: FontWeight.w800,
+                          fontSize: 15,
+                        ),
+                      ),
+                      child: const Text('Eliminar'),
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
-          content: Text(
-            'Se eliminara la mesa ${mesa.numeroController.text.trim()}. Esta accion no se puede deshacer.',
-            style: const TextStyle(
-              color: Color(0xFF3A2222),
-              height: 1.35,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(false),
-              style: TextButton.styleFrom(
-                foregroundColor: const Color(0xFF6E3B3B),
-                textStyle: const TextStyle(
-                  fontWeight: FontWeight.w700,
-                  fontSize: 15,
-                ),
-              ),
-              child: const Text('Cancelar'),
-            ),
-            FilledButton(
-              onPressed: () => Navigator.of(context).pop(true),
-              style: FilledButton.styleFrom(
-                backgroundColor: const Color(0xFFB62F2F),
-                foregroundColor: Colors.white,
-                textStyle: const TextStyle(
-                  fontWeight: FontWeight.w800,
-                  fontSize: 15,
-                ),
-              ),
-              child: const Text('Eliminar'),
-            ),
-          ],
         );
       },
     );
@@ -249,85 +270,96 @@ class _VerEditarMesasPageState extends State<VerEditarMesasPage> {
     await showDialog<void>(
       context: context,
       builder: (context) {
-        return AlertDialog(
+        return Dialog(
           backgroundColor: const Color(0xFF2A1414),
           surfaceTintColor: Colors.transparent,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          title: const Text(
-            'QR de mesa',
-            style: TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.w800,
-              fontSize: 28,
-            ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
           ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                'Mesa ${mesa.numeroController.text.trim()}',
-                style: const TextStyle(
-                  color: Color(0xFFFFE8C2),
-                  fontWeight: FontWeight.w800,
-                  fontSize: 20,
-                ),
-              ),
-              const SizedBox(height: 12),
-              Container(
-                color: Colors.white,
-                padding: const EdgeInsets.all(10),
-                child:
-                    qrBytes != null
-                        ? Image.memory(
-                          qrBytes,
-                          width: 190,
-                          height: 190,
-                          fit: BoxFit.contain,
-                          filterQuality: FilterQuality.none,
-                        )
-                        : QrImageView(
-                          data: qrCodigo,
-                          version: QrVersions.auto,
-                          size: 190,
-                          backgroundColor: Colors.white,
-                        ),
-              ),
-              const SizedBox(height: 10),
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF3A2222),
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: const Color(0xFF6E3B3B)),
-                ),
-                child: SelectableText(
-                  qrCodigo,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    color: Color(0xFFFFE8C2),
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    letterSpacing: 0.2,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 18, 20, 14),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  'QR de mesa',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w800,
+                    fontSize: 28,
                   ),
                 ),
-              ),
-            ],
-          ),
-          actions: [
-            FilledButton(
-              style: FilledButton.styleFrom(
-                backgroundColor: const Color(0xFF7A2021),
-                foregroundColor: Colors.white,
-                textStyle: const TextStyle(
-                  fontWeight: FontWeight.w700,
-                  fontSize: 15,
+                const SizedBox(height: 10),
+                Text(
+                  'Mesa ${mesa.numeroController.text.trim()}',
+                  style: const TextStyle(
+                    color: Color(0xFFFFE8C2),
+                    fontWeight: FontWeight.w800,
+                    fontSize: 20,
+                  ),
                 ),
-              ),
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Cerrar'),
+                const SizedBox(height: 12),
+                Container(
+                  color: Colors.white,
+                  padding: const EdgeInsets.all(10),
+                  child:
+                      qrBytes != null
+                          ? Image.memory(
+                            qrBytes,
+                            width: 190,
+                            height: 190,
+                            fit: BoxFit.contain,
+                            filterQuality: FilterQuality.none,
+                          )
+                          : QrImageView(
+                            data: qrCodigo,
+                            version: QrVersions.auto,
+                            size: 190,
+                            backgroundColor: Colors.white,
+                          ),
+                ),
+                const SizedBox(height: 10),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 8,
+                  ),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF3A2222),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: const Color(0xFF6E3B3B)),
+                  ),
+                  child: SelectableText(
+                    qrCodigo,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      color: Color(0xFFFFE8C2),
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 0.2,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 14),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: FilledButton(
+                    style: FilledButton.styleFrom(
+                      backgroundColor: const Color(0xFF7A2021),
+                      foregroundColor: Colors.white,
+                      textStyle: const TextStyle(
+                        fontWeight: FontWeight.w700,
+                        fontSize: 15,
+                      ),
+                    ),
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: const Text('Cerrar'),
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
         );
       },
     );

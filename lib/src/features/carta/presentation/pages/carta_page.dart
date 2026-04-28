@@ -1,9 +1,10 @@
+import 'package:flutter/material.dart';
 import 'package:all_food/src/features/carta/data/models/producto_model.dart';
 import 'package:all_food/src/features/carta/data/repositories/carta_repository.dart';
 import 'package:all_food/src/features/carta/presentation/pages/producto_detalle_page.dart';
 import 'package:all_food/src/shared/errors/app_error_mapper.dart';
 import 'package:all_food/src/shared/widgets/logo_spinner.dart';
-import 'package:flutter/material.dart';
+import 'package:all_food/src/shared/utils/error_feedback.dart';
 import 'package:flutter/services.dart';
 
 class CartaPage extends StatefulWidget {
@@ -140,6 +141,9 @@ class _CartaPageState extends State<CartaPage> {
   }
 
   void _mostrarMensaje(String mensaje, {required bool esError}) {
+    if (esError) {
+      ErrorFeedback.vibrate();
+    }
     ScaffoldMessenger.of(context)
       ..clearSnackBars()
       ..showSnackBar(
@@ -170,163 +174,176 @@ class _CartaPageState extends State<CartaPage> {
           borderSide: const BorderSide(color: Color(0xFF7A2021), width: 1.5),
         );
 
-        return AlertDialog(
+        return Dialog(
           backgroundColor: const Color(0xFFF7ECEC),
           surfaceTintColor: Colors.transparent,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(24),
           ),
-          title: const Row(
-            children: [
-              Icon(Icons.edit_note, color: Color(0xFF7A2021), size: 24),
-              SizedBox(width: 8),
-              Text(
-                'Editar producto',
-                style: TextStyle(
-                  color: Color(0xFF2A1414),
-                  fontWeight: FontWeight.w700,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 18, 20, 16),
+            child: Form(
+              key: formKey,
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Row(
+                      children: [
+                        Icon(
+                          Icons.edit_note,
+                          color: Color(0xFF7A2021),
+                          size: 24,
+                        ),
+                        SizedBox(width: 8),
+                        Text(
+                          'Editar producto',
+                          style: TextStyle(
+                            color: Color(0xFF2A1414),
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 14),
+                    TextFormField(
+                      initialValue: nombre,
+                      style: const TextStyle(color: Color(0xFF2A1414)),
+                      cursorColor: const Color(0xFF7A2021),
+                      maxLength: _maxNombre,
+                      inputFormatters: [
+                        LengthLimitingTextInputFormatter(_maxNombre),
+                      ],
+                      decoration: InputDecoration(
+                        labelText: 'Nombre',
+                        labelStyle: const TextStyle(color: Color(0xFF5D3030)),
+                        filled: true,
+                        fillColor: Colors.white,
+                        enabledBorder: borde,
+                        focusedBorder: foco,
+                      ),
+                      validator:
+                          (v) =>
+                              v == null || v.trim().isEmpty
+                                  ? 'Campo requerido'
+                                  : null,
+                      onChanged: (v) => nombre = v,
+                    ),
+                    const SizedBox(height: 10),
+                    TextFormField(
+                      initialValue: descripcion,
+                      style: const TextStyle(color: Color(0xFF2A1414)),
+                      cursorColor: const Color(0xFF7A2021),
+                      maxLines: 3,
+                      maxLength: _maxDescripcion,
+                      inputFormatters: [
+                        LengthLimitingTextInputFormatter(_maxDescripcion),
+                      ],
+                      decoration: InputDecoration(
+                        labelText: 'DescripciÃƒÂ³n',
+                        labelStyle: const TextStyle(color: Color(0xFF5D3030)),
+                        filled: true,
+                        fillColor: Colors.white,
+                        enabledBorder: borde,
+                        focusedBorder: foco,
+                      ),
+                      validator:
+                          (v) =>
+                              v == null || v.trim().isEmpty
+                                  ? 'Campo requerido'
+                                  : null,
+                      onChanged: (v) => descripcion = v,
+                    ),
+                    const SizedBox(height: 10),
+                    TextFormField(
+                      initialValue: tiempoTexto,
+                      style: const TextStyle(color: Color(0xFF2A1414)),
+                      cursorColor: const Color(0xFF7A2021),
+                      keyboardType: TextInputType.number,
+                      maxLength: _maxTiempo,
+                      inputFormatters: [
+                        LengthLimitingTextInputFormatter(_maxTiempo),
+                      ],
+                      decoration: InputDecoration(
+                        labelText: 'Tiempo (minutos)',
+                        labelStyle: const TextStyle(color: Color(0xFF5D3030)),
+                        filled: true,
+                        fillColor: Colors.white,
+                        enabledBorder: borde,
+                        focusedBorder: foco,
+                      ),
+                      validator:
+                          (v) =>
+                              int.tryParse(v ?? '') == null
+                                  ? 'NÃƒÂºmero invÃƒÂ¡lido'
+                                  : null,
+                      onChanged: (v) => tiempoTexto = v,
+                    ),
+                    const SizedBox(height: 10),
+                    TextFormField(
+                      initialValue: precioTexto,
+                      style: const TextStyle(color: Color(0xFF2A1414)),
+                      cursorColor: const Color(0xFF7A2021),
+                      keyboardType: const TextInputType.numberWithOptions(
+                        decimal: true,
+                      ),
+                      maxLength: _maxPrecio,
+                      inputFormatters: [
+                        LengthLimitingTextInputFormatter(_maxPrecio),
+                      ],
+                      decoration: InputDecoration(
+                        labelText: 'Precio',
+                        labelStyle: const TextStyle(color: Color(0xFF5D3030)),
+                        filled: true,
+                        fillColor: Colors.white,
+                        enabledBorder: borde,
+                        focusedBorder: foco,
+                      ),
+                      validator:
+                          (v) =>
+                              double.tryParse(v ?? '') == null
+                                  ? 'NÃƒÂºmero invÃƒÂ¡lido'
+                                  : null,
+                      onChanged: (v) => precioTexto = v,
+                    ),
+                    const SizedBox(height: 16),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        OutlinedButton(
+                          onPressed: () => Navigator.of(context).pop(),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: const Color(0xFF7A2021),
+                            side: const BorderSide(color: Color(0xFF7A2021)),
+                            minimumSize: const Size(110, 44),
+                          ),
+                          child: const Text('Cancelar'),
+                        ),
+                        const SizedBox(width: 10),
+                        FilledButton(
+                          onPressed: () {
+                            if (!formKey.currentState!.validate()) return;
+                            Navigator.of(context).pop({
+                              'nombre': nombre.trim(),
+                              'descripcion': descripcion.trim(),
+                              'tiempoMin': int.parse(tiempoTexto.trim()),
+                              'precio': double.parse(precioTexto.trim()),
+                            });
+                          },
+                          style: FilledButton.styleFrom(
+                            backgroundColor: const Color(0xFF7A2021),
+                            foregroundColor: Colors.white,
+                            minimumSize: const Size(110, 44),
+                          ),
+                          child: const Text('Guardar'),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ),
-            ],
-          ),
-          content: Form(
-            key: formKey,
-            child: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextFormField(
-                    initialValue: nombre,
-                    style: const TextStyle(color: Color(0xFF2A1414)),
-                    cursorColor: const Color(0xFF7A2021),
-                    maxLength: _maxNombre,
-                    inputFormatters: [
-                      LengthLimitingTextInputFormatter(_maxNombre),
-                    ],
-                    decoration: InputDecoration(
-                      labelText: 'Nombre',
-                      labelStyle: const TextStyle(color: Color(0xFF5D3030)),
-                      filled: true,
-                      fillColor: Colors.white,
-                      enabledBorder: borde,
-                      focusedBorder: foco,
-                    ),
-                    validator:
-                        (v) =>
-                            v == null || v.trim().isEmpty
-                                ? 'Campo requerido'
-                                : null,
-                    onChanged: (v) => nombre = v,
-                  ),
-                  const SizedBox(height: 10),
-                  TextFormField(
-                    initialValue: descripcion,
-                    style: const TextStyle(color: Color(0xFF2A1414)),
-                    cursorColor: const Color(0xFF7A2021),
-                    maxLines: 3,
-                    maxLength: _maxDescripcion,
-                    inputFormatters: [
-                      LengthLimitingTextInputFormatter(_maxDescripcion),
-                    ],
-                    decoration: InputDecoration(
-                      labelText: 'Descripción',
-                      labelStyle: const TextStyle(color: Color(0xFF5D3030)),
-                      filled: true,
-                      fillColor: Colors.white,
-                      enabledBorder: borde,
-                      focusedBorder: foco,
-                    ),
-                    validator:
-                        (v) =>
-                            v == null || v.trim().isEmpty
-                                ? 'Campo requerido'
-                                : null,
-                    onChanged: (v) => descripcion = v,
-                  ),
-                  const SizedBox(height: 10),
-                  TextFormField(
-                    initialValue: tiempoTexto,
-                    style: const TextStyle(color: Color(0xFF2A1414)),
-                    cursorColor: const Color(0xFF7A2021),
-                    keyboardType: TextInputType.number,
-                    maxLength: _maxTiempo,
-                    inputFormatters: [
-                      LengthLimitingTextInputFormatter(_maxTiempo),
-                    ],
-                    decoration: InputDecoration(
-                      labelText: 'Tiempo (minutos)',
-                      labelStyle: const TextStyle(color: Color(0xFF5D3030)),
-                      filled: true,
-                      fillColor: Colors.white,
-                      enabledBorder: borde,
-                      focusedBorder: foco,
-                    ),
-                    validator:
-                        (v) =>
-                            int.tryParse(v ?? '') == null
-                                ? 'Número inválido'
-                                : null,
-                    onChanged: (v) => tiempoTexto = v,
-                  ),
-                  const SizedBox(height: 10),
-                  TextFormField(
-                    initialValue: precioTexto,
-                    style: const TextStyle(color: Color(0xFF2A1414)),
-                    cursorColor: const Color(0xFF7A2021),
-                    keyboardType: const TextInputType.numberWithOptions(
-                      decimal: true,
-                    ),
-                    maxLength: _maxPrecio,
-                    inputFormatters: [
-                      LengthLimitingTextInputFormatter(_maxPrecio),
-                    ],
-                    decoration: InputDecoration(
-                      labelText: 'Precio',
-                      labelStyle: const TextStyle(color: Color(0xFF5D3030)),
-                      filled: true,
-                      fillColor: Colors.white,
-                      enabledBorder: borde,
-                      focusedBorder: foco,
-                    ),
-                    validator:
-                        (v) =>
-                            double.tryParse(v ?? '') == null
-                                ? 'Número inválido'
-                                : null,
-                    onChanged: (v) => precioTexto = v,
-                  ),
-                ],
-              ),
             ),
           ),
-          actions: [
-            OutlinedButton(
-              onPressed: () => Navigator.of(context).pop(),
-              style: OutlinedButton.styleFrom(
-                foregroundColor: const Color(0xFF7A2021),
-                side: const BorderSide(color: Color(0xFF7A2021)),
-                minimumSize: const Size(110, 44),
-              ),
-              child: const Text('Cancelar'),
-            ),
-            FilledButton(
-              onPressed: () {
-                if (!formKey.currentState!.validate()) return;
-                Navigator.of(context).pop({
-                  'nombre': nombre.trim(),
-                  'descripcion': descripcion.trim(),
-                  'tiempoMin': int.parse(tiempoTexto.trim()),
-                  'precio': double.parse(precioTexto.trim()),
-                });
-              },
-              style: FilledButton.styleFrom(
-                backgroundColor: const Color(0xFF7A2021),
-                foregroundColor: Colors.white,
-                minimumSize: const Size(110, 44),
-              ),
-              child: const Text('Guardar'),
-            ),
-          ],
         );
       },
     );
@@ -368,49 +385,71 @@ class _CartaPageState extends State<CartaPage> {
     final confirmar = await showDialog<bool>(
       context: context,
       builder: (context) {
-        return AlertDialog(
+        return Dialog(
           backgroundColor: const Color(0xFFF7ECEC),
           surfaceTintColor: Colors.transparent,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(24),
           ),
-          title: const Row(
-            children: [
-              Icon(Icons.warning_rounded, color: Color(0xFFB62F2F), size: 24),
-              SizedBox(width: 8),
-              Text(
-                'Eliminar producto',
-                style: TextStyle(
-                  color: Color(0xFF2A1414),
-                  fontWeight: FontWeight.w700,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 18, 20, 16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Row(
+                  children: [
+                    Icon(
+                      Icons.warning_rounded,
+                      color: Color(0xFFB62F2F),
+                      size: 24,
+                    ),
+                    SizedBox(width: 8),
+                    Text(
+                      'Eliminar producto',
+                      style: TextStyle(
+                        color: Color(0xFF2A1414),
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-            ],
-          ),
-          content: Text(
-            'Se eliminará "${producto.nombre}" de la carta. Esta acción no se puede deshacer.',
-            style: const TextStyle(color: Color(0xFF3A2222), height: 1.35),
-          ),
-          actions: [
-            OutlinedButton(
-              onPressed: () => Navigator.of(context).pop(false),
-              style: OutlinedButton.styleFrom(
-                foregroundColor: const Color(0xFF7A2021),
-                side: const BorderSide(color: Color(0xFF7A2021)),
-                minimumSize: const Size(110, 44),
-              ),
-              child: const Text('Cancelar'),
+                const SizedBox(height: 14),
+                Text(
+                  'Se eliminarÃ¡ "${producto.nombre}" de la carta. Esta acciÃ³n no se puede deshacer.',
+                  style: const TextStyle(
+                    color: Color(0xFF3A2222),
+                    height: 1.35,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    OutlinedButton(
+                      onPressed: () => Navigator.of(context).pop(false),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: const Color(0xFF7A2021),
+                        side: const BorderSide(color: Color(0xFF7A2021)),
+                        minimumSize: const Size(110, 44),
+                      ),
+                      child: const Text('Cancelar'),
+                    ),
+                    const SizedBox(width: 10),
+                    FilledButton(
+                      onPressed: () => Navigator.of(context).pop(true),
+                      style: FilledButton.styleFrom(
+                        backgroundColor: const Color(0xFFB62F2F),
+                        foregroundColor: Colors.white,
+                        minimumSize: const Size(110, 44),
+                      ),
+                      child: const Text('Eliminar'),
+                    ),
+                  ],
+                ),
+              ],
             ),
-            FilledButton(
-              onPressed: () => Navigator.of(context).pop(true),
-              style: FilledButton.styleFrom(
-                backgroundColor: const Color(0xFFB62F2F),
-                foregroundColor: Colors.white,
-                minimumSize: const Size(110, 44),
-              ),
-              child: const Text('Eliminar'),
-            ),
-          ],
+          ),
         );
       },
     );
@@ -680,7 +719,7 @@ class _CartaPageState extends State<CartaPage> {
                                 ),
                                 const SizedBox(width: 12),
                                 Text(
-                                  'Página ${_paginaActual + 1} / $_totalPaginas',
+                                  'PÃƒÂ¡gina ${_paginaActual + 1} / $_totalPaginas',
                                   style: const TextStyle(
                                     color: Color(0xFFFFE9E9),
                                     fontWeight: FontWeight.w700,
@@ -735,9 +774,9 @@ class _ProductoCard extends StatelessWidget {
 
   static String _limitarTexto(String value, int maxChars) {
     final limpio = value.trim();
-    if (maxChars <= 1) return limpio.isEmpty ? '' : '…';
+    if (maxChars <= 1) return limpio.isEmpty ? '' : 'Ã¢â‚¬Â¦';
     if (limpio.length <= maxChars) return limpio;
-    return '${limpio.substring(0, maxChars - 1)}…';
+    return '${limpio.substring(0, maxChars - 1)}Ã¢â‚¬Â¦';
   }
 
   @override
@@ -940,7 +979,7 @@ class _SlotVacioProducto extends StatelessWidget {
       child:
           mostrarMensaje
               ? const Text(
-                'No hay más productos',
+                'No hay mÃƒÂ¡s productos',
                 style: TextStyle(
                   color: Colors.white70,
                   fontWeight: FontWeight.w600,

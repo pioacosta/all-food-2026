@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'dart:ui';
 
 import 'package:all_food/src/features/carta/data/repositories/carta_repository.dart';
@@ -7,14 +8,14 @@ import 'package:all_food/src/features/pedidos/data/repositories/pedidos_reposito
 import 'package:all_food/src/features/pedidos/presentation/pages/cliente_pedido_page.dart';
 import 'package:all_food/src/shared/errors/app_error_mapper.dart';
 import 'package:all_food/src/shared/widgets/logo_spinner.dart';
-import 'package:flutter/material.dart';
+import 'package:all_food/src/shared/utils/error_feedback.dart';
 import 'package:flutter/services.dart';
 
-// ─────────────────────────────────────────────────────────────
+// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 //  CartaClientePage
 //  Recibe [tipo] ('plato' | 'bebida') igual que CartaPage,
-//  de modo que el flujo puede instanciarla para cada sección.
-// ─────────────────────────────────────────────────────────────
+//  de modo que el flujo puede instanciarla para cada secciÃƒÂ³n.
+// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 class CartaClientePage extends StatefulWidget {
   const CartaClientePage({
     this.initialCategoria,
@@ -35,8 +36,8 @@ class _CartaClientePageState extends State<CartaClientePage> {
   final _repository = CartaRepository();
   final _pedidosRepository = PedidosRepository();
   final _searchController = TextEditingController();
-  // En cliente usamos 3 ítems por página para evitar overflow en pantallas
-  // chicas al combinar filtros + resumen + paginación.
+  // En cliente usamos 3 ÃƒÂ­tems por pÃƒÂ¡gina para evitar overflow en pantallas
+  // chicas al combinar filtros + resumen + paginaciÃƒÂ³n.
   static const int _itemsPorPagina = 4;
   String _categoria = 'todos';
   int _paginaActual = 0;
@@ -181,7 +182,7 @@ class _CartaClientePageState extends State<CartaClientePage> {
   }) async {
     if (widget.mesaId == null) {
       _mostrarMensaje(
-        'No hay mesa vinculada. Escaneá el QR de mesa para pedir.',
+        'No hay mesa vinculada. EscaneÃƒÂ¡ el QR de mesa para pedir.',
         esError: true,
       );
       return;
@@ -219,7 +220,7 @@ class _CartaClientePageState extends State<CartaClientePage> {
   Future<void> _abrirVistaPreviaProducto(ProductoModel producto) async {
     if (widget.mesaId == null) {
       _mostrarMensaje(
-        'No hay mesa vinculada. Escaneá el QR de mesa para pedir.',
+        'No hay mesa vinculada. EscaneÃƒÂ¡ el QR de mesa para pedir.',
         esError: true,
       );
       return;
@@ -252,6 +253,9 @@ class _CartaClientePageState extends State<CartaClientePage> {
   }
 
   void _mostrarMensaje(String mensaje, {required bool esError}) {
+    if (esError) {
+      ErrorFeedback.vibrate();
+    }
     ScaffoldMessenger.of(context)
       ..clearSnackBars()
       ..showSnackBar(
@@ -295,7 +299,7 @@ class _CartaClientePageState extends State<CartaClientePage> {
         child: SafeArea(
           child: Column(
             children: [
-              // ── Buscador ──────────────────────────────────────────────
+              // Ã¢â€â‚¬Ã¢â€â‚¬ Buscador Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 14, 16, 6),
                 child: TextField(
@@ -382,7 +386,7 @@ class _CartaClientePageState extends State<CartaClientePage> {
                 ),
               ),
 
-              // ── Contenido ─────────────────────────────────────────────
+              // Ã¢â€â‚¬Ã¢â€â‚¬ Contenido Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
               Expanded(
                 child:
                     _cargando
@@ -419,7 +423,7 @@ class _CartaClientePageState extends State<CartaClientePage> {
                         )
                         : Column(
                           children: [
-                            // ── Grid 2x2 ──────────────────────────────────
+                            // Ã¢â€â‚¬Ã¢â€â‚¬ Grid 2x2 Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
                             Expanded(
                               child: Padding(
                                 padding: const EdgeInsets.fromLTRB(
@@ -449,7 +453,7 @@ class _CartaClientePageState extends State<CartaClientePage> {
                                 ),
                               ),
                             ),
-                            // ── Paginación ─────────────────────────────────
+                            // Ã¢â€â‚¬Ã¢â€â‚¬ PaginaciÃƒÂ³n Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
                             Padding(
                               padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
                               child: Row(
@@ -463,12 +467,12 @@ class _CartaClientePageState extends State<CartaClientePage> {
                                             : _irPaginaAnterior,
                                     icon: Icon(
                                       Icons
-                                          .chevron_left_rounded, // ← rounded se ve más grueso
+                                          .chevron_left_rounded, // Ã¢â€ Â rounded se ve mÃƒÂ¡s grueso
                                       color:
                                           _paginaActual == 0
                                               ? Colors.white24
                                               : Colors.white70,
-                                      size: 36, // ← más grande
+                                      size: 36, // Ã¢â€ Â mÃƒÂ¡s grande
                                     ),
                                   ),
                                   Text(
@@ -476,10 +480,11 @@ class _CartaClientePageState extends State<CartaClientePage> {
                                     style: const TextStyle(
                                       color:
                                           Colors
-                                              .white70, // ← un poco más visible
-                                      fontSize: 16, // ← más grande
+                                              .white70, // Ã¢â€ Â un poco mÃƒÂ¡s visible
+                                      fontSize: 16, // Ã¢â€ Â mÃƒÂ¡s grande
                                       fontWeight:
-                                          FontWeight.w800, // ← más grueso
+                                          FontWeight
+                                              .w800, // Ã¢â€ Â mÃƒÂ¡s grueso
                                     ),
                                   ),
                                   IconButton(
@@ -489,12 +494,12 @@ class _CartaClientePageState extends State<CartaClientePage> {
                                             : _irPaginaSiguiente,
                                     icon: Icon(
                                       Icons
-                                          .chevron_right_rounded, // ← rounded se ve más grueso
+                                          .chevron_right_rounded, // Ã¢â€ Â rounded se ve mÃƒÂ¡s grueso
                                       color:
                                           _paginaActual >= _totalPaginas - 1
                                               ? Colors.white24
                                               : Colors.white70,
-                                      size: 36, // ← más grande
+                                      size: 36, // Ã¢â€ Â mÃƒÂ¡s grande
                                     ),
                                   ),
                                 ],
@@ -515,7 +520,7 @@ class _CartaClientePageState extends State<CartaClientePage> {
                   ),
                   child: Row(
                     children: [
-                      // ── Total + Tiempo ─────────────────────────────────
+                      // Ã¢â€â‚¬Ã¢â€â‚¬ Total + Tiempo Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
                       Expanded(
                         flex: 3,
                         child: Column(
@@ -571,7 +576,7 @@ class _CartaClientePageState extends State<CartaClientePage> {
                         ),
                       ),
                       const SizedBox(width: 8),
-                      // ── Botón ver pedido ───────────────────────────────
+                      // Ã¢â€â‚¬Ã¢â€â‚¬ BotÃƒÂ³n ver pedido Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
                       GestureDetector(
                         onTap: () {
                           Navigator.push(
@@ -650,12 +655,15 @@ class _ProductoCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white.withValues(alpha: 0.12),
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: Colors.white.withValues(alpha: 0.15), width: 0.8),
+          border: Border.all(
+            color: Colors.white.withValues(alpha: 0.15),
+            width: 0.8,
+          ),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // ── Foto ──────────────────────────────────────────────────
+            // Ã¢â€â‚¬Ã¢â€â‚¬ Foto Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
             Expanded(
               child: ClipRRect(
                 borderRadius: const BorderRadius.vertical(
@@ -687,7 +695,7 @@ class _ProductoCard extends StatelessWidget {
                 ),
               ),
             ),
-            // ── Nombre y precio ───────────────────────────────────────
+            // Ã¢â€â‚¬Ã¢â€â‚¬ Nombre y precio Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
             Padding(
               padding: const EdgeInsets.fromLTRB(10, 8, 10, 10),
               child: Column(

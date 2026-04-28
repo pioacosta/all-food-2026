@@ -16,9 +16,9 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:all_food/src/features/productos/presentation/pages/crear_producto_page.dart';
 import 'package:all_food/src/shared/theme/app_ui.dart';
-import 'features/home/presentation/pages/home_page.dart';
-import 'features/auth/presentation/pages/login_page.dart';
-import 'features/splash/splash_page.dart';
+import 'package:all_food/src/features/auth/presentation/pages/login_entry_page.dart';
+import 'package:all_food/src/features/home/presentation/pages/home_page.dart';
+import 'package:all_food/src/features/splash/splash_page.dart';
 
 class AllFoodApp extends StatelessWidget {
   const AllFoodApp({

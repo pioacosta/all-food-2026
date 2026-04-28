@@ -1,7 +1,8 @@
+import 'package:flutter/material.dart';
 import 'package:all_food/src/features/clientes/data/repository/cliente_repository.dart';
 import 'package:all_food/src/shared/widgets/logo_spinner.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter/material.dart';
+import 'package:all_food/src/shared/utils/error_feedback.dart';
 
 class ClientesPendientesPage extends StatefulWidget {
   const ClientesPendientesPage({required this.supabaseReady, super.key});
@@ -74,6 +75,9 @@ class _ClientesPendientesPageState extends State<ClientesPendientesPage> {
   }
 
   void _mostrarMensaje(String mensaje, {required bool esError}) {
+    if (esError) {
+      ErrorFeedback.vibrate();
+    }
     ScaffoldMessenger.of(context)
       ..clearSnackBars()
       ..showSnackBar(
@@ -94,7 +98,7 @@ class _ClientesPendientesPageState extends State<ClientesPendientesPage> {
     try {
       await _clienteRepository.approveClient(
         cliente,
-      ); // 👈 pasás el cliente completo
+      ); // Ã°Å¸â€˜Ë† pasÃƒÂ¡s el cliente completo
       _mostrarMensaje(
         'Cliente ${cliente['nombres']} aprobado correctamente.',
         esError: false,
@@ -109,7 +113,7 @@ class _ClientesPendientesPageState extends State<ClientesPendientesPage> {
     try {
       await _clienteRepository.rejectClient(
         cliente,
-      ); // 👈 pasás el cliente completo
+      ); // Ã°Å¸â€˜Ë† pasÃƒÂ¡s el cliente completo
       _mostrarMensaje(
         'Cliente ${cliente['nombres']} rechazado.',
         esError: true,
@@ -147,7 +151,7 @@ class _ClientesPendientesPageState extends State<ClientesPendientesPage> {
                     child: Padding(
                       padding: EdgeInsets.all(24),
                       child: Text(
-                        'No tenés permisos para gestionar clientes.',
+                        'No tenÃƒÂ©s permisos para gestionar clientes.',
                         textAlign: TextAlign.center,
                         style: TextStyle(color: Colors.white70, fontSize: 16),
                       ),
@@ -156,7 +160,7 @@ class _ClientesPendientesPageState extends State<ClientesPendientesPage> {
                   : Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      // ── Header ─────────────────────────────────────────
+                      // Ã¢â€â‚¬Ã¢â€â‚¬ Header Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
                       Padding(
                         padding: const EdgeInsets.fromLTRB(18, 20, 18, 8),
                         child: Column(
@@ -175,7 +179,7 @@ class _ClientesPendientesPageState extends State<ClientesPendientesPage> {
                             Text(
                               _clientes.isEmpty
                                   ? 'No hay solicitudes pendientes'
-                                  : 'Deslizá horizontal para aprobar o rechazar',
+                                  : 'DeslizÃƒÂ¡ horizontal para aprobar o rechazar',
                               textAlign: TextAlign.center,
                               style: const TextStyle(
                                 color: Color(0xFFFFD7D7),
@@ -200,7 +204,7 @@ class _ClientesPendientesPageState extends State<ClientesPendientesPage> {
                         ),
                       ),
 
-                      // ── Lista vertical ─────────────────────────────────
+                      // Ã¢â€â‚¬Ã¢â€â‚¬ Lista vertical Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
                       Expanded(
                         child:
                             _clientes.isEmpty
@@ -215,7 +219,8 @@ class _ClientesPendientesPageState extends State<ClientesPendientesPage> {
                                 )
                                 : PageView.builder(
                                   controller: _pageController,
-                                  scrollDirection: Axis.vertical, // 👈 clave
+                                  scrollDirection:
+                                      Axis.vertical, // Ã°Å¸â€˜Ë† clave
                                   itemCount: _clientes.length,
                                   onPageChanged:
                                       (i) => setState(() => _currentIndex = i),
@@ -239,7 +244,7 @@ class _ClientesPendientesPageState extends State<ClientesPendientesPage> {
                                 ),
                       ),
 
-                      // ── Indicador: cliente X de N ──────────────────────
+                      // Ã¢â€â‚¬Ã¢â€â‚¬ Indicador: cliente X de N Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
                       if (_clientes.isNotEmpty)
                         Padding(
                           padding: const EdgeInsets.only(bottom: 16),
@@ -260,7 +265,7 @@ class _ClientesPendientesPageState extends State<ClientesPendientesPage> {
   }
 }
 
-// ─── Card con swipe ───────────────────────────────────────────────
+// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Card con swipe Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 class _ClienteSwipeCard extends StatefulWidget {
   final Map<String, dynamic> cliente;
   final VoidCallback onAprobar;
@@ -341,7 +346,7 @@ class _ClienteSwipeCardState extends State<_ClienteSwipeCard>
           alignment: Alignment.bottomCenter,
           child: Stack(
             children: [
-              // ── Card principal ─────────────────────────────────────
+              // Ã¢â€â‚¬Ã¢â€â‚¬ Card principal Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
               Container(
                 width: double.infinity,
                 height: double.infinity,
@@ -368,8 +373,10 @@ class _ClienteSwipeCardState extends State<_ClienteSwipeCard>
                                         height: 160,
                                         fit: BoxFit.cover,
                                         placeholder:
-                                            (context, url) =>
-                                                const LogoSpinner(size: 30, strokeWidth: 1),
+                                            (context, url) => const LogoSpinner(
+                                              size: 30,
+                                              strokeWidth: 1,
+                                            ),
                                         errorWidget:
                                             (context, url, error) =>
                                                 const Icon(Icons.error),
@@ -423,7 +430,7 @@ class _ClienteSwipeCardState extends State<_ClienteSwipeCard>
                       ),
                     ),
 
-                    // ── Hints de swipe ───────────────────────────────
+                    // Ã¢â€â‚¬Ã¢â€â‚¬ Hints de swipe Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 24),
                       child: Row(
@@ -467,7 +474,7 @@ class _ClienteSwipeCardState extends State<_ClienteSwipeCard>
 
                     const SizedBox(height: 16),
 
-                    // ── Botones grandes ──────────────────────────────
+                    // Ã¢â€â‚¬Ã¢â€â‚¬ Botones grandes Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
                     Padding(
                       padding: const EdgeInsets.fromLTRB(32, 0, 32, 28),
                       child: Row(
@@ -498,7 +505,7 @@ class _ClienteSwipeCardState extends State<_ClienteSwipeCard>
                 ),
               ),
 
-              // ── Overlay APROBADO ───────────────────────────────────
+              // Ã¢â€â‚¬Ã¢â€â‚¬ Overlay APROBADO Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
               if (acceptOpacity > 0.05)
                 Positioned.fill(
                   child: IgnorePointer(
@@ -531,7 +538,7 @@ class _ClienteSwipeCardState extends State<_ClienteSwipeCard>
                   ),
                 ),
 
-              // ── Overlay RECHAZADO ──────────────────────────────────
+              // Ã¢â€â‚¬Ã¢â€â‚¬ Overlay RECHAZADO Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
               if (rejectOpacity > 0.05)
                 Positioned.fill(
                   child: IgnorePointer(
@@ -571,7 +578,7 @@ class _ClienteSwipeCardState extends State<_ClienteSwipeCard>
   }
 }
 
-// ─── Botón grande ─────────────────────────────────────────────────────────────
+// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ BotÃƒÂ³n grande Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 class _BigActionButton extends StatelessWidget {
   final Color color;
   final Color backgroundColor;

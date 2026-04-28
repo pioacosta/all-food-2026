@@ -1,8 +1,9 @@
+import 'package:flutter/material.dart';
 import 'dart:io';
 
 import 'package:all_food/src/features/productos/data/repositories/productos_repository.dart';
 import 'package:all_food/src/shared/errors/app_error_mapper.dart';
-import 'package:flutter/material.dart';
+import 'package:all_food/src/shared/utils/error_feedback.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:all_food/src/shared/widgets/logo_spinner.dart';
@@ -54,7 +55,7 @@ class _CrearProductoPageState extends State<CrearProductoPage> {
             children: [
               ListTile(
                 leading: const Icon(Icons.camera_alt),
-                title: const Text('Cámara'),
+                title: const Text('CÃƒÂ¡mara'),
                 onTap: () async {
                   Navigator.pop(context);
                   final imagen = await _picker.pickImage(
@@ -68,7 +69,7 @@ class _CrearProductoPageState extends State<CrearProductoPage> {
               ),
               ListTile(
                 leading: const Icon(Icons.photo),
-                title: const Text('Galería'),
+                title: const Text('GalerÃƒÂ­a'),
                 onTap: () async {
                   Navigator.pop(context);
                   final imagen = await _picker.pickImage(
@@ -107,7 +108,7 @@ class _CrearProductoPageState extends State<CrearProductoPage> {
     if (perfil == 'cantinero') return 'bebida';
 
     throw const ProductosFlowException(
-      'Perfil no válido para crear productos.',
+      'Perfil no vÃƒÂ¡lido para crear productos.',
     );
   }
 
@@ -117,7 +118,7 @@ class _CrearProductoPageState extends State<CrearProductoPage> {
     if (!_formKey.currentState!.validate()) return;
 
     if (_imagenes.contains(null)) {
-      _mostrarMensaje('Debes cargar las 3 imágenes', esError: true);
+      _mostrarMensaje('Debes cargar las 3 imÃƒÂ¡genes', esError: true);
       return;
     }
 
@@ -183,6 +184,9 @@ class _CrearProductoPageState extends State<CrearProductoPage> {
   }
 
   void _mostrarMensaje(String mensaje, {required bool esError}) {
+    if (esError) {
+      ErrorFeedback.vibrate();
+    }
     ScaffoldMessenger.of(context)
       ..clearSnackBars()
       ..showSnackBar(
@@ -291,7 +295,7 @@ class _CrearProductoPageState extends State<CrearProductoPage> {
                       ),
                       const SizedBox(height: 16),
 
-                      // DESCRIPCIÓN
+                      // DESCRIPCIÃƒâ€œN
                       TextFormField(
                         controller: _descripcionController,
                         style: const TextStyle(color: Colors.white),
@@ -301,7 +305,7 @@ class _CrearProductoPageState extends State<CrearProductoPage> {
                           LengthLimitingTextInputFormatter(_maxDescripcion),
                         ],
                         decoration: const InputDecoration(
-                          labelText: 'Descripción',
+                          labelText: 'DescripciÃƒÂ³n',
                         ),
                         validator:
                             (v) => v == null || v.isEmpty ? 'Requerido' : null,
@@ -323,7 +327,7 @@ class _CrearProductoPageState extends State<CrearProductoPage> {
                         validator:
                             (v) =>
                                 int.tryParse(v ?? '') == null
-                                    ? 'Número inválido'
+                                    ? 'NÃƒÂºmero invÃƒÂ¡lido'
                                     : null,
                       ),
                       const SizedBox(height: 16),
@@ -341,12 +345,12 @@ class _CrearProductoPageState extends State<CrearProductoPage> {
                         validator:
                             (v) =>
                                 double.tryParse(v ?? '') == null
-                                    ? 'Número inválido'
+                                    ? 'NÃƒÂºmero invÃƒÂ¡lido'
                                     : null,
                       ),
                       const SizedBox(height: 16),
 
-                      // IMÁGENES
+                      // IMÃƒÂGENES
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: List.generate(3, (index) {

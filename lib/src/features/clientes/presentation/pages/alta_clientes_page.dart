@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'dart:io';
 
 import 'package:all_food/src/features/clientes/data/repository/cliente_repository.dart';
@@ -5,7 +6,7 @@ import 'package:all_food/src/shared/dni_qr/dni_qr_data.dart';
 import 'package:all_food/src/shared/dni_qr/dni_qr_scanner_page.dart';
 import 'package:all_food/src/shared/errors/app_error_mapper.dart';
 import 'package:all_food/src/shared/widgets/logo_spinner.dart';
-import 'package:flutter/material.dart';
+import 'package:all_food/src/shared/utils/error_feedback.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -126,7 +127,7 @@ class _AltaClientePageState extends State<AltaClientePage> {
         fotoUrl: fotoUrl,
       );
 
-    try {
+      try {
         await Supabase.instance.client.functions.invoke(
           'notificar-cliente-pendiente',
           body: {
@@ -135,7 +136,7 @@ class _AltaClientePageState extends State<AltaClientePage> {
           },
         );
       } catch (_) {
-        // Si falla la notificación no bloqueamos el flujo
+        // Si falla la notificaciÃƒÂ³n no bloqueamos el flujo
       }
 
       if (!mounted) return;
@@ -153,7 +154,8 @@ class _AltaClientePageState extends State<AltaClientePage> {
       _mostrarMensaje(
         AppErrorMapper.toUserMessage(
           error,
-          fallbackMessage: 'Ocurrió un error inesperado al crear el cliente.',
+          fallbackMessage:
+              'OcurriÃƒÂ³ un error inesperado al crear el cliente.',
         ),
         esError: true,
       );
@@ -177,6 +179,9 @@ class _AltaClientePageState extends State<AltaClientePage> {
   }
 
   void _mostrarMensaje(String mensaje, {required bool esError}) {
+    if (esError) {
+      ErrorFeedback.vibrate();
+    }
     ScaffoldMessenger.of(context)
       ..clearSnackBars()
       ..showSnackBar(
@@ -199,7 +204,9 @@ class _AltaClientePageState extends State<AltaClientePage> {
     if (text.length < 2 || text.length > 60) {
       return '$etiqueta debe tener entre 2 y 60 caracteres.';
     }
-    final soloLetras = RegExp(r'^[A-Za-zÁÉÍÓÚáéíóúÑñÜü ]+$');
+    final soloLetras = RegExp(
+      r'^[A-Za-zÃƒÂÃƒâ€°ÃƒÂÃƒâ€œÃƒÅ¡ÃƒÂ¡ÃƒÂ©ÃƒÂ­ÃƒÂ³ÃƒÂºÃƒâ€˜ÃƒÂ±ÃƒÅ“ÃƒÂ¼ ]+$',
+    );
     if (!soloLetras.hasMatch(text)) {
       return '$etiqueta solo puede contener letras y espacios.';
     }
@@ -210,7 +217,7 @@ class _AltaClientePageState extends State<AltaClientePage> {
     final text = value?.trim() ?? '';
     if (text.isEmpty) return null;
     if (!RegExp(r'^\d{7,8}$').hasMatch(text)) {
-      return 'El DNI debe tener 7 u 8 dígitos numéricos.';
+      return 'El DNI debe tener 7 u 8 dÃƒÂ­gitos numÃƒÂ©ricos.';
     }
     return null;
   }
@@ -219,7 +226,7 @@ class _AltaClientePageState extends State<AltaClientePage> {
     final text = value?.trim() ?? '';
     if (text.isEmpty) return null;
     if (!RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(text)) {
-      return 'Correo electrónico inválido.';
+      return 'Correo electrÃƒÂ³nico invÃƒÂ¡lido.';
     }
     return null;
   }
@@ -228,19 +235,19 @@ class _AltaClientePageState extends State<AltaClientePage> {
     final text = value ?? '';
     if (text.isEmpty) return null;
     if (text.length < 8 || text.length > 32) {
-      return 'La contraseña debe tener entre 8 y 32 caracteres.';
+      return 'La contraseÃƒÂ±a debe tener entre 8 y 32 caracteres.';
     }
     if (!RegExp(r'[A-Z]').hasMatch(text)) {
-      return 'Debe contener al menos una letra mayúscula.';
+      return 'Debe contener al menos una letra mayÃƒÂºscula.';
     }
     if (!RegExp(r'[a-z]').hasMatch(text)) {
-      return 'Debe contener al menos una letra minúscula.';
+      return 'Debe contener al menos una letra minÃƒÂºscula.';
     }
     if (!RegExp(r'\d').hasMatch(text)) {
-      return 'Debe contener al menos un número.';
+      return 'Debe contener al menos un nÃƒÂºmero.';
     }
     if (!RegExp(r'[!@#\$%^&*(),.?":{}|<>_\-]').hasMatch(text)) {
-      return 'Debe contener al menos un carácter especial.';
+      return 'Debe contener al menos un carÃƒÂ¡cter especial.';
     }
     return null;
   }
@@ -260,7 +267,7 @@ class _AltaClientePageState extends State<AltaClientePage> {
           child: Padding(
             padding: EdgeInsets.all(24),
             child: Text(
-              'Acceso denegado. Esta funcionalidad está disponible solo para el metre habilitado.',
+              'Acceso denegado. Esta funcionalidad estÃƒÂ¡ disponible solo para el metre habilitado.',
               textAlign: TextAlign.center,
             ),
           ),
@@ -303,7 +310,7 @@ class _AltaClientePageState extends State<AltaClientePage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    // ── Header ───────────────────────────────────────
+                    // Ã¢â€â‚¬Ã¢â€â‚¬ Header Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
                     const Text(
                       'Nuevo cliente',
                       textAlign: TextAlign.center,
@@ -316,13 +323,13 @@ class _AltaClientePageState extends State<AltaClientePage> {
                     ),
                     const SizedBox(height: 8),
                     const Text(
-                      'Completá todos los campos',
+                      'CompletÃƒÂ¡ todos los campos',
                       textAlign: TextAlign.center,
                       style: TextStyle(color: Colors.white70),
                     ),
                     const SizedBox(height: 24),
 
-                    // ── Nombre ───────────────────────────────────────
+                    // Ã¢â€â‚¬Ã¢â€â‚¬ Nombre Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
                     TextFormField(
                       controller: _nombreController,
                       style: const TextStyle(color: Colors.white),
@@ -335,7 +342,7 @@ class _AltaClientePageState extends State<AltaClientePage> {
                     ),
                     const SizedBox(height: 12),
 
-                    // ── Apellido ─────────────────────────────────────
+                    // Ã¢â€â‚¬Ã¢â€â‚¬ Apellido Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
                     TextFormField(
                       controller: _apellidoController,
                       style: const TextStyle(color: Colors.white),
@@ -349,7 +356,7 @@ class _AltaClientePageState extends State<AltaClientePage> {
                     ),
                     const SizedBox(height: 12),
 
-                    // ── DNI CON QR INTEGRADO ───────────────────────────
+                    // Ã¢â€â‚¬Ã¢â€â‚¬ DNI CON QR INTEGRADO Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
                     TextFormField(
                       controller: _dniController,
                       style: const TextStyle(color: Colors.white),
@@ -362,7 +369,7 @@ class _AltaClientePageState extends State<AltaClientePage> {
                         labelText: 'DNI',
                         border: const OutlineInputBorder(),
                         counterText: '',
-                        // Aquí integramos el botón de QR que tenías afuera
+                        // AquÃƒÂ­ integramos el botÃƒÂ³n de QR que tenÃƒÂ­as afuera
                         suffixIcon: Padding(
                           padding: const EdgeInsets.only(right: 8.0),
                           child: IconButton(
@@ -378,26 +385,26 @@ class _AltaClientePageState extends State<AltaClientePage> {
                     ),
                     const SizedBox(height: 12),
 
-                    // ── Correo ───────────────────────────────────────
+                    // Ã¢â€â‚¬Ã¢â€â‚¬ Correo Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
                     TextFormField(
                       controller: _correoController,
                       style: const TextStyle(color: Colors.white),
                       keyboardType: TextInputType.emailAddress,
                       decoration: const InputDecoration(
-                        labelText: 'Correo electrónico',
+                        labelText: 'Correo electrÃƒÂ³nico',
                         border: OutlineInputBorder(),
                       ),
                       validator: _validarCorreo,
                     ),
                     const SizedBox(height: 12),
 
-                    // ── Password ─────────────────────────────────────
+                    // Ã¢â€â‚¬Ã¢â€â‚¬ Password Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
                     TextFormField(
                       controller: _passwordController,
                       style: const TextStyle(color: Colors.white),
                       obscureText: !_mostrarPassword,
                       decoration: InputDecoration(
-                        labelText: 'Contraseña',
+                        labelText: 'ContraseÃƒÂ±a',
                         border: const OutlineInputBorder(),
                         suffixIcon: IconButton(
                           onPressed:
@@ -416,7 +423,7 @@ class _AltaClientePageState extends State<AltaClientePage> {
                     ),
                     const SizedBox(height: 20),
 
-                    // ── Foto ─────────────────────────────────────────
+                    // Ã¢â€â‚¬Ã¢â€â‚¬ Foto Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
                     if (_foto == null) ...[
                       ElevatedButton.icon(
                         onPressed: _tomarFoto,
@@ -425,7 +432,7 @@ class _AltaClientePageState extends State<AltaClientePage> {
                       ),
                       const SizedBox(height: 6),
                       const Text(
-                        'Foto obligatoria. Se toma con cámara frontal.',
+                        'Foto obligatoria. Se toma con cÃƒÂ¡mara frontal.',
                         textAlign: TextAlign.center,
                         style: TextStyle(color: Colors.white70, fontSize: 13),
                       ),
@@ -447,7 +454,7 @@ class _AltaClientePageState extends State<AltaClientePage> {
                       ),
                       const SizedBox(height: 6),
                       const Text(
-                        'Tocá la foto para cambiarla.',
+                        'TocÃƒÂ¡ la foto para cambiarla.',
                         textAlign: TextAlign.center,
                         style: TextStyle(color: Colors.white70, fontSize: 13),
                       ),
@@ -455,7 +462,7 @@ class _AltaClientePageState extends State<AltaClientePage> {
 
                     const SizedBox(height: 24),
 
-                    // ── Botón crear ──────────────────────────────────
+                    // Ã¢â€â‚¬Ã¢â€â‚¬ BotÃƒÂ³n crear Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
                     FilledButton(
                       onPressed: _guardando ? null : _crearCliente,
                       child:

@@ -1,9 +1,10 @@
+import 'package:flutter/material.dart';
 import 'dart:io';
 
 import 'package:all_food/src/features/mesas/data/repositories/mesas_repository.dart';
 import 'package:all_food/src/shared/errors/app_error_mapper.dart';
 import 'package:all_food/src/shared/widgets/logo_spinner.dart';
-import 'package:flutter/material.dart';
+import 'package:all_food/src/shared/utils/error_feedback.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -82,6 +83,9 @@ class _CrearMesaPageState extends State<CrearMesaPage> {
   }
 
   void _mostrarMensaje(String mensaje, {required bool esError}) {
+    if (esError) {
+      ErrorFeedback.vibrate();
+    }
     ScaffoldMessenger.of(context)
       ..clearSnackBars()
       ..showSnackBar(
@@ -112,7 +116,7 @@ class _CrearMesaPageState extends State<CrearMesaPage> {
 
     if (numero == null || numero <= 0) {
       _mostrarMensaje(
-        'El número de mesa debe ser un entero positivo.',
+        'El nÃƒÂºmero de mesa debe ser un entero positivo.',
         esError: true,
       );
       return;
@@ -131,7 +135,7 @@ class _CrearMesaPageState extends State<CrearMesaPage> {
     try {
       final existe = await _repository.tableNumberExists(numero);
       if (existe) {
-        _mostrarMensaje('Ya existe una mesa con ese número.', esError: true);
+        _mostrarMensaje('Ya existe una mesa con ese nÃƒÂºmero.', esError: true);
         return;
       }
 
@@ -182,7 +186,7 @@ class _CrearMesaPageState extends State<CrearMesaPage> {
           child: Padding(
             padding: EdgeInsets.all(24),
             child: Text(
-              'Acceso denegado. Esta funcionalidad está disponible solo para dueño y supervisor habilitados.',
+              'Acceso denegado. Esta funcionalidad estÃƒÂ¡ disponible solo para dueÃƒÂ±o y supervisor habilitados.',
               textAlign: TextAlign.center,
             ),
           ),
@@ -252,7 +256,7 @@ class _CrearMesaPageState extends State<CrearMesaPage> {
                           FilteringTextInputFormatter.digitsOnly,
                         ],
                         decoration: const InputDecoration(
-                          labelText: 'Número de mesa',
+                          labelText: 'NÃƒÂºmero de mesa',
                           border: OutlineInputBorder(),
                         ),
                       ),
@@ -282,7 +286,7 @@ class _CrearMesaPageState extends State<CrearMesaPage> {
                           DropdownMenuItem(value: 'vip', child: Text('VIP')),
                           DropdownMenuItem(
                             value: 'estandar',
-                            child: Text('Estándar'),
+                            child: Text('EstÃƒÂ¡ndar'),
                           ),
                           DropdownMenuItem(
                             value: 'movilidad_reducida',

@@ -1,4 +1,4 @@
-import 'package:all_food/src/features/auth/widgets/auth_background.dart';
+﻿import 'package:all_food/src/features/auth/widgets/auth_background.dart';
 import 'package:all_food/src/features/auth/widgets/auth_card.dart';
 import 'package:all_food/src/shared/errors/app_error_mapper.dart';
 import 'package:all_food/src/shared/theme/app_ui.dart';
@@ -59,7 +59,7 @@ class _LoginPageState extends State<LoginPage> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 const Text(
-                  'Ingreso rápido',
+                  'Ingreso rÃ¡pido',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     color: Colors.white,
@@ -74,7 +74,7 @@ class _LoginPageState extends State<LoginPage> {
                     color: Colors.white,
                   ),
                   title: const Text(
-                    'Dueño',
+                    'DueÃ±o',
                     style: TextStyle(color: Colors.white),
                   ),
                   onTap: () => Navigator.of(context).pop('duenio'),
@@ -208,7 +208,7 @@ class _LoginPageState extends State<LoginPage> {
     // Bloquea el intento si la app no pudo inicializar Supabase.
     if (!widget.supabaseReady) {
       _mostrarMensaje(
-        'No hay conexión a Supabase. Revisa las variables de entorno.',
+        'No hay conexiÃ³n a Supabase. Revisa las variables de entorno.',
         esError: true,
       );
       return;
@@ -228,7 +228,7 @@ class _LoginPageState extends State<LoginPage> {
       if (!mounted) return;
 
       if (response.user == null) {
-        _mostrarMensaje('No fue posible iniciar sesión.', esError: true);
+        _mostrarMensaje('No fue posible iniciar sesiÃ³n.', esError: true);
         return;
       }
 
@@ -242,7 +242,7 @@ class _LoginPageState extends State<LoginPage> {
       _mostrarMensaje(
         AppErrorMapper.toUserMessage(
           error,
-          fallbackMessage: 'Ocurrió un error inesperado al ingresar.',
+          fallbackMessage: 'OcurriÃ³ un error inesperado al ingresar.',
         ),
         esError: true,
       );
@@ -404,7 +404,7 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                       const SizedBox(height: 8),
                       const Text(
-                        'Inicio de sesión',
+                        'Inicio de sesiÃ³n',
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: 20,
@@ -436,7 +436,7 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                         keyboardType: TextInputType.emailAddress,
                         decoration: const InputDecoration(
-                          labelText: 'Correo electrónico',
+                          labelText: 'Correo electrÃ³nico',
                           border: OutlineInputBorder(),
                           labelStyle: TextStyle(
                             color: Colors.white70,
@@ -454,11 +454,11 @@ class _LoginPageState extends State<LoginPage> {
                         validator: (value) {
                           final email = value?.trim() ?? '';
                           if (email.isEmpty) {
-                            return 'Debes ingresar un correo electrónico.';
+                            return 'Debes ingresar un correo electrÃ³nico.';
                           }
                           final pattern = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
                           if (!pattern.hasMatch(email)) {
-                            return 'Correo electrónico inválido.';
+                            return 'Correo electrÃ³nico invÃ¡lido.';
                           }
                           return null;
                         },
@@ -473,7 +473,7 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                         obscureText: true,
                         decoration: const InputDecoration(
-                          labelText: 'Contraseña',
+                          labelText: 'ContraseÃ±a',
                           border: OutlineInputBorder(),
                           labelStyle: TextStyle(
                             color: Colors.white70,
@@ -491,10 +491,10 @@ class _LoginPageState extends State<LoginPage> {
                         validator: (value) {
                           final password = value ?? '';
                           if (password.isEmpty) {
-                            return 'Debes ingresar una contraseña.';
+                            return 'Debes ingresar una contraseÃ±a.';
                           }
                           if (password.length < 6) {
-                            return 'La contraseña debe tener al menos 6 caracteres.';
+                            return 'La contraseÃ±a debe tener al menos 6 caracteres.';
                           }
                           return null;
                         },
@@ -588,7 +588,7 @@ class _LoginPageState extends State<LoginPage> {
                             fontWeight: FontWeight.w600,
                           ),
                         ),
-                        child: const Text('Ingresar como cliente an�nimo'),
+                        child: const Text('Ingresar como cliente anónimo'),
                       ),
                       const SizedBox(height: 20),
                       Align(
@@ -601,7 +601,7 @@ class _LoginPageState extends State<LoginPage> {
                             fontSize: 17,
                             fontWeight: FontWeight.w700,
                           ),
-                          label: const Text('Ingreso r�pido'),
+                          label: const Text('Ingreso rápido'),
                         ),
                       ),
                       const SizedBox(height: 4),
@@ -616,3 +616,4 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 }
+

@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:all_food/src/features/auth/widgets/auth_background.dart';
 import 'package:all_food/src/features/auth/widgets/auth_card.dart';
@@ -7,7 +8,7 @@ import 'package:all_food/src/shared/errors/app_error_mapper.dart';
 import 'package:all_food/src/shared/theme/app_ui.dart';
 import 'package:all_food/src/shared/widgets/logo_spinner.dart';
 import 'package:all_food/src/features/auth/data/repositories/auth_repository.dart';
-import 'package:flutter/material.dart';
+import 'package:all_food/src/shared/utils/error_feedback.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -106,7 +107,7 @@ class _RegisterPageState extends State<RegisterPage> {
     // Frenar envio si Supabase no esta configurado/inicializado.
     if (!widget.supabaseReady) {
       _mostrarMensaje(
-        'No hay conexión a Supabase. Revisa las variables de entorno.',
+        'No hay conexiÃƒÂ³n a Supabase. Revisa las variables de entorno.',
         esError: true,
       );
       return;
@@ -147,7 +148,7 @@ class _RegisterPageState extends State<RegisterPage> {
       if (!mounted) return;
 
       _mostrarMensaje(
-        'Registro exitoso. Esperando aprobación.',
+        'Registro exitoso. Esperando aprobaciÃƒÂ³n.',
         esError: false,
       );
 
@@ -156,7 +157,7 @@ class _RegisterPageState extends State<RegisterPage> {
       _mostrarMensaje(
         AppErrorMapper.toUserMessage(
           error,
-          fallbackMessage: 'Ocurrió un error inesperado al registrar.',
+          fallbackMessage: 'OcurriÃƒÂ³ un error inesperado al registrar.',
         ),
         esError: true,
       );
@@ -186,14 +187,16 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   void _mostrarMensaje(String mensaje, {required bool esError}) {
+    if (esError) {
+      ErrorFeedback.vibrate();
+    }
     // Punto unico para mensajes al usuario.
     ScaffoldMessenger.of(context)
       ..clearSnackBars()
       ..showSnackBar(
         SnackBar(
           content: Text(mensaje),
-          backgroundColor:
-              esError ? AppUi.error : AppUi.exito,
+          backgroundColor: esError ? AppUi.error : AppUi.exito,
         ),
       );
   }
@@ -314,10 +317,10 @@ class _RegisterPageState extends State<RegisterPage> {
                                 validator: (value) {
                                   final text = value?.trim() ?? '';
                                   if (!RegExp(r'^\d+$').hasMatch(text)) {
-                                    return 'El DNI debe ser numérico.';
+                                    return 'El DNI debe ser numÃƒÂ©rico.';
                                   }
                                   if (text.length < 7) {
-                                    return 'DNI inválido.';
+                                    return 'DNI invÃƒÂ¡lido.';
                                   }
                                   return null;
                                 },
@@ -351,7 +354,7 @@ class _RegisterPageState extends State<RegisterPage> {
                           style: const TextStyle(color: Colors.white),
                           keyboardType: TextInputType.emailAddress,
                           decoration: const InputDecoration(
-                            labelText: 'Correo electrónico',
+                            labelText: 'Correo electrÃƒÂ³nico',
                             border: OutlineInputBorder(),
                           ),
                           validator: (value) {
@@ -360,7 +363,7 @@ class _RegisterPageState extends State<RegisterPage> {
                               r'^[^@\s]+@[^@\s]+\.[^@\s]+$',
                             );
                             if (!pattern.hasMatch(email)) {
-                              return 'Correo electrónico inválido.';
+                              return 'Correo electrÃƒÂ³nico invÃƒÂ¡lido.';
                             }
                             return null;
                           },
@@ -407,7 +410,7 @@ class _RegisterPageState extends State<RegisterPage> {
                           style: const TextStyle(color: Colors.white),
                           obscureText: !_mostrarPassword,
                           decoration: InputDecoration(
-                            labelText: 'Contraseña',
+                            labelText: 'ContraseÃƒÂ±a',
                             border: const OutlineInputBorder(),
                             suffixIcon: IconButton(
                               onPressed: () {
@@ -426,7 +429,7 @@ class _RegisterPageState extends State<RegisterPage> {
                           validator: (value) {
                             final password = value ?? '';
                             if (password.length < 6) {
-                              return 'La contraseña debe tener al menos 6 caracteres.';
+                              return 'La contraseÃƒÂ±a debe tener al menos 6 caracteres.';
                             }
                             return null;
                           },
@@ -442,7 +445,7 @@ class _RegisterPageState extends State<RegisterPage> {
                           style: const TextStyle(color: Colors.white),
                           obscureText: !_mostrarConfirmPassword,
                           decoration: InputDecoration(
-                            labelText: 'Confirmar contraseña',
+                            labelText: 'Confirmar contraseÃƒÂ±a',
                             border: const OutlineInputBorder(),
                             suffixIcon: IconButton(
                               onPressed: () {
@@ -461,7 +464,7 @@ class _RegisterPageState extends State<RegisterPage> {
                           ),
                           validator: (value) {
                             if (value != _passwordController.text) {
-                              return 'Las contraseñas no coinciden.';
+                              return 'Las contraseÃƒÂ±as no coinciden.';
                             }
                             return null;
                           },
@@ -508,7 +511,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                 Navigator.of(context).pop();
                               },
                       child: const Text(
-                        '¿Ya tenés cuenta? Ingresá acá',
+                        'Ã‚Â¿Ya tenÃƒÂ©s cuenta? IngresÃƒÂ¡ acÃƒÂ¡',
                         textAlign: TextAlign.center,
                       ),
                     ),

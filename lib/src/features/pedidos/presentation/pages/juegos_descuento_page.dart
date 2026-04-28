@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'dart:async';
 import 'dart:math';
 
@@ -5,7 +6,7 @@ import 'package:all_food/src/features/pedidos/data/repositories/pedidos_reposito
 import 'package:all_food/src/shared/errors/app_error_mapper.dart';
 import 'package:all_food/src/shared/theme/app_ui.dart';
 import 'package:all_food/src/shared/widgets/logo_spinner.dart';
-import 'package:flutter/material.dart';
+import 'package:all_food/src/shared/utils/error_feedback.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class JuegosDescuentoPage extends StatefulWidget {
@@ -58,7 +59,7 @@ class _JuegosDescuentoPageState extends State<JuegosDescuentoPage> {
       _mostrarMensaje(
         AppErrorMapper.toUserMessage(
           error,
-          fallbackMessage: 'No se pudo cargar la sección de juegos.',
+          fallbackMessage: 'No se pudo cargar la secciÃƒÂ³n de juegos.',
         ),
         esError: true,
       );
@@ -98,7 +99,7 @@ class _JuegosDescuentoPageState extends State<JuegosDescuentoPage> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 const Text(
-                  'Juego 10%: adiviná el número',
+                  'Juego 10%: adivinÃƒÂ¡ el nÃƒÂºmero',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     color: Colors.white,
@@ -151,9 +152,9 @@ class _JuegosDescuentoPageState extends State<JuegosDescuentoPage> {
       return;
     }
 
-    final gano = await Navigator.of(context).push<bool>(
-      MaterialPageRoute(builder: (_) => const _JuegoComidasPage()),
-    );
+    final gano = await Navigator.of(
+      context,
+    ).push<bool>(MaterialPageRoute(builder: (_) => const _JuegoComidasPage()));
     if (gano == null) return;
 
     await _guardarIntento(15);
@@ -181,9 +182,9 @@ class _JuegosDescuentoPageState extends State<JuegosDescuentoPage> {
       return;
     }
 
-    final gano = await Navigator.of(context).push<bool>(
-      MaterialPageRoute(builder: (_) => const _JuegoSnakePage()),
-    );
+    final gano = await Navigator.of(
+      context,
+    ).push<bool>(MaterialPageRoute(builder: (_) => const _JuegoSnakePage()));
     if (gano == null) return;
 
     await _guardarIntento(20);
@@ -206,7 +207,7 @@ class _JuegosDescuentoPageState extends State<JuegosDescuentoPage> {
     try {
       if (_descuentoAplicado > 0) {
         _mostrarMensaje(
-          'Ganaste, pero ya tenías un descuento del ${_descuentoAplicado.toStringAsFixed(0)}%.',
+          'Ganaste, pero ya tenÃƒÂ­as un descuento del ${_descuentoAplicado.toStringAsFixed(0)}%.',
           esError: false,
         );
         return;
@@ -221,7 +222,7 @@ class _JuegosDescuentoPageState extends State<JuegosDescuentoPage> {
       if (aplicado) {
         setState(() => _descuentoAplicado = porcentaje.toDouble());
         _mostrarMensaje(
-          '¡Ganaste! Se aplicó $porcentaje% a la cuenta final.',
+          'Ã‚Â¡Ganaste! Se aplicÃƒÂ³ $porcentaje% a la cuenta final.',
           esError: false,
         );
       } else {
@@ -245,6 +246,9 @@ class _JuegosDescuentoPageState extends State<JuegosDescuentoPage> {
   }
 
   void _mostrarMensaje(String mensaje, {required bool esError}) {
+    if (esError) {
+      ErrorFeedback.vibrate();
+    }
     ScaffoldMessenger.of(context).hideCurrentSnackBar();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -286,14 +290,14 @@ class _JuegosDescuentoPageState extends State<JuegosDescuentoPage> {
                               ),
                               const SizedBox(height: 8),
                               const Text(
-                                'Si ganás en el primer intento del juego, podés obtener el descuento. El descuento no se acumula.',
+                                'Si ganÃƒÂ¡s en el primer intento del juego, podÃƒÂ©s obtener el descuento. El descuento no se acumula.',
                                 style: TextStyle(color: AppUi.textoSecundario),
                               ),
                               const SizedBox(height: 8),
                               Text(
                                 _descuentoAplicado > 0
                                     ? 'Descuento activo: ${_descuentoAplicado.toStringAsFixed(0)}%'
-                                    : 'Aún no hay descuento aplicado.',
+                                    : 'AÃƒÂºn no hay descuento aplicado.',
                                 style: const TextStyle(
                                   color: AppUi.acento,
                                   fontWeight: FontWeight.w800,
@@ -307,9 +311,9 @@ class _JuegosDescuentoPageState extends State<JuegosDescuentoPage> {
                           child: ListView(
                             children: [
                               _JuegoCard(
-                                titulo: 'Juego 1 - Adivinar número (10%)',
+                                titulo: 'Juego 1 - Adivinar nÃƒÂºmero (10%)',
                                 descripcion:
-                                    'Elegí un número del 1 al 6. Si coincide, ganás.',
+                                    'ElegÃƒÂ­ un nÃƒÂºmero del 1 al 6. Si coincide, ganÃƒÂ¡s.',
                                 intentoUsado: _intentoConsumido[10] == true,
                                 onPlay: _procesando ? null : _jugarNumero10,
                               ),
@@ -317,15 +321,15 @@ class _JuegosDescuentoPageState extends State<JuegosDescuentoPage> {
                               _JuegoCard(
                                 titulo: 'Juego 2 - Comidas y bombas (15%)',
                                 descripcion:
-                                    'Tocá comidas para sumar y evitá bombas que restan. Necesitás 120 puntos.',
+                                    'TocÃƒÂ¡ comidas para sumar y evitÃƒÂ¡ bombas que restan. NecesitÃƒÂ¡s 120 puntos.',
                                 intentoUsado: _intentoConsumido[15] == true,
                                 onPlay: _procesando ? null : _jugarComidas15,
                               ),
                               const SizedBox(height: 10),
                               _JuegoCard(
-                                titulo: 'Juego 3 - Snake clásico (20%)',
+                                titulo: 'Juego 3 - Snake clÃƒÂ¡sico (20%)',
                                 descripcion:
-                                    'Comé 15 veces sin perder para ganar el descuento.',
+                                    'ComÃƒÂ© 15 veces sin perder para ganar el descuento.',
                                 intentoUsado: _intentoConsumido[20] == true,
                                 onPlay: _procesando ? null : _jugarSnake20,
                               ),
@@ -371,7 +375,10 @@ class _JuegoCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 6),
-          Text(descripcion, style: const TextStyle(color: AppUi.textoSecundario)),
+          Text(
+            descripcion,
+            style: const TextStyle(color: AppUi.textoSecundario),
+          ),
           const SizedBox(height: 10),
           SizedBox(
             width: double.infinity,
@@ -567,36 +574,38 @@ class _JuegoComidasPageState extends State<_JuegoComidasPage> {
                           border: Border.all(color: Colors.white24),
                         ),
                         child: Stack(
-                          children: _entidades
-                              .map(
-                                (e) => Positioned(
-                                  left: e.x,
-                                  top: e.y,
-                                  child: GestureDetector(
-                                    onTap: () => _tocarEntidad(e),
-                                    child: Container(
-                                      width: 52,
-                                      height: 52,
-                                      decoration: BoxDecoration(
-                                        color: e.tipo == 'bomba'
-                                            ? const Color(0xFF992E2E)
-                                            : const Color(0xFF2D6A4F),
-                                        shape: BoxShape.circle,
-                                        border: Border.all(
-                                          color: Colors.white,
-                                          width: 1.2,
+                          children:
+                              _entidades
+                                  .map(
+                                    (e) => Positioned(
+                                      left: e.x,
+                                      top: e.y,
+                                      child: GestureDetector(
+                                        onTap: () => _tocarEntidad(e),
+                                        child: Container(
+                                          width: 52,
+                                          height: 52,
+                                          decoration: BoxDecoration(
+                                            color:
+                                                e.tipo == 'bomba'
+                                                    ? const Color(0xFF992E2E)
+                                                    : const Color(0xFF2D6A4F),
+                                            shape: BoxShape.circle,
+                                            border: Border.all(
+                                              color: Colors.white,
+                                              width: 1.2,
+                                            ),
+                                          ),
+                                          child: Icon(
+                                            e.icono,
+                                            color: Colors.white,
+                                            size: 28,
+                                          ),
                                         ),
                                       ),
-                                      child: Icon(
-                                        e.icono,
-                                        color: Colors.white,
-                                        size: 28,
-                                      ),
                                     ),
-                                  ),
-                                ),
-                              )
-                              .toList(),
+                                  )
+                                  .toList(),
                         ),
                       );
                     },
@@ -700,7 +709,8 @@ class _JuegoSnakePageState extends State<_JuegoSnakePage> {
         break;
     }
 
-    final chocaBorde = nuevaCabeza.x < 0 ||
+    final chocaBorde =
+        nuevaCabeza.x < 0 ||
         nuevaCabeza.y < 0 ||
         nuevaCabeza.x >= _grid ||
         nuevaCabeza.y >= _grid;
@@ -742,7 +752,7 @@ class _JuegoSnakePageState extends State<_JuegoSnakePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Snake clásico')),
+      appBar: AppBar(title: const Text('Snake clÃƒÂ¡sico')),
       body: Container(
         width: double.infinity,
         decoration: const BoxDecoration(gradient: AppUi.fondoPrincipal),
@@ -767,7 +777,7 @@ class _JuegoSnakePageState extends State<_JuegoSnakePage> {
                       ),
                       Text(
                         _terminado
-                            ? (_gano ? '¡Ganaste!' : 'Perdiste')
+                            ? (_gano ? 'Ã‚Â¡Ganaste!' : 'Perdiste')
                             : 'En juego',
                         style: const TextStyle(color: AppUi.acento),
                       ),
@@ -787,11 +797,12 @@ class _JuegoSnakePageState extends State<_JuegoSnakePage> {
                       child: GridView.builder(
                         physics: const NeverScrollableScrollPhysics(),
                         padding: const EdgeInsets.all(8),
-                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: _grid,
-                          crossAxisSpacing: 1,
-                          mainAxisSpacing: 1,
-                        ),
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: _grid,
+                              crossAxisSpacing: 1,
+                              mainAxisSpacing: 1,
+                            ),
                         itemCount: _grid * _grid,
                         itemBuilder: (context, index) {
                           final x = index % _grid;

@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'dart:async';
 
 import 'package:all_food/src/features/carta/presentation/pages/carta_cliente.dart';
@@ -9,7 +10,7 @@ import 'package:all_food/src/features/pedidos/presentation/widgets/cierre_countd
 import 'package:all_food/src/shared/errors/app_error_mapper.dart';
 import 'package:all_food/src/shared/utils/buenos_aires_time.dart';
 import 'package:all_food/src/shared/widgets/logo_spinner.dart';
-import 'package:flutter/material.dart';
+import 'package:all_food/src/shared/utils/error_feedback.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:all_food/src/features/pedidos/presentation/pages/propina_qr_scanner_page.dart';
@@ -151,18 +152,18 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
     Navigator.of(context).pushNamedAndRemoveUntil('/home', (route) => false);
   }
 
-  // Carga pedido + ítems + tiempo estimado acumulado.
+  // Carga pedido + ÃƒÂ­tems + tiempo estimado acumulado.
   Future<void> _cargar() async {
     setState(() => _cargando = true);
     try {
-      // incluirCerrado: false (default) — si la page abre y hay un cerrado viejo, lo ignora
+      // incluirCerrado: false (default) Ã¢â‚¬â€ si la page abre y hay un cerrado viejo, lo ignora
       final detalle = await _repo.getDetallePedido(widget.mesaId);
       if (!mounted) return;
 
       final estadoNuevo =
           (detalle['pedido'] as Map<String, dynamic>?)?['estado'] as String?;
 
-      // Con incluirCerrado: false esto nunca será 'cerrado', pero por seguridad:
+      // Con incluirCerrado: false esto nunca serÃƒÂ¡ 'cerrado', pero por seguridad:
       if (estadoNuevo == 'cerrado') {
         _pedido = detalle['pedido'] as Map<String, dynamic>?;
         await _verificarCierreYRedirigir();
@@ -188,7 +189,7 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
     }
   }
 
-  // Abre carta unificada y refresca para reflejar cambios de ítems.
+  // Abre carta unificada y refresca para reflejar cambios de ÃƒÂ­tems.
   Future<void> _abrirCarta() async {
     await Navigator.of(context).push(
       MaterialPageRoute(
@@ -234,7 +235,7 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
     }
   }
 
-  // Incrementa/decrementa cantidad en un ítem del pedido actual.
+  // Incrementa/decrementa cantidad en un ÃƒÂ­tem del pedido actual.
   Future<void> _cambiarCantidad(Map<String, dynamic> item, int delta) async {
     final pedido = _pedido;
     if (pedido == null) return;
@@ -287,47 +288,43 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
     }
   }
 
-  // Envía el pedido para validación del mozo.
-Future<void> _enviarPedido() async {
-  final pedido = _pedido;
-  if (pedido == null) return;
+  // EnvÃƒÂ­a el pedido para validaciÃƒÂ³n del mozo.
+  Future<void> _enviarPedido() async {
+    final pedido = _pedido;
+    if (pedido == null) return;
 
-  setState(() => _procesando = true);
-  try {
-    await _repo.enviarPedidoAMozo(pedido['id'] as String);
-    if (!mounted) return;
-
-    
+    setState(() => _procesando = true);
     try {
-      await Supabase.instance.client.functions.invoke(
-        'notificar-pedido-cliente',
-        body: {
-          'numeroMesa': widget.numeroMesa,
-          'pedidoId': pedido['id'],
-        },
+      await _repo.enviarPedidoAMozo(pedido['id'] as String);
+      if (!mounted) return;
+
+      try {
+        await Supabase.instance.client.functions.invoke(
+          'notificar-pedido-cliente',
+          body: {'numeroMesa': widget.numeroMesa, 'pedidoId': pedido['id']},
+        );
+      } catch (_) {}
+
+      _mostrarMensaje(
+        'Pedido enviado al mozo para confirmaciÃƒÂ³n.',
+        esError: false,
       );
-    } catch (_) {}
-
-    _mostrarMensaje(
-      'Pedido enviado al mozo para confirmación.',
-      esError: false,
-    );
-    await _cargar();
-  } catch (error) {
-    if (!mounted) return;
-    _mostrarMensaje(
-      AppErrorMapper.toUserMessage(
-        error,
-        fallbackMessage: 'No se pudo enviar el pedido.',
-      ),
-      esError: true,
-    );
-  } finally {
-    if (mounted) setState(() => _procesando = false);
+      await _cargar();
+    } catch (error) {
+      if (!mounted) return;
+      _mostrarMensaje(
+        AppErrorMapper.toUserMessage(
+          error,
+          fallbackMessage: 'No se pudo enviar el pedido.',
+        ),
+        esError: true,
+      );
+    } finally {
+      if (mounted) setState(() => _procesando = false);
+    }
   }
-}
 
-  // Cliente confirma recepción luego de entrega del mozo.
+  // Cliente confirma recepciÃƒÂ³n luego de entrega del mozo.
   Future<void> _confirmarRecepcion() async {
     final pedido = _pedido;
     if (pedido == null) return;
@@ -336,14 +333,14 @@ Future<void> _enviarPedido() async {
     try {
       await _repo.confirmarRecepcionCliente(pedido['id'] as String);
       if (!mounted) return;
-      _mostrarMensaje('Recepción confirmada.', esError: false);
+      _mostrarMensaje('RecepciÃƒÂ³n confirmada.', esError: false);
       await _cargar();
     } catch (error) {
       if (!mounted) return;
       _mostrarMensaje(
         AppErrorMapper.toUserMessage(
           error,
-          fallbackMessage: 'No se pudo confirmar la recepción.',
+          fallbackMessage: 'No se pudo confirmar la recepciÃƒÂ³n.',
         ),
         esError: true,
       );
@@ -353,94 +350,93 @@ Future<void> _enviarPedido() async {
   }
 
   // Cliente solicita cuenta al mozo (paso previo al pago simulado).
-Future<void> _solicitarCuenta() async {
-  final pedido = _pedido;
-  if (pedido == null) return;
+  Future<void> _solicitarCuenta() async {
+    final pedido = _pedido;
+    if (pedido == null) return;
 
-  setState(() => _procesando = true);
-  try {
-    await _repo.solicitarCuenta(pedido['id'] as String);
-
-    //  Notificar al mozo
+    setState(() => _procesando = true);
     try {
-      await Supabase.instance.client.functions.invoke(
-        'notificar-sector',
-        body: {
-          'sector': 'mozo',
-          'numeroMesa': widget.numeroMesa.toString(),
-          'mensaje': '🧾 La mesa ${widget.numeroMesa} solicita la cuenta',
-        },
-      );
-    } catch (_) {}
+      await _repo.solicitarCuenta(pedido['id'] as String);
 
-    if (!mounted) return;
-    _mostrarMensaje('Cuenta solicitada al mozo.', esError: false);
-    await _cargar();
-  } catch (error) {
-    if (!mounted) return;
-    _mostrarMensaje(
-      AppErrorMapper.toUserMessage(
-        error,
-        fallbackMessage: 'No se pudo solicitar la cuenta.',
-      ),
-      esError: true,
-    );
-  } finally {
-    if (mounted) setState(() => _procesando = false);
+      //  Notificar al mozo
+      try {
+        await Supabase.instance.client.functions.invoke(
+          'notificar-sector',
+          body: {
+            'sector': 'mozo',
+            'numeroMesa': widget.numeroMesa.toString(),
+            'mensaje':
+                'Ã°Å¸Â§Â¾ La mesa ${widget.numeroMesa} solicita la cuenta',
+          },
+        );
+      } catch (_) {}
+
+      if (!mounted) return;
+      _mostrarMensaje('Cuenta solicitada al mozo.', esError: false);
+      await _cargar();
+    } catch (error) {
+      if (!mounted) return;
+      _mostrarMensaje(
+        AppErrorMapper.toUserMessage(
+          error,
+          fallbackMessage: 'No se pudo solicitar la cuenta.',
+        ),
+        esError: true,
+      );
+    } finally {
+      if (mounted) setState(() => _procesando = false);
+    }
   }
-}
 
   // Simula escaneo de QR de propina con opciones cerradas por consigna.
-Future<void> _simularPagoConPropina() async {
-  final pedido = _pedido;
-  if (pedido == null) return;
- 
-  // Abre el scanner de QR de propina
-  final seleccion = await Navigator.of(context).push<int>(
-    MaterialPageRoute(builder: (_) => const PropinaScannerPage()),
-  );
- 
-  // Si el usuario cerró sin escanear, no hace nada
-  if (seleccion == null) return;
- 
-  setState(() => _procesando = true);
-  try {
-    final resumen = await _repo.prepararPagoConPropina(
-      pedidoId: pedido['id'] as String,
-      propinaPorcentaje: seleccion,
-    );
-    if (!mounted) return;
- 
-    // Notificar al mozo, dueño y supervisor
+  Future<void> _simularPagoConPropina() async {
+    final pedido = _pedido;
+    if (pedido == null) return;
+
+    // Abre el scanner de QR de propina
+    final seleccion = await Navigator.of(
+      context,
+    ).push<int>(MaterialPageRoute(builder: (_) => const PropinaScannerPage()));
+
+    // Si el usuario cerrÃƒÂ³ sin escanear, no hace nada
+    if (seleccion == null) return;
+
+    setState(() => _procesando = true);
     try {
-      await Supabase.instance.client.functions.invoke(
-        'notificar-pago-cliente',
-        body: {
-          'numeroMesa': widget.numeroMesa,
-          'total': resumen['total'],
-        },
+      final resumen = await _repo.prepararPagoConPropina(
+        pedidoId: pedido['id'] as String,
+        propinaPorcentaje: seleccion,
       );
-    } catch (_) {}
- 
-    _mostrarMensaje(
-      'Pago simulado enviado. Total: \$${(resumen['total'] as num).toStringAsFixed(2)}',
-      esError: false,
-    );
-    await _cargar();
-  } catch (error) {
-    if (!mounted) return;
-    _mostrarMensaje(
-      AppErrorMapper.toUserMessage(
-        error,
-        fallbackMessage: 'No se pudo registrar el pago simulado.',
-      ),
-      esError: true,
-    );
-  } finally {
-    if (mounted) setState(() => _procesando = false);
+      if (!mounted) return;
+
+      // Notificar al mozo, dueÃƒÂ±o y supervisor
+      try {
+        await Supabase.instance.client.functions.invoke(
+          'notificar-pago-cliente',
+          body: {'numeroMesa': widget.numeroMesa, 'total': resumen['total']},
+        );
+      } catch (_) {}
+
+      _mostrarMensaje(
+        'Pago simulado enviado. Total: \$${(resumen['total'] as num).toStringAsFixed(2)}',
+        esError: false,
+      );
+      await _cargar();
+    } catch (error) {
+      if (!mounted) return;
+      _mostrarMensaje(
+        AppErrorMapper.toUserMessage(
+          error,
+          fallbackMessage: 'No se pudo registrar el pago simulado.',
+        ),
+        esError: true,
+      );
+    } finally {
+      if (mounted) setState(() => _procesando = false);
+    }
   }
-}
-  // Muestra desglose completo de cuenta: ítems, descuento, propina y total.
+
+  // Muestra desglose completo de cuenta: ÃƒÂ­tems, descuento, propina y total.
   Future<void> _mostrarDetalleCuenta() async {
     setState(() => _procesando = true);
     try {
@@ -518,7 +514,7 @@ Future<void> _simularPagoConPropina() async {
                         vertical: 18,
                       ),
                       child: Text(
-                        'No hay ítems en la cuenta.',
+                        'No hay ÃƒÂ­tems en la cuenta.',
                         textAlign: TextAlign.center,
                         style: TextStyle(color: Colors.white70),
                       ),
@@ -614,6 +610,9 @@ Future<void> _simularPagoConPropina() async {
   }
 
   void _mostrarMensaje(String mensaje, {required bool esError}) {
+    if (esError) {
+      ErrorFeedback.vibrate();
+    }
     ScaffoldMessenger.of(context)
       ..clearSnackBars()
       ..showSnackBar(
@@ -724,7 +723,7 @@ Future<void> _simularPagoConPropina() async {
                             _items.isEmpty
                                 ? const Center(
                                   child: Text(
-                                    'Aún no hay productos en el pedido.',
+                                    'AÃƒÂºn no hay productos en el pedido.',
                                     style: TextStyle(color: Colors.white70),
                                   ),
                                 )
@@ -745,7 +744,9 @@ Future<void> _simularPagoConPropina() async {
                                     return Container(
                                       padding: const EdgeInsets.all(10),
                                       decoration: BoxDecoration(
-                                        color: Colors.white.withValues(alpha: 0.1),
+                                        color: Colors.white.withValues(
+                                          alpha: 0.1,
+                                        ),
                                         borderRadius: BorderRadius.circular(12),
                                         border: Border.all(
                                           color: Colors.white24,
@@ -842,7 +843,7 @@ Future<void> _simularPagoConPropina() async {
                               ),
                             if (estado == 'entregado_por_mozo')
                               _AccionPrincipal(
-                                texto: 'Confirmar recepción',
+                                texto: 'Confirmar recepciÃƒÂ³n',
                                 onPressed:
                                     _procesando ? null : _confirmarRecepcion,
                                 loading: _procesando,
@@ -916,9 +917,17 @@ Future<void> _simularPagoConPropina() async {
                                     ),
                                 loading: false,
                               ),
+                            ],
+                            if (estado == 'confirmado_mozo' ||
+                                estado == 'en_preparacion' ||
+                                estado == 'listo_para_entrega' ||
+                                estado == 'entregado_por_mozo' ||
+                                estado == 'recibido_cliente' ||
+                                estado == 'cuenta_solicitada' ||
+                                estado == 'pago_pendiente_confirmacion') ...[
                               const SizedBox(height: 8),
                               _AccionPrincipal(
-                                texto: 'Juegos y descuentos',
+                                texto: 'Ir a juegos y descuentos',
                                 onPressed:
                                     _procesando
                                         ? null
@@ -951,7 +960,7 @@ Future<void> _simularPagoConPropina() async {
                               const Padding(
                                 padding: EdgeInsets.only(top: 8),
                                 child: Text(
-                                  'Pago enviado. Esperando confirmación del mozo.',
+                                  'Pago enviado. Esperando confirmaciÃƒÂ³n del mozo.',
                                   style: TextStyle(color: Colors.white70),
                                 ),
                               ),
@@ -984,7 +993,7 @@ Future<void> _simularPagoConPropina() async {
       case 'confirmado_mozo':
         return 'Confirmado';
       case 'en_preparacion':
-        return 'En preparación';
+        return 'En preparaciÃƒÂ³n';
       case 'listo_para_entrega':
         return 'Listo para entrega';
       case 'entregado_por_mozo':
@@ -1032,7 +1041,7 @@ class _DatoHeader extends StatelessWidget {
           style: const TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.w800,
-            fontSize: 18, 
+            fontSize: 18,
           ),
         ),
       ],
@@ -1101,5 +1110,3 @@ class _FilaCuenta extends StatelessWidget {
     );
   }
 }
-
-

@@ -1,6 +1,7 @@
+import 'package:flutter/material.dart';
 import 'package:all_food/src/features/mesas/data/repositories/mesas_repository.dart';
 import 'package:all_food/src/shared/widgets/logo_spinner.dart';
-import 'package:flutter/material.dart';
+import 'package:all_food/src/shared/utils/error_feedback.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class AsignarMesaPage extends StatefulWidget {
@@ -107,7 +108,7 @@ class _AsignarMesaPageState extends State<AsignarMesaPage> {
 
   Future<void> _asignar() async {
     if (_clienteSeleccionado == null || _mesaSeleccionada == null) {
-      _mostrarMensaje('Seleccioná un cliente y una mesa', true);
+      _mostrarMensaje('SeleccionÃƒÂ¡ un cliente y una mesa', true);
       return;
     }
     setState(() => _asignando = true);
@@ -118,14 +119,14 @@ class _AsignarMesaPageState extends State<AsignarMesaPage> {
       );
 
       try {
-      await Supabase.instance.client.functions.invoke(
-        'notificar-mesa-asignada',
-        body: {
-          'clienteId': _clienteSeleccionado!['id'],
-          'numeroMesa': _mesaSeleccionada!['numero'],
-        },
-      );
-    } catch (_) {}
+        await Supabase.instance.client.functions.invoke(
+          'notificar-mesa-asignada',
+          body: {
+            'clienteId': _clienteSeleccionado!['id'],
+            'numeroMesa': _mesaSeleccionada!['numero'],
+          },
+        );
+      } catch (_) {}
 
       _mostrarMensaje(
         'Mesa ${_mesaSeleccionada!['numero']} asignada a '
@@ -146,6 +147,9 @@ class _AsignarMesaPageState extends State<AsignarMesaPage> {
   }
 
   void _mostrarMensaje(String msg, bool error) {
+    if (error) {
+      ErrorFeedback.vibrate();
+    }
     ScaffoldMessenger.of(context)
       ..clearSnackBars()
       ..showSnackBar(
@@ -190,7 +194,7 @@ class _AsignarMesaPageState extends State<AsignarMesaPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // ── Header ────────────────────────────────────────────
+                // Ã¢â€â‚¬Ã¢â€â‚¬ Header Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
                 Padding(
                   padding: const EdgeInsets.fromLTRB(18, 20, 18, 12),
                   child: Column(
@@ -208,8 +212,8 @@ class _AsignarMesaPageState extends State<AsignarMesaPage> {
                       const SizedBox(height: 6),
                       Text(
                         _paso == 0
-                            ? 'Elegí el cliente a sentar'
-                            : 'Elegí la mesa para ${_clienteSeleccionado!['nombres']}',
+                            ? 'ElegÃƒÂ­ el cliente a sentar'
+                            : 'ElegÃƒÂ­ la mesa para ${_clienteSeleccionado!['nombres']}',
                         textAlign: TextAlign.center,
                         style: const TextStyle(
                           color: Colors.white70,
@@ -218,7 +222,7 @@ class _AsignarMesaPageState extends State<AsignarMesaPage> {
                       ),
                       const SizedBox(height: 14),
 
-                      // ── Indicador de pasos ───────────────────────
+                      // Ã¢â€â‚¬Ã¢â€â‚¬ Indicador de pasos Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
                       Row(
                         children: [
                           Expanded(
@@ -253,7 +257,7 @@ class _AsignarMesaPageState extends State<AsignarMesaPage> {
                   ),
                 ),
 
-                // ── Contenido paginado ────────────────────────────────
+                // Ã¢â€â‚¬Ã¢â€â‚¬ Contenido paginado Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
                 Expanded(
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
@@ -342,7 +346,7 @@ class _AsignarMesaPageState extends State<AsignarMesaPage> {
                   ),
                 ),
 
-                // ── Botón / resumen ───────────────────────────────────
+                // Ã¢â€â‚¬Ã¢â€â‚¬ BotÃƒÂ³n / resumen Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
                   child: Column(
@@ -398,7 +402,7 @@ class _AsignarMesaPageState extends State<AsignarMesaPage> {
                           ),
                         ),
 
-                      // Botón
+                      // BotÃƒÂ³n
                       FilledButton(
                         style: FilledButton.styleFrom(
                           minimumSize: const Size.fromHeight(52),
@@ -432,10 +436,15 @@ class _AsignarMesaPageState extends State<AsignarMesaPage> {
                                 ? const SizedBox(
                                   width: 22,
                                   height: 22,
-                                  child: LogoSpinner(size: 22, strokeWidth: 2.5),
+                                  child: LogoSpinner(
+                                    size: 22,
+                                    strokeWidth: 2.5,
+                                  ),
                                 )
                                 : Text(
-                                  _paso == 0 ? 'Siguiente →' : 'Asignar mesa',
+                                  _paso == 0
+                                      ? 'Siguiente Ã¢â€ â€™'
+                                      : 'Asignar mesa',
                                 ),
                       ),
                     ],
@@ -493,7 +502,7 @@ class _PaginacionLista extends StatelessWidget {
         ),
         const SizedBox(width: 10),
         Text(
-          'Página ${paginaActual + 1} / $totalPaginas',
+          'PÃƒÂ¡gina ${paginaActual + 1} / $totalPaginas',
           style: const TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.w700,
@@ -521,7 +530,7 @@ class _PaginacionLista extends StatelessWidget {
   }
 }
 
-// ─── Card cliente ─────────────────────────────────────────────────────────────
+// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Card cliente Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 class _ClienteCard extends StatelessWidget {
   final Map<String, dynamic> cliente;
   final bool seleccionado;
@@ -536,7 +545,7 @@ class _ClienteCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bool esAnonimo = cliente['perfil'] == 'cliente_anonimo';
-    final String etiquetaTexto = esAnonimo ? 'Anónimo' : 'Registrado';
+    final String etiquetaTexto = esAnonimo ? 'AnÃƒÂ³nimo' : 'Registrado';
     final nombreCompleto =
         esAnonimo
             ? '${cliente['nombres']}'
@@ -590,7 +599,9 @@ class _ClienteCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 3),
                     Text(
-                      esAnonimo ? 'Cliente anónimo' : (cliente['correo'] ?? ''),
+                      esAnonimo
+                          ? 'Cliente anÃƒÂ³nimo'
+                          : (cliente['correo'] ?? ''),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
@@ -714,7 +725,7 @@ class _MesaCard extends StatelessWidget {
   }
 }
 
-// ─── Widgets auxiliares ───────────────────────────────────────────────────────
+// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Widgets auxiliares Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 class _PasoIndicador extends StatelessWidget {
   final String numero;
   final String label;
