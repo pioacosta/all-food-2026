@@ -6,6 +6,7 @@ import 'package:all_food/src/features/pedidos/presentation/pages/encuesta_client
 import 'package:all_food/src/features/pedidos/presentation/pages/resultados_encuestas_page.dart';
 import 'package:all_food/src/features/pedidos/presentation/widgets/cierre_countdown_dialog.dart';
 import 'package:all_food/src/shared/errors/app_error_mapper.dart';
+import 'package:all_food/src/shared/utils/buenos_aires_time.dart';
 import 'package:all_food/src/shared/widgets/logo_spinner.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -984,14 +985,7 @@ Future<void> _simularPagoConPropina() async {
   }
 
   String _formatearFechaHora(DateTime? fecha) {
-    if (fecha == null) return '--/-- ----';
-    final local = fecha.toLocal();
-    final dia = local.day.toString().padLeft(2, '0');
-    final mes = local.month.toString().padLeft(2, '0');
-    final anio = local.year.toString();
-    final hora = local.hour.toString().padLeft(2, '0');
-    final minuto = local.minute.toString().padLeft(2, '0');
-    return '$dia/$mes/$anio $hora:$minuto';
+    return BuenosAiresTime.formatDateTime(fecha);
   }
 }
 

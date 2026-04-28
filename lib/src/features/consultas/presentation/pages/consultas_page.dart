@@ -2,6 +2,7 @@ import 'package:all_food/src/features/chat/presentation/pages/chat_page.dart';
 import 'package:all_food/src/features/consultas/data/repository/consultas_repository.dart';
 import 'package:all_food/src/features/consultas/presentation/widgets/consulta_card.dart';
 import 'package:all_food/src/features/consultas/presentation/widgets/sin_consultas_widget.dart';
+import 'package:all_food/src/shared/utils/buenos_aires_time.dart';
 import 'package:all_food/src/shared/widgets/logo_spinner.dart';
 import 'package:flutter/material.dart';
 
@@ -17,7 +18,6 @@ class ConsultasPage extends StatefulWidget {
 class _ConsultasPageState extends State<ConsultasPage> {
   final _repo = GestionServiciosRepository();
   static const int _itemsPorPagina = 5;
-  static const _argentinaOffset = Duration(hours: 3);
 
   List<Map<String, dynamic>> _consultas = [];
   bool _loading = true;
@@ -111,20 +111,11 @@ class _ConsultasPageState extends State<ConsultasPage> {
   }
 
   String _formatHora(String? iso) {
-    final dt = _parseBuenosAires(iso);
-    if (dt == null) return '';
-    return '${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
+    return BuenosAiresTime.formatHourMinuteFromIso(iso);
   }
 
   DateTime? _parseBuenosAires(String? iso) {
-    if (iso == null) return null;
-    try {
-      final parsed = DateTime.parse(iso);
-      final utc = parsed.isUtc ? parsed : parsed.toUtc();
-      return utc.subtract(_argentinaOffset);
-    } catch (_) {
-      return null;
-    }
+    return BuenosAiresTime.tryParseToBuenosAires(iso);
   }
 
   // Devuelve minutos transcurridos y nivel de urgencia
@@ -132,7 +123,7 @@ class _ConsultasPageState extends State<ConsultasPage> {
     final dt = _parseBuenosAires(iso);
     if (dt == null) return (texto: '', nivel: Urgencia.normal);
     try {
-      final ahoraBa = DateTime.now().toUtc().subtract(_argentinaOffset);
+      final ahoraBa = BuenosAiresTime.now();
       final diff = ahoraBa.difference(dt);
 
       String texto;

@@ -1,5 +1,6 @@
 import 'package:all_food/src/features/chat/data/repository/chat-repository.dart';
 import 'package:all_food/src/features/chat/presentation/pages/widgets/burbuja_mensaje.dart';
+import 'package:all_food/src/shared/utils/buenos_aires_time.dart';
 import 'package:all_food/src/shared/widgets/logo_spinner.dart';
 import 'package:flutter/material.dart';
 
@@ -17,7 +18,6 @@ class _ChatPageState extends State<ChatPage> {
   final _repo = ChatRepository();
   final _controller = TextEditingController();
   final _scrollController = ScrollController();
-  static const _argentinaOffset = Duration(hours: 3);
 
   String? _consultaId;
   bool _loading = true;
@@ -299,14 +299,6 @@ class _ChatPageState extends State<ChatPage> {
 
   // Ejemplo de función para formatear ambos
   String _formatFechaHora(String dateString) {
-    final parsed = DateTime.parse(dateString);
-    final utc = parsed.isUtc ? parsed : parsed.toUtc();
-    final dateTime = utc.subtract(_argentinaOffset);
-    final day = dateTime.day.toString().padLeft(2, '0');
-    final month = dateTime.month.toString().padLeft(2, '0');
-    final year = (dateTime.year % 100).toString().padLeft(2, '0');
-    final hour = dateTime.hour.toString().padLeft(2, '0');
-    final minute = dateTime.minute.toString().padLeft(2, '0');
-    return "$day/$month/$year $hour:$minute";
+    return BuenosAiresTime.formatDateTimeFromIso(dateString);
   }
 }

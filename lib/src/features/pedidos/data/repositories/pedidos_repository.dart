@@ -3,6 +3,7 @@ import 'package:all_food/src/features/chat/data/services/chat-service.dart';
 import 'package:all_food/src/features/pedidos/data/services/pedidos_service.dart';
 import 'package:all_food/src/shared/errors/app_exception.dart';
 import 'package:all_food/src/shared/services/notificaciones_service.dart';
+import 'package:all_food/src/shared/utils/buenos_aires_time.dart';
 
 class PedidosFlowException extends AppException {
   const PedidosFlowException(super.message);
@@ -544,12 +545,8 @@ class PedidosRepository {
     final agrupado = <String, Map<String, dynamic>>{};
 
     for (final e in encuestas) {
-      final createdAt = DateTime.tryParse(e['created_at']?.toString() ?? '');
-      if (createdAt == null) continue;
-
-      final fechaLocal = createdAt.toLocal();
-      final key =
-          '${fechaLocal.year.toString().padLeft(4, '0')}-${fechaLocal.month.toString().padLeft(2, '0')}-${fechaLocal.day.toString().padLeft(2, '0')}';
+      final key = BuenosAiresTime.dateKeyFromIso(e['created_at']?.toString());
+      if (key.isEmpty) continue;
 
       final item = agrupado.putIfAbsent(
         key,
