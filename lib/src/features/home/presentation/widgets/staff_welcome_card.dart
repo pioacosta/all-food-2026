@@ -51,8 +51,8 @@ class StaffWelcomeCard extends StatelessWidget {
               ),
               Container(
                 padding: const EdgeInsets.symmetric(
-                  horizontal: 14,
-                  vertical: 5,
+                  horizontal: 18,
+                  vertical: 8,
                 ),
                 decoration: BoxDecoration(
                   color: AppUi.acento,
@@ -64,10 +64,10 @@ class StaffWelcomeCard extends StatelessWidget {
                 child: Text(
                   _labelPerfil(perfil),
                   style: const TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w800,
                     color: Color(0xFF4A0E10),
-                    letterSpacing: 0.2,
+                    letterSpacing: 0.3,
                   ),
                 ),
               ),
