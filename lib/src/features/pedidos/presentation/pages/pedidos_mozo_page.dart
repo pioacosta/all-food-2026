@@ -173,7 +173,6 @@ Future<void> _confirmarPedido(String pedidoId) async {
 
   // Rechaza pedido y devuelve al cliente para corrección.
   Future<void> _rechazarPedido(String pedidoId) async {
-  final motivoController = TextEditingController();
   final confirmar = await showDialog<bool>(
     context: context,
     builder: (_) => AlertDialog(
@@ -181,13 +180,8 @@ Future<void> _confirmarPedido(String pedidoId) async {
       surfaceTintColor: Colors.transparent,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
       title: const Text('Rechazar pedido'),
-      content: TextField(
-        controller: motivoController,
-        maxLines: 3,
-        decoration: const InputDecoration(
-          labelText: 'Motivo del rechazo',
-          border: OutlineInputBorder(),
-        ),
+      content: const Text(
+        'El pedido será rechazado y el cliente podrá modificarlo.',
       ),
       actions: [
         TextButton(
@@ -211,10 +205,7 @@ Future<void> _confirmarPedido(String pedidoId) async {
 
   setState(() => _procesando = true);
   try {
-    await _repo.rechazarPedido(
-      pedidoId: pedidoId,
-      motivo: motivoController.text,
-    );
+    await _repo.rechazarPedido(pedidoId: pedidoId);
 
     // Notificar al cliente que su pedido fue rechazado
     try {
@@ -234,9 +225,7 @@ Future<void> _confirmarPedido(String pedidoId) async {
           body: {
             'clienteId': clienteId,
             'numeroMesa': numeroMesa,
-            'motivo': motivoController.text.isNotEmpty
-                ? motivoController.text
-                : 'Sin motivo especificado',
+            'motivo': null,
           },
         );
       }
@@ -252,7 +241,6 @@ Future<void> _confirmarPedido(String pedidoId) async {
       esError: true,
     );
   } finally {
-    motivoController.dispose();
     if (mounted) setState(() => _procesando = false);
   }
 }

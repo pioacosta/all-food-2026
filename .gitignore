@@ -53,6 +53,8 @@ app.*.map.json
 instrucciones.txt
 instrucciones_agente.md
 consigna.txt
+requerimientos_excluyentes.txt
 
 # Scripts locales de Supabase
 supabase/
+

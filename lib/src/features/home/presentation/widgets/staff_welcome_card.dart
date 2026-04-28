@@ -1,3 +1,4 @@
+﻿import 'package:all_food/src/shared/theme/app_ui.dart';
 import 'package:flutter/material.dart';
 
 class StaffWelcomeCard extends StatelessWidget {
@@ -17,7 +18,7 @@ class StaffWelcomeCard extends StatelessWidget {
   String _labelPerfil(String? p) => switch (p) {
     'dueno' => 'Dueño',
     'supervisor' => 'Supervisor',
-    'metre' => 'Maître',
+    'metre' => 'Metre',
     'mozo' => 'Mozo',
     'cocinero' => 'Cocinero',
     'cantinero' => 'Cantinero',
@@ -33,26 +34,18 @@ class StaffWelcomeCard extends StatelessWidget {
 
     return Container(
       padding: const EdgeInsets.fromLTRB(24, 22, 24, 24),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF5F5DC),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: const Color(0xFF3D1F1F).withValues(alpha: 0.12),
-          width: 1,
-        ),
-      ),
+      decoration: AppUi.panelDecoracion(radius: 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Saludo + badge en la misma fila
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                '¡Hola de nuevo!',
+              const Text(
+                'Hola de nuevo',
                 style: TextStyle(
                   fontSize: 16,
-                  color: const Color(0xFF3D1F1F),
+                  color: AppUi.textoSecundario,
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -62,10 +55,10 @@ class StaffWelcomeCard extends StatelessWidget {
                   vertical: 5,
                 ),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF6B1C1E),
+                  color: AppUi.acento,
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(
-                    color: const Color(0xFF6B1C1E).withValues(alpha: 0.4),
+                    color: AppUi.acento.withValues(alpha: 0.5),
                   ),
                 ),
                 child: Text(
@@ -73,48 +66,36 @@ class StaffWelcomeCard extends StatelessWidget {
                   style: const TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
-                    color: Colors.white,
+                    color: Color(0xFF4A0E10),
                     letterSpacing: 0.2,
                   ),
                 ),
               ),
             ],
           ),
-          Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      nombreCompleto.isNotEmpty ? nombreCompleto : 'Sin nombre',
-                      style: const TextStyle(
-                        fontSize: 25,
-                        fontWeight: FontWeight.w800,
-                        color: Color(0xFF3D1F1F),
-                        letterSpacing: -0.4,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 4),
-                    if (email != null && email!.isNotEmpty)
-                      Text(
-                        email!,
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: const Color(
-                            0xFF3D1F1F,
-                          ),
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                  ],
-                ),
-              ),
-            ],
+          const SizedBox(height: 8),
+          Text(
+            nombreCompleto.isNotEmpty ? nombreCompleto : 'Sin nombre',
+            style: const TextStyle(
+              fontSize: 25,
+              fontWeight: FontWeight.w800,
+              color: AppUi.texto,
+              letterSpacing: -0.4,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
+          const SizedBox(height: 4),
+          if (email != null && email!.isNotEmpty)
+            Text(
+              email!,
+              style: const TextStyle(
+                fontSize: 16,
+                color: AppUi.textoSecundario,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
         ],
       ),
     );

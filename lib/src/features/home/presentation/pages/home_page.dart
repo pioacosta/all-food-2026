@@ -1,4 +1,4 @@
-import 'package:all_food/src/features/home/presentation/widgets/staff_welcome_card.dart';
+﻿import 'package:all_food/src/features/home/presentation/widgets/staff_welcome_card.dart';
 import 'package:all_food/src/features/mesas/data/repositories/mesas_repository.dart';
 import 'package:all_food/src/features/mesas/presentation/pages/ingreso_lista_espera_qr_scanner_page.dart';
 import 'package:all_food/src/features/mesas/presentation/pages/mesa_qr_scanner_page.dart';
@@ -62,7 +62,7 @@ class _HomePageState extends State<HomePage> {
         _cargandoPerfil = false;
       });
 
-      // 🔔 Inicializar notificaciones cuando ya hay sesión activa
+      // ÃƒÆ’Ã‚Â°Ãƒâ€¦Ã‚Â¸ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â€šÂ¬Ã‚Â Inicializar notificaciones cuando ya hay sesiÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â³n activa
       NotificationService().init();
 
       _iniciarEscuchaNotificaciones();
@@ -166,7 +166,7 @@ class _HomePageState extends State<HomePage> {
       _mostrarMensaje(
         AppErrorMapper.toUserMessage(
           error,
-          fallbackMessage: 'No fue posible cerrar sesión.',
+          fallbackMessage: 'No fue posible cerrar sesiÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â³n.',
         ),
         esError: true,
       );
@@ -204,12 +204,12 @@ class _HomePageState extends State<HomePage> {
                 _ultimaNotificacionId = notificacionId;
 
                 if (!mounted) return;
-                final titulo = row['titulo']?.toString() ?? 'Notificación';
+                final titulo = row['titulo']?.toString() ?? 'NotificaciÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â³n';
                 final mensaje = row['mensaje']?.toString() ?? '';
                 _mostrarMensaje('$titulo: $mensaje', esError: false);
 
-                // En cliente, la notificación puede implicar cambios de estado
-                // de mesa/pedido, por eso se sincroniza automáticamente.
+                // En cliente, la notificaciÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â³n puede implicar cambios de estado
+                // de mesa/pedido, por eso se sincroniza automÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¡ticamente.
                 if (_esPerfilCliente(_perfil)) {
                   _refrescarEstadoMesaCliente();
                 }
@@ -257,48 +257,42 @@ class _HomePageState extends State<HomePage> {
       if (puedeCrearProductos)
         _DashboardAction(
           icon: Icons.add_circle_outline,
-          titulo: _perfil == 'cocinero' ? 'Crear plato' : 'Crear bebida',
-          descripcion: 'Registrá nuevos productos de tu sector en la carta.',
+          titulo: _perfil == 'cocinero' ? 'Nuevo plato' : 'Nueva bebida',
           color: const Color(0xFF2D6A4F),
           onTap: () => Navigator.pushNamed(context, '/crear-producto'),
         ),
       if (puedeCrearProductos)
         _DashboardAction(
           icon: Icons.menu_book_rounded,
-          titulo: 'Ver carta de productos',
-          descripcion: 'Consultá todos los productos disponibles en la carta.',
+          titulo: 'Carta',
           color: const Color(0xFF7A2021),
           onTap: () => Navigator.pushNamed(context, '/carta'),
         ),
       if (puedeCrearEmpleados)
         _DashboardAction(
           icon: Icons.badge_outlined,
-          titulo: 'Alta de empleados',
-          descripcion: 'Creá cuentas para nuevos integrantes del equipo.',
+          titulo: 'Empleados',
           color: const Color(0xFF0E7490),
           onTap: () => Navigator.pushNamed(context, '/alta-empleado'),
         ),
       if (puedeCrearEmpleados)
         _DashboardAction(
           icon: Icons.table_restaurant,
-          titulo: 'Crear mesa',
-          descripcion: 'Registrá nuevas mesas para el salón.',
+          titulo: 'Nueva mesa',
           color: const Color(0xFF2563EB),
           onTap: () => Navigator.pushNamed(context, '/crear-mesa'),
         ),
       if (puedeGestionarMesas)
         _DashboardAction(
           icon: Icons.edit_road,
-          titulo: 'Ver / editar mesas',
-          descripcion: 'Ajustá datos y estado operativo de las mesas.',
+          titulo: 'Mesas',
           color: const Color(0xFF7C3AED),
           onTap: () => Navigator.pushNamed(context, '/ver-editar-mesas'),
         ),
       if (puedeCrearEmpleados)
         _DashboardAction(
           icon: Icons.groups_2_outlined,
-          titulo: 'Gestionar clientes',
-          descripcion: 'Aprobá clientes pendientes y administrá registros.',
+          titulo: 'Clientes',
           color: const Color(0xFFB45309),
           onTap: () => Navigator.pushNamed(context, '/aprobacion-clientes'),
         ),
@@ -306,7 +300,6 @@ class _HomePageState extends State<HomePage> {
         _DashboardAction(
           icon: Icons.assignment_turned_in_outlined,
           titulo: 'Asignar mesa',
-          descripcion: 'Asigná mesas a clientes con solicitud pendiente.',
           color: const Color(0xFFB91C1C),
           onTap: () => Navigator.pushNamed(context, '/asignar-mesa'),
         ),
@@ -314,15 +307,13 @@ class _HomePageState extends State<HomePage> {
         _DashboardAction(
           icon: Icons.person_add_alt_1,
           titulo: 'Alta cliente',
-          descripcion: 'Registrá manualmente un nuevo cliente.',
           color: const Color(0xFF0F766E),
           onTap: () => Navigator.pushNamed(context, '/alta-clientes'),
         ),
       if (esMozo)
         _DashboardAction(
           icon: Icons.receipt_long_outlined,
-          titulo: 'Gestionar pedidos y pagos',
-          descripcion: 'Seguí el estado de pedidos y cobranzas.',
+          titulo: 'Pedidos y pagos',
           color: const Color(0xFF4F46E5),
           onTap: () => Navigator.pushNamed(context, '/pedidos-mozo'),
         ),
@@ -330,23 +321,20 @@ class _HomePageState extends State<HomePage> {
         _DashboardAction(
           icon: Icons.help_outline,
           titulo: 'Consultas',
-          descripcion: 'Revisá y gestioná consultas activas de mesas.',
           color: const Color(0xFF6D28D9),
           onTap: () => Navigator.pushNamed(context, '/consultas'),
         ),
       if (esCocinero)
         _DashboardAction(
           icon: Icons.soup_kitchen_outlined,
-          titulo: 'Pedidos de cocina',
-          descripcion: 'Prepará y marcá pedidos de cocina en curso.',
+          titulo: 'Pedidos cocina',
           color: const Color(0xFF15803D),
           onTap: () => Navigator.pushNamed(context, '/pedidos-cocina'),
         ),
       if (esCantinero)
         _DashboardAction(
           icon: Icons.local_bar_outlined,
-          titulo: 'Pedidos de bar',
-          descripcion: 'Gestioná pedidos de bebidas pendientes.',
+          titulo: 'Pedidos bar',
           color: const Color(0xFF0369A1),
           onTap: () => Navigator.pushNamed(context, '/pedidos-bar'),
         ),
@@ -380,6 +368,13 @@ class _HomePageState extends State<HomePage> {
         actions: [
           TextButton(
             onPressed: _cerrandoSesion ? null : _cerrarSesion,
+            style: TextButton.styleFrom(
+              foregroundColor: const Color(0xFFFFE8C2),
+              textStyle: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
             child:
                 _cerrandoSesion
                     ? const SizedBox(
@@ -455,47 +450,8 @@ class _HomePageState extends State<HomePage> {
                                                 textAlign: TextAlign.center,
                                               ),
                                             )
-                                            : ListView.separated(
-                                              itemCount:
-                                                  accionesStaff.length +
-                                                  (accionesStaff.length < 8
-                                                      ? 1
-                                                      : 0),
-                                              separatorBuilder:
-                                                  (_, __) => const SizedBox(
-                                                    height: 14,
-                                                  ),
-                                              itemBuilder: (context, index) {
-                                                if (index >=
-                                                    accionesStaff.length) {
-                                                  return const Padding(
-                                                    padding: EdgeInsets.only(
-                                                      top: 50,
-                                                    ),
-                                                    child: Center(
-                                                      child: Text(
-                                                        'No hay más opciones disponibles',
-                                                        style: TextStyle(
-                                                          color: Colors.white70,
-                                                          fontSize: 16,
-                                                          fontWeight:
-                                                              FontWeight.w600,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  );
-                                                }
-                                                final accion =
-                                                    accionesStaff[index];
-                                                return _DashboardActionCard(
-                                                  icon: accion.icon,
-                                                  titulo: accion.titulo,
-                                                  descripcion:
-                                                      accion.descripcion,
-                                                  color: accion.color,
-                                                  onTap: accion.onTap,
-                                                );
-                                              },
+                                            : _StaffActionsList(
+                                              acciones: accionesStaff,
                                             ),
                                   ),
                                 ],
@@ -515,30 +471,69 @@ class _DashboardAction {
   const _DashboardAction({
     required this.icon,
     required this.titulo,
-    required this.descripcion,
     required this.color,
     required this.onTap,
   });
 
   final IconData icon;
   final String titulo;
-  final String descripcion;
   final Color color;
   final VoidCallback onTap;
+}
+
+class _StaffActionsList extends StatelessWidget {
+  const _StaffActionsList({required this.acciones});
+
+  final List<_DashboardAction> acciones;
+
+  @override
+  Widget build(BuildContext context) {
+    // Si hay pocas acciones, ocupamos toda la altura con tarjetas adaptables.
+    // Si hay muchas, usamos scroll para preservar legibilidad.
+    if (acciones.length <= 6) {
+      return Column(
+        children: [
+          for (var i = 0; i < acciones.length; i++) ...[
+            Expanded(
+              child: _DashboardActionCard(
+                icon: acciones[i].icon,
+                titulo: acciones[i].titulo,
+                color: acciones[i].color,
+                onTap: acciones[i].onTap,
+              ),
+            ),
+            if (i < acciones.length - 1) const SizedBox(height: 12),
+          ],
+        ],
+      );
+    }
+
+    return ListView.separated(
+      itemCount: acciones.length,
+      separatorBuilder: (_, __) => const SizedBox(height: 12),
+      itemBuilder: (context, index) {
+        final accion = acciones[index];
+        return _DashboardActionCard(
+          icon: accion.icon,
+          titulo: accion.titulo,
+          color: accion.color,
+          onTap: accion.onTap,
+        );
+      },
+    );
+  }
 }
 
 class _DashboardActionCard extends StatelessWidget {
   const _DashboardActionCard({
     required this.icon,
     required this.titulo,
-    required this.descripcion,
     required this.color,
     required this.onTap,
   });
 
   final IconData icon;
   final String titulo;
-  final String descripcion;
   final Color color;
   final VoidCallback onTap;
 
@@ -558,30 +553,20 @@ class _DashboardActionCard extends StatelessWidget {
           child: Row(
             children: [
               Icon(icon, color: Colors.white, size: 30),
-              const SizedBox(width: 12),
+              const SizedBox(width: 10),
               Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      titulo,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      descripcion,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        color: Colors.white70,
-                        fontSize: 13,
-                      ),
-                    ),
-                  ],
+                child: Text(
+                  titulo,
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 24,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 0.2,
+                    height: 1.1,
+                  ),
                 ),
               ),
               const SizedBox(width: 8),
@@ -633,7 +618,7 @@ class _ClienteDashboard extends StatelessWidget {
           child: Row(
             children: [
               const Icon(Icons.table_restaurant, color: Colors.white, size: 36),
-              const SizedBox(width: 12),
+              const SizedBox(width: 10),
               Expanded(
                 child:
                     cargandoEstado
@@ -649,8 +634,8 @@ class _ClienteDashboard extends StatelessWidget {
                           mesaAsignada
                               ? 'Mesa asignada: $numeroMesaAsignada'
                               : esperandoMetre
-                              ? 'Solicitud enviada. Esperando asignación del metre.'
-                              : 'Todavía no solicitaste mesa.',
+                              ? 'Solicitud enviada. Esperando asignaciÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â³n del metre.'
+                              : 'TodavÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â­a no solicitaste mesa.',
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 17,
@@ -674,10 +659,10 @@ class _ClienteDashboard extends StatelessWidget {
                     titulo: 'Escanear QR de entrada',
                     descripcion:
                         puedeSolicitar
-                            ? 'Escaneá el QR de entrada para anotarte en la lista de espera.'
+                            ? 'EscaneÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¡ el QR de entrada para anotarte en la lista de espera.'
                             : esperandoMetre
-                            ? 'Ya estás en lista de espera. Aguarda asignación del metre.'
-                            : 'Ya tenés una mesa asignada, no hace falta escanear nuevamente.',
+                            ? 'Ya estÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¡s en lista de espera. Aguarda asignaciÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â³n del metre.'
+                            : 'Ya tenÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â©s una mesa asignada, no hace falta escanear nuevamente.',
                     habilitado: puedeSolicitar && !solicitandoMesa,
                     onTap: onEscanearQrIngreso,
                     loading: solicitandoMesa,
@@ -690,7 +675,7 @@ class _ClienteDashboard extends StatelessWidget {
                     icon: Icons.sync,
                     titulo: 'Actualizar estado',
                     descripcion:
-                        'Consultá si el metre ya te asignó una mesa para continuar.',
+                        'ConsultÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¡ si el metre ya te asignÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â³ una mesa para continuar.',
                     habilitado: !cargandoEstado,
                     onTap: onRefrescarEstado,
                     loading: cargandoEstado,
@@ -704,7 +689,7 @@ class _ClienteDashboard extends StatelessWidget {
                     titulo: 'Escanear QR de mesa',
                     descripcion:
                         mesaAsignada
-                            ? 'Validá el QR de tu mesa para entrar a carta y consultas al mozo.'
+                            ? 'ValidÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¡ el QR de tu mesa para entrar a carta y consultas al mozo.'
                             : 'Se habilita cuando el metre te asigne una mesa.',
                     habilitado: mesaAsignada,
                     onTap: onEscanearQr,
@@ -717,7 +702,7 @@ class _ClienteDashboard extends StatelessWidget {
                   child: _ClienteActionCard(
                     icon: Icons.add_chart_sharp,
                     titulo: 'Ver Encuestas',
-                    descripcion: 'Ver encuestas',
+                    descripcion: 'Ver resultados de encuestas',
                     habilitado: true,
                     onTap:
                         () => Navigator.of(context).push(
@@ -818,3 +803,4 @@ class _ClienteActionCard extends StatelessWidget {
     );
   }
 }
+

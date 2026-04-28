@@ -240,16 +240,10 @@ class PedidosRepository {
 
   Future<void> rechazarPedido({
     required String pedidoId,
-    required String motivo,
   }) async {
-    final texto = motivo.trim();
-    if (texto.length < 3) {
-      throw const PedidosFlowException('Debes indicar un motivo de rechazo.');
-    }
-
     await _service.updatePedido(
       pedidoId: pedidoId,
-      payload: {'estado': 'rechazado_mozo', 'observaciones_rechazo': texto},
+      payload: {'estado': 'rechazado_mozo', 'observaciones_rechazo': null},
     );
 
     final pedido = await _service.getPedidoById(pedidoId);
@@ -258,7 +252,7 @@ class PedidosRepository {
       await _notificacionesService.enviarNotificaciones(
         destinatarios: [clienteId],
         titulo: 'Pedido rechazado por mozo',
-        mensaje: 'Debes modificar el pedido. Motivo: $texto',
+        mensaje: 'Debes modificar el pedido.',
         tipo: 'pedido_rechazado',
         referenciaId: pedidoId,
       );

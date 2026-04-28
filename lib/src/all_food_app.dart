@@ -12,8 +12,10 @@ import 'package:all_food/src/features/mesas/presentation/pages/crear_mesa_page.d
 import 'package:all_food/src/features/mesas/presentation/pages/ver_editar_mesas_page.dart';
 import 'package:all_food/src/shared/widgets/logo_loader.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:all_food/src/features/productos/presentation/pages/crear_producto_page.dart';
+import 'package:all_food/src/shared/theme/app_ui.dart';
 import 'features/home/presentation/pages/home_page.dart';
 import 'features/auth/presentation/pages/login_page.dart';
 import 'features/splash/splash_page.dart';
@@ -42,20 +44,28 @@ class AllFoodApp extends StatelessWidget {
       theme: ThemeData(
         useMaterial3: true,
         colorScheme: colorScheme,
-        scaffoldBackgroundColor: const Color(0xFF5B1718),
+        scaffoldBackgroundColor: AppUi.fondoMedio,
+        textTheme: GoogleFonts.nunitoTextTheme().apply(
+          bodyColor: AppUi.texto,
+          displayColor: AppUi.texto,
+        ),
         appBarTheme: const AppBarTheme(
-          backgroundColor: Color(0xFF7A2021),
+          backgroundColor: AppUi.fondoSuperior,
           foregroundColor: Colors.white,
+          elevation: 0,
         ),
         inputDecorationTheme: const InputDecorationTheme(
-          labelStyle: TextStyle(color: Colors.white70),
+          filled: true,
+          fillColor: Color(0x22FFFFFF),
+          labelStyle: TextStyle(color: AppUi.textoSecundario),
+          floatingLabelStyle: TextStyle(color: AppUi.acento),
           enabledBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.white54),
+            borderSide: BorderSide(color: Colors.white60),
           ),
           focusedBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.white),
+            borderSide: BorderSide(color: AppUi.acento, width: 1.6),
           ),
-          errorStyle: TextStyle(color: Color(0xFFdfaaa4)),
+          errorStyle: TextStyle(color: Color(0xFFFFD2CC)),
           errorBorder: OutlineInputBorder(
             borderSide: BorderSide(color: Color(0xFFFF8A80)),
           ),
@@ -65,14 +75,18 @@ class AllFoodApp extends StatelessWidget {
         ),
         filledButtonTheme: FilledButtonThemeData(
           style: FilledButton.styleFrom(
-            backgroundColor: const Color(0xFFFFFFFF),
-            foregroundColor: Colors.black,
+            backgroundColor: AppUi.acento,
+            foregroundColor: const Color(0xFF4A0E10),
+            textStyle: const TextStyle(
+              fontWeight: FontWeight.w800,
+              letterSpacing: 0.2,
+            ),
           ),
         ),
         outlinedButtonTheme: OutlinedButtonThemeData(
           style: OutlinedButton.styleFrom(
             foregroundColor: Colors.white,
-            side: const BorderSide(color: Colors.white70),
+            side: const BorderSide(color: Colors.white70, width: 1.4),
           ),
         ),
       ),

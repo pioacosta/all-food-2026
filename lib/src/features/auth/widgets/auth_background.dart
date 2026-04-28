@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:all_food/src/shared/theme/app_ui.dart';
 
 // Scaffold base reutilizable para pantallas de autenticacion.
 class AuthBackground extends StatelessWidget {
@@ -16,16 +17,38 @@ class AuthBackground extends StatelessWidget {
     // Aplica fondo degradado y respeta zonas seguras del dispositivo.
     return Scaffold(
       floatingActionButton: floatingActionButton,
-      body: Container(
-        width: double.infinity,
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Color(0xFF5B1718), Color(0xFF7A2021)],
+      body: Stack(
+        children: [
+          Container(
+            width: double.infinity,
+            decoration: const BoxDecoration(gradient: AppUi.fondoPrincipal),
           ),
-        ),
-        child: SafeArea(child: child),
+          Positioned(
+            top: -80,
+            right: -50,
+            child: Container(
+              width: 220,
+              height: 220,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: AppUi.acento.withValues(alpha: 0.12),
+              ),
+            ),
+          ),
+          Positioned(
+            bottom: -90,
+            left: -70,
+            child: Container(
+              width: 260,
+              height: 260,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.white.withValues(alpha: 0.08),
+              ),
+            ),
+          ),
+          SafeArea(child: child),
+        ],
       ),
     );
   }

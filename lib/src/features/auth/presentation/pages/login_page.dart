@@ -1,6 +1,7 @@
 import 'package:all_food/src/features/auth/widgets/auth_background.dart';
 import 'package:all_food/src/features/auth/widgets/auth_card.dart';
 import 'package:all_food/src/shared/errors/app_error_mapper.dart';
+import 'package:all_food/src/shared/theme/app_ui.dart';
 import 'package:all_food/src/shared/widgets/logo_spinner.dart';
 import 'package:flutter/material.dart';
 import 'package:all_food/src/features/auth/data/repositories/auth_repository.dart';
@@ -43,7 +44,7 @@ class _LoginPageState extends State<LoginPage> {
 
     final perfil = await showModalBottomSheet<String>(
       context: context,
-      backgroundColor: const Color(0xFF8D2628),
+      backgroundColor: AppUi.panel,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -301,7 +302,7 @@ class _LoginPageState extends State<LoginPage> {
         SnackBar(
           content: Text(mensaje),
           backgroundColor:
-              esError ? const Color(0xFF992E2E) : const Color(0xFF2D6A4F),
+              esError ? AppUi.error : AppUi.exito,
         ),
       );
   }
@@ -319,7 +320,7 @@ class _LoginPageState extends State<LoginPage> {
           content: Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
             decoration: BoxDecoration(
-              color: const Color(0xFF2D6A4F),
+              color: AppUi.exito,
               borderRadius: BorderRadius.circular(14),
               boxShadow: const [
                 BoxShadow(
@@ -496,6 +497,8 @@ class _LoginPageState extends State<LoginPage> {
                         onPressed: _isLoading ? null : _ingresar,
                         style: FilledButton.styleFrom(
                           minimumSize: const Size.fromHeight(54),
+                          backgroundColor: AppUi.acento,
+                          foregroundColor: const Color(0xFF4A0E10),
                           textStyle: const TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.w700,
@@ -571,6 +574,8 @@ class _LoginPageState extends State<LoginPage> {
                                 },
                         style: FilledButton.styleFrom(
                           minimumSize: const Size.fromHeight(52),
+                          backgroundColor: const Color(0xFFB45309),
+                          foregroundColor: Colors.white,
                           textStyle: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.w600,

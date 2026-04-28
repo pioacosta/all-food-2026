@@ -4,6 +4,7 @@ import 'package:all_food/src/features/auth/widgets/auth_card.dart';
 import 'package:all_food/src/shared/dni_qr/dni_qr_data.dart';
 import 'package:all_food/src/shared/dni_qr/dni_qr_scanner_page.dart';
 import 'package:all_food/src/shared/errors/app_error_mapper.dart';
+import 'package:all_food/src/shared/theme/app_ui.dart';
 import 'package:all_food/src/shared/widgets/logo_spinner.dart';
 import 'package:all_food/src/features/auth/data/repositories/auth_repository.dart';
 import 'package:flutter/material.dart';
@@ -192,7 +193,7 @@ class _RegisterPageState extends State<RegisterPage> {
         SnackBar(
           content: Text(mensaje),
           backgroundColor:
-              esError ? const Color(0xFF992E2E) : const Color(0xFF2D6A4F),
+              esError ? AppUi.error : AppUi.exito,
         ),
       );
   }
@@ -371,6 +372,8 @@ class _RegisterPageState extends State<RegisterPage> {
                       ElevatedButton(
                         onPressed: _tomarFoto,
                         style: ElevatedButton.styleFrom(
+                          backgroundColor: AppUi.acento,
+                          foregroundColor: const Color(0xFF4A0E10),
                           minimumSize: const Size.fromHeight(50),
                           textStyle: const TextStyle(
                             fontSize: 20,
@@ -469,6 +472,8 @@ class _RegisterPageState extends State<RegisterPage> {
                     FilledButton(
                       onPressed: _isLoading ? null : _registrar,
                       style: FilledButton.styleFrom(
+                        backgroundColor: AppUi.acento,
+                        foregroundColor: const Color(0xFF4A0E10),
                         minimumSize: const Size.fromHeight(50),
                         textStyle: const TextStyle(
                           fontSize: 20,
