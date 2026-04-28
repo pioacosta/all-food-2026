@@ -59,7 +59,7 @@ class _JuegosDescuentoPageState extends State<JuegosDescuentoPage> {
       _mostrarMensaje(
         AppErrorMapper.toUserMessage(
           error,
-          fallbackMessage: 'No se pudo cargar la secciÃ³n de juegos.',
+          fallbackMessage: 'No se pudo cargar la secci\u00F3n de juegos.',
         ),
         esError: true,
       );
@@ -99,7 +99,7 @@ class _JuegosDescuentoPageState extends State<JuegosDescuentoPage> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 const Text(
-                  'Juego 10%: adivinÃ¡ el nÃºmero',
+                  'Juego 10%: adivin\u00E1 el n\u00FAmero',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     color: Colors.white,
@@ -207,7 +207,7 @@ class _JuegosDescuentoPageState extends State<JuegosDescuentoPage> {
     try {
       if (_descuentoAplicado > 0) {
         _mostrarMensaje(
-          'Ganaste, pero ya tenías un descuento del ${_descuentoAplicado.toStringAsFixed(0)}%.',
+          'Ganaste, pero ya ten\u00EDas un descuento del ${_descuentoAplicado.toStringAsFixed(0)}%.',
           esError: false,
         );
         return;
@@ -222,7 +222,7 @@ class _JuegosDescuentoPageState extends State<JuegosDescuentoPage> {
       if (aplicado) {
         setState(() => _descuentoAplicado = porcentaje.toDouble());
         _mostrarMensaje(
-          '¡Ganaste! Se aplicó $porcentaje% a la cuenta final.',
+          '\u00A1Ganaste! Se aplic\u00F3 $porcentaje% a la cuenta final.',
           esError: false,
         );
       } else {
@@ -290,14 +290,14 @@ class _JuegosDescuentoPageState extends State<JuegosDescuentoPage> {
                               ),
                               const SizedBox(height: 8),
                               const Text(
-                                'Si ganÃ¡s en el primer intento del juego, podÃ©s obtener el descuento. El descuento no se acumula.',
+                                'Si gan\u00E1s en el primer intento del juego, pod\u00E9s obtener el descuento. El descuento no se acumula.',
                                 style: TextStyle(color: AppUi.textoSecundario),
                               ),
                               const SizedBox(height: 8),
                               Text(
                                 _descuentoAplicado > 0
                                     ? 'Descuento activo: ${_descuentoAplicado.toStringAsFixed(0)}%'
-                                    : 'AÃºn no hay descuento aplicado.',
+                                    : 'A\u00FAn no hay descuento aplicado.',
                                 style: const TextStyle(
                                   color: AppUi.acento,
                                   fontWeight: FontWeight.w800,
@@ -311,9 +311,9 @@ class _JuegosDescuentoPageState extends State<JuegosDescuentoPage> {
                           child: ListView(
                             children: [
                               _JuegoCard(
-                                titulo: 'Juego 1 - Adivinar nÃºmero (10%)',
+                                titulo: 'Juego 1 - Adivinar n\u00FAmero (10%)',
                                 descripcion:
-                                    'ElegÃ­ un nÃºmero del 1 al 6. Si coincide, ganÃ¡s.',
+                                    'Eleg\u00ED un n\u00FAmero del 1 al 6. Si coincide, gan\u00E1s.',
                                 intentoUsado: _intentoConsumido[10] == true,
                                 onPlay: _procesando ? null : _jugarNumero10,
                               ),
@@ -321,15 +321,15 @@ class _JuegosDescuentoPageState extends State<JuegosDescuentoPage> {
                               _JuegoCard(
                                 titulo: 'Juego 2 - Comidas y bombas (15%)',
                                 descripcion:
-                                    'TocÃ¡ comidas para sumar y evitÃ¡ bombas que restan. NecesitÃ¡s 120 puntos.',
+                                    'Toc\u00E1 comidas para sumar y evit\u00E1 bombas que restan. Necesit\u00E1s 120 puntos.',
                                 intentoUsado: _intentoConsumido[15] == true,
                                 onPlay: _procesando ? null : _jugarComidas15,
                               ),
                               const SizedBox(height: 10),
                               _JuegoCard(
-                                titulo: 'Juego 3 - Snake clÃ¡sico (20%)',
+                                titulo: 'Juego 3 - Snake cl\u00E1sico (20%)',
                                 descripcion:
-                                    'ComÃ© 15 veces sin perder para ganar el descuento.',
+                                    'Com\u00E9 15 veces sin perder para ganar el descuento.',
                                 intentoUsado: _intentoConsumido[20] == true,
                                 onPlay: _procesando ? null : _jugarSnake20,
                               ),
@@ -752,7 +752,7 @@ class _JuegoSnakePageState extends State<_JuegoSnakePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Snake clÃ¡sico')),
+      appBar: AppBar(title: const Text('Snake cl\u00E1sico')),
       body: Container(
         width: double.infinity,
         decoration: const BoxDecoration(gradient: AppUi.fondoPrincipal),
@@ -777,9 +777,7 @@ class _JuegoSnakePageState extends State<_JuegoSnakePage> {
                       ),
                       Text(
                         _terminado
-                            ? (_gano
-                                ? 'ÃƒÂ¯Ã‚Â¿Ã‚Â½,Ãƒâ€šÃ‚Â¡Ganaste!'
-                                : 'Perdiste')
+                            ? (_gano ? '\u00A1Ganaste!' : 'Perdiste')
                             : 'En juego',
                         style: const TextStyle(color: AppUi.acento),
                       ),
