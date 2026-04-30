@@ -3,12 +3,9 @@ import 'dart:async';
 
 import 'package:all_food/src/features/carta/presentation/pages/carta_cliente.dart';
 import 'package:all_food/src/features/pedidos/data/repositories/pedidos_repository.dart';
-import 'package:all_food/src/features/pedidos/presentation/pages/encuesta_cliente_page.dart';
-import 'package:all_food/src/features/pedidos/presentation/pages/juegos_descuento_page.dart';
-import 'package:all_food/src/features/pedidos/presentation/pages/resultados_encuestas_page.dart';
 import 'package:all_food/src/features/pedidos/presentation/widgets/cierre_countdown_dialog.dart';
 import 'package:all_food/src/shared/errors/app_error_mapper.dart';
-import 'package:all_food/src/shared/utils/buenos_aires_time.dart';
+// import 'package:all_food/src/shared/utils/buenos_aires_time.dart';
 import 'package:all_food/src/shared/widgets/logo_spinner.dart';
 import 'package:all_food/src/shared/utils/error_feedback.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -340,7 +337,7 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
       _mostrarMensaje(
         AppErrorMapper.toUserMessage(
           error,
-        fallbackMessage: 'No se pudo confirmar la recepción.',
+          fallbackMessage: 'No se pudo confirmar la recepción.',
         ),
         esError: true,
       );
@@ -434,180 +431,6 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
       if (mounted) setState(() => _procesando = false);
     }
   }
-
-  // Muestra desglose completo de cuenta: ?f?tems, descuento, propina y total.
-  Future<void> _mostrarDetalleCuenta() async {
-    setState(() => _procesando = true);
-    try {
-      final detalle = await _repo.getDetalleCuenta(widget.mesaId);
-      if (!mounted) return;
-
-      final lineas = List<Map<String, dynamic>>.from(
-        detalle['lineas'] as List<Map<String, dynamic>>? ?? const [],
-      );
-      final estadoCuenta = detalle['estado']?.toString() ?? 'sin_pedido';
-      final emitidoAt = DateTime.tryParse(
-        detalle['emitidoAt']?.toString() ?? '',
-      );
-      final descuentoPorcentaje =
-          ((detalle['descuentoPorcentaje'] as num?) ?? 0).toDouble();
-      final montoDescuento =
-          ((detalle['montoDescuento'] as num?) ?? 0).toDouble();
-      final propinaPorcentaje =
-          ((detalle['propinaPorcentaje'] as num?) ?? 0).toDouble();
-      final montoPropina = ((detalle['montoPropina'] as num?) ?? 0).toDouble();
-      final total = ((detalle['total'] as num?) ?? 0).toDouble();
-
-      await showModalBottomSheet<void>(
-        context: context,
-        backgroundColor: const Color(0xFF7A2021),
-        isScrollControlled: true,
-        builder: (context) {
-          return SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(14, 14, 14, 14),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  const Text(
-                    'Detalle de la cuenta',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w700,
-                      fontSize: 18,
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: Colors.white24),
-                    ),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            'Estado: ${_estadoLegible(estadoCuenta)}',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                        ),
-                        Text(
-                          'Emitida: ${_formatearFechaHora(emitidoAt)}',
-                          style: const TextStyle(color: Colors.white70),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  if (lineas.isEmpty)
-                    const Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 18,
-                      ),
-                      child: Text(
-                    'No hay ítems en la cuenta.',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(color: Colors.white70),
-                      ),
-                    )
-                  else
-                    SizedBox(
-                      height: 220,
-                      child: ListView.separated(
-                        itemCount: lineas.length,
-                        separatorBuilder: (_, __) => const SizedBox(height: 6),
-                        itemBuilder: (context, index) {
-                          final linea = lineas[index];
-                          return Container(
-                            padding: const EdgeInsets.all(10),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.12),
-                              borderRadius: BorderRadius.circular(10),
-                              border: Border.all(color: Colors.white24),
-                            ),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    '${linea['nombre']} x${linea['cantidad']}',
-                                    style: const TextStyle(color: Colors.white),
-                                  ),
-                                ),
-                                Text(
-                                  '\$${((linea['importe'] as num?) ?? 0).toStringAsFixed(2)}',
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                  const SizedBox(height: 10),
-                  _FilaCuenta(
-                    titulo:
-                        'Descuento por juego (${descuentoPorcentaje.toStringAsFixed(0)}%)',
-                    valor: -montoDescuento,
-                    color: const Color(0xFFB8F5C3),
-                  ),
-                  _FilaCuenta(
-                    titulo:
-                        'Propina (${propinaPorcentaje.toStringAsFixed(0)}%)',
-                    valor: montoPropina,
-                  ),
-                  const SizedBox(height: 12),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 14,
-                    ),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF2D6A4F),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text(
-                      'TOTAL A ABONAR: \$${total.toStringAsFixed(2)}',
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w800,
-                        fontSize: 30,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          );
-        },
-      );
-    } catch (error) {
-      if (!mounted) return;
-      _mostrarMensaje(
-        AppErrorMapper.toUserMessage(
-          error,
-          fallbackMessage: 'No se pudo cargar el detalle de la cuenta.',
-        ),
-        esError: true,
-      );
-    } finally {
-      if (mounted) {
-        setState(() => _procesando = false);
-      }
-    }
-  }
-
   void _mostrarMensaje(String mensaje, {required bool esError}) {
     if (esError) {
       ErrorFeedback.vibrate();
@@ -628,7 +451,6 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
     final estado = (_pedido?['estado'] as String?) ?? 'sin_pedido';
     final editable = estado == 'borrador' || estado == 'rechazado_mozo';
     final total = ((_pedido?['total'] as num?) ?? 0).toDouble();
-    final encuestaCompletada = _pedido?['encuesta_completada'] == true;
 
     return Scaffold(
       appBar: AppBar(title: Text('Pedido mesa ${widget.numeroMesa}')),
@@ -722,112 +544,15 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
                             _items.isEmpty
                                 ? const Center(
                                   child: Text(
-                'Aún no hay productos en el pedido.',
+                                    'Aún no hay productos en el pedido.',
                                     style: TextStyle(color: Colors.white70),
                                   ),
                                 )
-                                : ListView.separated(
-                                  padding: const EdgeInsets.fromLTRB(
-                                    16,
-                                    0,
-                                    16,
-                                    10,
-                                  ),
-                                  itemCount: _items.length,
-                                  separatorBuilder:
-                                      (_, __) => const SizedBox(height: 8),
-                                  itemBuilder: (context, index) {
-                                    final item = _items[index];
-                                    final cantidad =
-                                        (item['cantidad'] as num).toInt();
-                                    return Container(
-                                      padding: const EdgeInsets.all(10),
-                                      decoration: BoxDecoration(
-                                        color: Colors.white.withValues(
-                                          alpha: 0.1,
-                                        ),
-                                        borderRadius: BorderRadius.circular(12),
-                                        border: Border.all(
-                                          color: Colors.white24,
-                                        ),
-                                      ),
-                                      child: Row(
-                                        children: [
-                                          Expanded(
-                                            child: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Text(
-                                                  item['nombre_snapshot']
-                                                          ?.toString() ??
-                                                      '',
-                                                  style: const TextStyle(
-                                                    color: Colors.white,
-                                                    fontWeight: FontWeight.w700,
-                                                  ),
-                                                ),
-                                                const SizedBox(height: 2),
-                                                Text(
-                                                  '\$${((item['precio_unitario'] as num?) ?? 0).toStringAsFixed(2)}',
-                                                  style: const TextStyle(
-                                                    color: Colors.white70,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                          if (editable)
-                                            Row(
-                                              children: [
-                                                IconButton(
-                                                  onPressed:
-                                                      _procesando
-                                                          ? null
-                                                          : () =>
-                                                              _cambiarCantidad(
-                                                                item,
-                                                                -1,
-                                                              ),
-                                                  icon: const Icon(
-                                                    Icons.remove_circle,
-                                                    color: Colors.white,
-                                                  ),
-                                                ),
-                                                Text(
-                                                  '$cantidad',
-                                                  style: const TextStyle(
-                                                    color: Colors.white,
-                                                  ),
-                                                ),
-                                                IconButton(
-                                                  onPressed:
-                                                      _procesando
-                                                          ? null
-                                                          : () =>
-                                                              _cambiarCantidad(
-                                                                item,
-                                                                1,
-                                                              ),
-                                                  icon: const Icon(
-                                                    Icons.add_circle,
-                                                    color: Colors.white,
-                                                  ),
-                                                ),
-                                              ],
-                                            )
-                                          else
-                                            Text(
-                                              'x$cantidad',
-                                              style: const TextStyle(
-                                                color: Colors.white,
-                                                fontWeight: FontWeight.w700,
-                                              ),
-                                            ),
-                                        ],
-                                      ),
-                                    );
-                                  },
+                                : _ProductosPaginados(
+                                  items: _items,
+                                  editable: editable,
+                                  procesando: _procesando,
+                                  onCambiarCantidad: _cambiarCantidad,
                                 ),
                       ),
                       Padding(
@@ -842,7 +567,7 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
                               ),
                             if (estado == 'entregado_por_mozo')
                               _AccionPrincipal(
-                      texto: 'Confirmar recepción',
+                                texto: 'Confirmar recepción',
                                 onPressed:
                                     _procesando ? null : _confirmarRecepcion,
                                 loading: _procesando,
@@ -850,124 +575,39 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
                             if (estado == 'recibido_cliente' ||
                                 estado == 'cuenta_solicitada' ||
                                 estado == 'pago_pendiente_confirmacion') ...[
-                              _AccionPrincipal(
-                                texto: 'Ver detalle de cuenta',
-                                onPressed:
-                                    _procesando ? null : _mostrarDetalleCuenta,
-                                loading: false,
-                              ),
-                              const SizedBox(height: 8),
+                              // Botón dinámico: solicitar cuenta → QR propina
                               _AccionPrincipal(
                                 texto:
                                     estado == 'recibido_cliente'
                                         ? 'Solicitar cuenta'
-                                        : 'Cuenta solicitada',
+                                        : estado == 'cuenta_solicitada'
+                                        ? 'QR de propina y pago simulado'
+                                        : 'Pago pendiente de confirmación',
                                 onPressed:
                                     estado == 'recibido_cliente' && !_procesando
                                         ? _solicitarCuenta
+                                        : estado == 'cuenta_solicitada' &&
+                                            !_procesando
+                                        ? _simularPagoConPropina
                                         : null,
                                 loading: _procesando,
                               ),
-                              const SizedBox(height: 8),
-                              _AccionPrincipal(
-                                texto: 'QR de propina y pago simulado',
-                                onPressed:
-                                    (estado == 'cuenta_solicitada' &&
-                                            !_procesando)
-                                        ? _simularPagoConPropina
-                                        : null,
-                                loading: false,
-                              ),
-                              const SizedBox(height: 8),
-                              _AccionPrincipal(
-                                texto:
-                                    encuestaCompletada
-                                        ? 'Encuesta ya completada'
-                                        : 'Completar encuesta',
-                                onPressed:
-                                    encuestaCompletada
-                                        ? null
-                                        : () async {
-                                          if (_pedido == null) return;
-                                          await Navigator.of(context).push(
-                                            MaterialPageRoute(
-                                              builder:
-                                                  (_) => EncuestaClientePage(
-                                                    pedidoId:
-                                                        _pedido!['id']
-                                                            as String,
-                                                  ),
-                                            ),
-                                          );
-                                          await _cargar();
-                                        },
-                                loading: false,
-                              ),
-                              const SizedBox(height: 8),
-                              _AccionPrincipal(
-                                texto: 'Ver resultados de encuestas',
-                                onPressed:
-                                    () => Navigator.of(context).push(
-                                      MaterialPageRoute(
-                                        builder:
-                                            (_) =>
-                                                const ResultadosEncuestasPage(),
-                                      ),
-                                    ),
-                                loading: false,
-                              ),
-                            ],
-                            if (estado == 'confirmado_mozo' ||
-                                estado == 'en_preparacion' ||
-                                estado == 'listo_para_entrega' ||
-                                estado == 'entregado_por_mozo' ||
-                                estado == 'recibido_cliente' ||
-                                estado == 'cuenta_solicitada' ||
-                                estado == 'pago_pendiente_confirmacion') ...[
-                              const SizedBox(height: 8),
-                              _AccionPrincipal(
-                                texto: 'Ir a juegos y descuentos',
-                                onPressed:
-                                    _procesando
-                                        ? null
-                                        : () async {
-                                          if (_pedido == null) return;
-                                          final pedidoId =
-                                              _pedido!['id'] as String;
-                                          final descuentoActual =
-                                              ((_pedido!['descuento_juego_porcentaje']
-                                                          as num?) ??
-                                                      0)
-                                                  .toDouble();
-
-                                          await Navigator.of(context).push(
-                                            MaterialPageRoute(
-                                              builder:
-                                                  (_) => JuegosDescuentoPage(
-                                                    pedidoId: pedidoId,
-                                                    descuentoActual:
-                                                        descuentoActual,
-                                                  ),
-                                            ),
-                                          );
-                                          await _cargar();
-                                        },
-                                loading: false,
-                              ),
-                            ],
-                            if (estado == 'pago_pendiente_confirmacion')
-                              const Padding(
-                                padding: EdgeInsets.only(top: 8),
-                                child: Text(
-                'Pago enviado. Esperando confirmación del mozo.',
-                                  style: TextStyle(color: Colors.white70),
+                              if (estado == 'pago_pendiente_confirmacion')
+                                const Padding(
+                                  padding: EdgeInsets.only(top: 8),
+                                  child: Text(
+                                    'Pago enviado. Esperando confirmación del mozo.',
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(color: Colors.white70),
+                                  ),
                                 ),
-                              ),
+                            ],
                             if (estado == 'cerrado')
                               const Padding(
                                 padding: EdgeInsets.only(top: 8),
                                 child: Text(
                                   'Mesa liberada. Flujo finalizado.',
+                                  textAlign: TextAlign.center,
                                   style: TextStyle(color: Colors.white),
                                 ),
                               ),
@@ -1010,9 +650,6 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
     }
   }
 
-  String _formatearFechaHora(DateTime? fecha) {
-    return BuenosAiresTime.formatDateTime(fecha);
-  }
 }
 
 class _DatoHeader extends StatelessWidget {
@@ -1048,6 +685,198 @@ class _DatoHeader extends StatelessWidget {
   }
 }
 
+class _ProductosPaginados extends StatefulWidget {
+  const _ProductosPaginados({
+    required this.items,
+    required this.editable,
+    required this.procesando,
+    required this.onCambiarCantidad,
+  });
+
+  final List<Map<String, dynamic>> items;
+  final bool editable;
+  final bool procesando;
+  final void Function(Map<String, dynamic> item, int delta) onCambiarCantidad;
+
+  @override
+  State<_ProductosPaginados> createState() => _ProductosPaginadosState();
+}
+
+class _ProductosPaginadosState extends State<_ProductosPaginados> {
+  int _pagina = 0;
+  static const _porPagina = 4;
+
+  @override
+  void didUpdateWidget(_ProductosPaginados old) {
+    super.didUpdateWidget(old);
+    // Si la lista se achica (por eliminación), ajustamos la página
+    final maxPagina = ((widget.items.length - 1) / _porPagina).floor().clamp(
+      0,
+      9999,
+    );
+    if (_pagina > maxPagina) setState(() => _pagina = maxPagina);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final totalPaginas = (widget.items.length / _porPagina).ceil().clamp(
+      1,
+      9999,
+    );
+    final inicio = _pagina * _porPagina;
+    final fin = (inicio + _porPagina).clamp(0, widget.items.length);
+    final paginaItems = widget.items.sublist(inicio, fin);
+
+    return Column(
+      children: [
+        // ── Items de la página actual ──────────────────────────────
+        Expanded(
+          child: ListView.separated(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+            itemCount: paginaItems.length,
+            separatorBuilder: (_, __) => const SizedBox(height: 10),
+            itemBuilder: (context, index) {
+              final item = paginaItems[index];
+              final cantidad = (item['cantidad'] as num).toInt();
+              return Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 16,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(color: Colors.white24),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            item['nombre_snapshot']?.toString() ?? '',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w700,
+                              fontSize: 16,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            '\$${((item['precio_unitario'] as num?) ?? 0).toStringAsFixed(2)}',
+                            style: const TextStyle(
+                              color: Colors.white70,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    if (widget.editable)
+                      Row(
+                        children: [
+                          IconButton(
+                            onPressed:
+                                widget.procesando
+                                    ? null
+                                    : () => widget.onCambiarCantidad(item, -1),
+                            icon: const Icon(
+                              Icons.remove_circle,
+                              color: Colors.white,
+                              size: 28,
+                            ),
+                          ),
+                          Text(
+                            '$cantidad',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 18,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          IconButton(
+                            onPressed:
+                                widget.procesando
+                                    ? null
+                                    : () => widget.onCambiarCantidad(item, 1),
+                            icon: const Icon(
+                              Icons.add_circle,
+                              color: Colors.white,
+                              size: 28,
+                            ),
+                          ),
+                        ],
+                      )
+                    else
+                      Text(
+                        'x$cantidad',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w700,
+                          fontSize: 18,
+                        ),
+                      ),
+                  ],
+                ),
+              );
+            },
+          ),
+        ),
+        // ── Paginador ─────────────────────────────────────────────
+        if (totalPaginas > 1)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 4),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                SizedBox(
+                  width: 56,
+                  height: 56,
+                  child: IconButton(
+                    onPressed:
+                        _pagina > 0 ? () => setState(() => _pagina--) : null,
+                    icon: Icon(
+                      Icons.chevron_left,
+                      color: _pagina > 0 ? Colors.white : Colors.white30,
+                      size: 40,
+                    ),
+                  ),
+                ),
+                Text(
+                  '${_pagina + 1} / $totalPaginas',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w700,
+                    fontSize: 20,
+                  ),
+                ),
+                SizedBox(
+                  width: 56,
+                  height: 56,
+                  child: IconButton(
+                    onPressed:
+                        _pagina < totalPaginas - 1
+                            ? () => setState(() => _pagina++)
+                            : null,
+                    icon: Icon(
+                      Icons.chevron_right,
+                      color:
+                          _pagina < totalPaginas - 1
+                              ? Colors.white
+                              : Colors.white30,
+                      size: 40,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+      ],
+    );
+  }
+}
+
 class _AccionPrincipal extends StatelessWidget {
   const _AccionPrincipal({
     required this.texto,
@@ -1065,46 +894,17 @@ class _AccionPrincipal extends StatelessWidget {
       width: double.infinity,
       child: FilledButton(
         style: FilledButton.styleFrom(
-          minimumSize: const Size.fromHeight(46),
+          minimumSize: const Size.fromHeight(58),
           backgroundColor: const Color(0xFF2D6A4F),
           foregroundColor: Colors.white,
           disabledBackgroundColor: const Color(0xFFE8D7B3),
           disabledForegroundColor: const Color(0xFF4A2B1A),
-          textStyle: const TextStyle(fontWeight: FontWeight.w700),
+          textStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 20),
+          
         ),
         onPressed: onPressed,
         child:
             loading ? const LogoSpinner(size: 18, strokeWidth: 2) : Text(texto),
-      ),
-    );
-  }
-}
-
-class _FilaCuenta extends StatelessWidget {
-  const _FilaCuenta({
-    required this.titulo,
-    required this.valor,
-    this.color = Colors.white,
-  });
-
-  final String titulo;
-  final double valor;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 2),
-      child: Row(
-        children: [
-          Expanded(
-            child: Text(titulo, style: const TextStyle(color: Colors.white70)),
-          ),
-          Text(
-            '${valor < 0 ? '-' : ''}\$${valor.abs().toStringAsFixed(2)}',
-            style: TextStyle(color: color, fontWeight: FontWeight.w700),
-          ),
-        ],
       ),
     );
   }
