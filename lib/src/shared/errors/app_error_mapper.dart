@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:all_food/src/shared/errors/app_exception.dart';
+import 'package:http/http.dart' show ClientException;
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 // Traduce errores tecnicos a mensajes amigables y consistentes para UI.
@@ -39,8 +40,20 @@ class AppErrorMapper {
     }
 
     // Errores de red frecuentes.
-    if (error is SocketException || error is TimeoutException) {
-      return 'No se pudo conectar con el servidor. Intenta nuevamente.';
+    if (error is SocketException ||
+        error is TimeoutException ||
+        error is ClientException) {
+      return 'No hay conexión a internet';
+    }
+
+    // Algunos SDKs encapsulan errores de red en mensajes de texto.
+    final message = error.toString().toLowerCase();
+    if (message.contains('socketexception') ||
+        message.contains('clientexception') ||
+        message.contains('failed host lookup') ||
+        message.contains('connection refused') ||
+        message.contains('network is unreachable')) {
+      return 'No hay conexión a internet';
     }
 
     return fallbackMessage;

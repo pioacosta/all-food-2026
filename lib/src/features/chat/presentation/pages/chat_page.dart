@@ -1,5 +1,6 @@
 import 'package:all_food/src/features/chat/data/repository/chat-repository.dart';
 import 'package:all_food/src/features/chat/presentation/pages/widgets/burbuja_mensaje.dart';
+import 'package:all_food/src/shared/errors/app_error_mapper.dart';
 import 'package:all_food/src/shared/utils/buenos_aires_time.dart';
 import 'package:all_food/src/shared/widgets/logo_spinner.dart';
 import 'package:flutter/material.dart';
@@ -47,12 +48,17 @@ class _ChatPageState extends State<ChatPage> {
         _consultaId = id;
         _loading = false;
       });
-    } catch (e) {
+    } catch (error) {
       if (!mounted) return;
       setState(() => _loading = false);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Error al iniciar el chat: $e'),
+          content: Text(
+            AppErrorMapper.toUserMessage(
+              error,
+              fallbackMessage: 'No se pudo iniciar el chat.',
+            ),
+          ),
           backgroundColor: const Color(0xFF992E2E),
         ),
       );
@@ -68,11 +74,16 @@ class _ChatPageState extends State<ChatPage> {
 
     try {
       await _repo.enviarMensaje(consultaId: _consultaId!, mensaje: texto);
-    } catch (e) {
+    } catch (error) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Error al enviar: $e'),
+          content: Text(
+            AppErrorMapper.toUserMessage(
+              error,
+              fallbackMessage: 'No se pudo enviar el mensaje.',
+            ),
+          ),
           backgroundColor: const Color(0xFF992E2E),
         ),
       );
