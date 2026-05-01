@@ -567,16 +567,6 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
                                 ),
                               ),
                             ),
-                            if ((_pedido?['observaciones_rechazo'] as String?)
-                                    ?.isNotEmpty ==
-                                true)
-                              Padding(
-                                padding: const EdgeInsets.only(top: 8),
-                                child: Text(
-                                  'Motivo de rechazo: ${_pedido!['observaciones_rechazo']}',
-                                  style: const TextStyle(color: Colors.white),
-                                ),
-                              ),
                           ],
                         ),
                       ),

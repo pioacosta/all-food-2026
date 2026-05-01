@@ -187,10 +187,20 @@ class _PedidosMozoPageState extends State<PedidosMozoPage> {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Rechazar pedido'),
+                  const Text(
+                    'Rechazar pedido',
+                    style: TextStyle(
+                      color: Color(0xFF2A1414),
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
                   const SizedBox(height: 12),
                   const Text(
-      'El pedido será rechazado y el cliente podrá modificarlo.',
+                    'El pedido será rechazado y el cliente podrá modificarlo.',
+                    style: TextStyle(
+                      color: Color(0xFF3A2222),
+                      height: 1.35,
+                    ),
                   ),
                   const SizedBox(height: 14),
                   Row(
@@ -241,11 +251,7 @@ class _PedidosMozoPageState extends State<PedidosMozoPage> {
         if (clienteId != null) {
           await Supabase.instance.client.functions.invoke(
             'notificar-pedido-rechazado',
-            body: {
-              'clienteId': clienteId,
-              'numeroMesa': numeroMesa,
-              'motivo': null,
-            },
+            body: {'clienteId': clienteId, 'numeroMesa': numeroMesa},
           );
         }
       } catch (_) {}
