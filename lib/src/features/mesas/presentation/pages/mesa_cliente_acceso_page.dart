@@ -4,6 +4,7 @@ import 'package:all_food/src/features/pedidos/data/repositories/pedidos_reposito
 import 'package:all_food/src/features/pedidos/presentation/pages/encuesta_cliente_page.dart';
 import 'package:all_food/src/features/pedidos/presentation/pages/juegos_descuento_page.dart';
 import 'package:all_food/src/features/pedidos/presentation/pages/resultados_encuestas_page.dart';
+import 'package:all_food/src/features/pedidos/presentation/widgets/cierre_countdown_dialog.dart';
 import 'package:all_food/src/shared/theme/app_ui.dart';
 import 'package:all_food/src/shared/widgets/logo_spinner.dart';
 import 'package:flutter/material.dart';
@@ -22,6 +23,7 @@ class _MesaClienteAccesoPageState extends State<MesaClienteAccesoPage> {
   late final RealtimeChannel _canal;
   bool _cargando = true;
   Map<String, dynamic>? _pedido;
+  bool _redireccionando = false;
 
   static const _estadosConPedidoActivo = {
     'confirmado_mozo',
@@ -69,6 +71,12 @@ class _MesaClienteAccesoPageState extends State<MesaClienteAccesoPage> {
               ),
               callback: (payload) {
                 if (!mounted) return;
+                final nuevoEstado = payload.newRecord['estado'] as String?;
+                if (nuevoEstado == 'cerrado') {
+                  _pedido = payload.newRecord;
+                  _verificarCierreYRedirigir();
+                  return;
+                }
                 setState(() => _pedido = payload.newRecord);
               },
             )
@@ -80,7 +88,17 @@ class _MesaClienteAccesoPageState extends State<MesaClienteAccesoPage> {
     try {
       final detalle = await _repo.getDetallePedido(_mesaId);
       if (!mounted) return;
-      setState(() => _pedido = detalle['pedido'] as Map<String, dynamic>?);
+      
+      final pedido = detalle['pedido'] as Map<String, dynamic>?;
+      final estado = pedido?['estado'] as String?;
+      
+      if (estado == 'cerrado') {
+        _pedido = pedido;
+        await _verificarCierreYRedirigir();
+        return;
+      }
+      
+      setState(() => _pedido = pedido);
     } catch (_) {
     } finally {
       if (mounted) setState(() => _cargando = false);
@@ -92,6 +110,34 @@ class _MesaClienteAccesoPageState extends State<MesaClienteAccesoPage> {
     if (!mounted) return;
     await _cargarPedido();
   }
+
+  Future<void> _verificarCierreYRedirigir() async {
+    final estado = (_pedido?['estado'] as String?) ?? 'sin_pedido';
+    if (estado != 'cerrado' || _redireccionando || !mounted) return;
+
+    _redireccionando = true;
+    Supabase.instance.client.removeChannel(_canal);
+
+    await _mostrarModalCierreYRedirigir();
+  }
+
+  Future<void> _mostrarModalCierreYRedirigir() async {
+    if (!mounted) return;
+
+    await showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => CierreCountdownDialog(
+        onComplete: () {
+          Navigator.of(context).pop();
+        },
+      ),
+    );
+
+    if (!mounted) return;
+    Navigator.of(context).pushNamedAndRemoveUntil('/home', (route) => false);
+  }
+
 
   @override
   Widget build(BuildContext context) {
