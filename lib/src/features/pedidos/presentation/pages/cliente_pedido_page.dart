@@ -385,7 +385,7 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
   }
 
   // Simula escaneo de QR de propina con opciones cerradas por consigna.
-  Future<void> _simularPagoConPropina() async {
+  Future<void> _escanearQrPropina() async {
     final pedido = _pedido;
     if (pedido == null) return;
 
@@ -399,22 +399,14 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
 
     setState(() => _procesando = true);
     try {
-      final resumen = await _repo.prepararPagoConPropina(
+      final resumen = await _repo.asignarPropinaDesdeQr(
         pedidoId: pedido['id'] as String,
         propinaPorcentaje: seleccion,
       );
       if (!mounted) return;
 
-      // Notificar al mozo, due?f?o y supervisor
-      try {
-        await Supabase.instance.client.functions.invoke(
-          'notificar-pago-cliente',
-          body: {'numeroMesa': widget.numeroMesa, 'total': resumen['total']},
-        );
-      } catch (_) {}
-
       _mostrarMensaje(
-        'Pago simulado enviado. Total: \$${(resumen['total'] as num).toStringAsFixed(2)}',
+        'Propina aplicada ($seleccion%). Total actualizado: \$${(resumen['total'] as num).toStringAsFixed(2)}',
         esError: false,
       );
       await _cargar();
@@ -423,7 +415,7 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
       _mostrarMensaje(
         AppErrorMapper.toUserMessage(
           error,
-          fallbackMessage: 'No se pudo registrar el pago simulado.',
+          fallbackMessage: 'No se pudo asignar la propina.',
         ),
         esError: true,
       );
@@ -431,6 +423,64 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
       if (mounted) setState(() => _procesando = false);
     }
   }
+  Future<void> _pagarConConfirmacion() async {
+    final pedido = _pedido;
+    if (pedido == null) return;
+
+    final confirmar = await showDialog<bool>(
+      context: context,
+      builder:
+          (_) => AlertDialog(
+            title: const Text('Confirmar pago'),
+            content: const Text(
+              '¿Deseas confirmar el pago de la cuenta? Esta acción notificará al mozo para validación final.',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text('Cancelar'),
+              ),
+              FilledButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                child: const Text('Pagar'),
+              ),
+            ],
+          ),
+    );
+
+    if (confirmar != true) return;
+
+    setState(() => _procesando = true);
+    try {
+      final resumen = await _repo.confirmarPagoCliente(pedido['id'] as String);
+      if (!mounted) return;
+
+      try {
+        await Supabase.instance.client.functions.invoke(
+          'notificar-pago-cliente',
+          body: {'numeroMesa': widget.numeroMesa, 'total': resumen['total']},
+        );
+      } catch (_) {}
+
+      _mostrarMensaje(
+        'Pago enviado. Total: \$${(resumen['total'] as num).toStringAsFixed(2)}',
+        esError: false,
+      );
+      await _cargar();
+    } catch (error) {
+      if (!mounted) return;
+      _mostrarMensaje(
+        AppErrorMapper.toUserMessage(
+          error,
+          fallbackMessage: 'No se pudo confirmar el pago.',
+        ),
+        esError: true,
+      );
+    } finally {
+      if (mounted) setState(() => _procesando = false);
+    }
+  }
+
   void _mostrarMensaje(String mensaje, {required bool esError}) {
     if (esError) {
       ErrorFeedback.vibrate();
@@ -575,23 +625,35 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
                             if (estado == 'recibido_cliente' ||
                                 estado == 'cuenta_solicitada' ||
                                 estado == 'pago_pendiente_confirmacion') ...[
-                              // Botón dinámico: solicitar cuenta → QR propina
+                              // Flujo: solicitar cuenta -> escanear propina -> pagar con confirmacion
                               _AccionPrincipal(
                                 texto:
                                     estado == 'recibido_cliente'
                                         ? 'Solicitar cuenta'
                                         : estado == 'cuenta_solicitada'
-                                        ? 'QR de propina y pago simulado'
+                                        ? 'Escanear QR de propina'
                                         : 'Pago pendiente de confirmación',
                                 onPressed:
                                     estado == 'recibido_cliente' && !_procesando
                                         ? _solicitarCuenta
                                         : estado == 'cuenta_solicitada' &&
                                             !_procesando
-                                        ? _simularPagoConPropina
+                                        ? _escanearQrPropina
                                         : null,
                                 loading: _procesando,
                               ),
+                              if (estado == 'cuenta_solicitada')
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 8),
+                                  child: _AccionPrincipal(
+                                    texto: 'Pagar con confirmación',
+                                    onPressed:
+                                        _procesando
+                                            ? null
+                                            : _pagarConConfirmacion,
+                                    loading: _procesando,
+                                  ),
+                                ),
                               if (estado == 'pago_pendiente_confirmacion')
                                 const Padding(
                                   padding: EdgeInsets.only(top: 8),
@@ -909,3 +971,4 @@ class _AccionPrincipal extends StatelessWidget {
     );
   }
 }
+

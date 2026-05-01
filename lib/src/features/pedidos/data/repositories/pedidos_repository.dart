@@ -482,6 +482,94 @@ class PedidosRepository {
     };
   }
 
+  Future<Map<String, dynamic>> asignarPropinaDesdeQr({
+    required String pedidoId,
+    required int propinaPorcentaje,
+  }) async {
+    if (!propinasPermitidas.contains(propinaPorcentaje)) {
+      throw const PedidosFlowException('La propina seleccionada no es válida.');
+    }
+
+    final pedido = await _service.getPedidoById(pedidoId);
+    if (pedido == null) {
+      throw const PedidosFlowException('No se encontró el pedido.');
+    }
+
+    final estado = (pedido['estado'] as String?) ?? '';
+    if (estado != 'cuenta_solicitada' && estado != 'pago_pendiente_confirmacion') {
+      throw const PedidosFlowException(
+        'Solo puedes asignar propina cuando la cuenta fue solicitada.',
+      );
+    }
+
+    final subtotal = ((pedido['subtotal'] as num?) ?? 0).toDouble();
+    final descuento =
+        ((pedido['descuento_juego_porcentaje'] as num?) ?? 0).toDouble();
+    final baseConDescuento = subtotal * (1 - descuento / 100);
+    final totalFinal = baseConDescuento * (1 + propinaPorcentaje / 100);
+
+    await _service.updatePedido(
+      pedidoId: pedidoId,
+      payload: {
+        'propina_porcentaje': propinaPorcentaje,
+        'total': totalFinal,
+      },
+    );
+
+    return {
+      'subtotal': subtotal,
+      'descuentoPorcentaje': descuento,
+      'propinaPorcentaje': propinaPorcentaje,
+      'total': totalFinal,
+    };
+  }
+
+  Future<Map<String, dynamic>> confirmarPagoCliente(String pedidoId) async {
+    final pedido = await _service.getPedidoById(pedidoId);
+    if (pedido == null) {
+      throw const PedidosFlowException('No se encontró el pedido.');
+    }
+
+    final estado = (pedido['estado'] as String?) ?? '';
+    if (estado != 'cuenta_solicitada') {
+      throw const PedidosFlowException(
+        'El pago solo puede confirmarse cuando la cuenta está solicitada.',
+      );
+    }
+
+    final subtotal = ((pedido['subtotal'] as num?) ?? 0).toDouble();
+    final descuento =
+        ((pedido['descuento_juego_porcentaje'] as num?) ?? 0).toDouble();
+    final propinaPorcentaje =
+        ((pedido['propina_porcentaje'] as num?) ?? 0).toDouble();
+    final baseConDescuento = subtotal * (1 - descuento / 100);
+    final totalFinal = baseConDescuento * (1 + propinaPorcentaje / 100);
+
+    await _service.updatePedido(
+      pedidoId: pedidoId,
+      payload: {
+        'total': totalFinal,
+        'estado': 'pago_pendiente_confirmacion',
+      },
+    );
+
+    await _notificarPerfiles(
+      perfiles: const ['mozo', 'dueno', 'supervisor'],
+      titulo: 'Pago pendiente de confirmación',
+      mensaje:
+          'El cliente confirmó el pago. Falta confirmación final del mozo.',
+      tipo: 'pago_pendiente_confirmacion',
+      referenciaId: pedidoId,
+    );
+
+    return {
+      'subtotal': subtotal,
+      'descuentoPorcentaje': descuento,
+      'propinaPorcentaje': propinaPorcentaje,
+      'total': totalFinal,
+    };
+  }
+
   Future<void> confirmarPagoMozo({
     required String pedidoId,
     required String mesaId,

@@ -89,43 +89,9 @@ class _JuegosDescuentoPageState extends State<JuegosDescuentoPage> {
 
     final primerIntentoDisponible = _intentoConsumido[10] != true;
 
-    final eleccion = await showModalBottomSheet<int>(
-      context: context,
-      backgroundColor: AppUi.panel,
-      builder: (context) {
-        return SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const Text(
-                  'Juego 10%: adivin\u00E1 el n\u00FAmero',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-                const SizedBox(height: 10),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: List.generate(
-                    6,
-                    (index) => ElevatedButton(
-                      onPressed: () => Navigator.of(context).pop(index + 1),
-                      child: Text('${index + 1}'),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
+    final eleccion = await Navigator.of(
+      context,
+    ).push<int>(MaterialPageRoute(builder: (_) => const _JuegoNumeroPage()));
     if (eleccion == null) return;
 
     final acierto = _random.nextInt(6) + 1 == eleccion;
@@ -456,6 +422,78 @@ class _EntidadJuego {
   final IconData icono;
 }
 
+class _JuegoNumeroPage extends StatelessWidget {
+  const _JuegoNumeroPage();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Juego de n\u00FAmero')),
+      body: Container(
+        width: double.infinity,
+        decoration: const BoxDecoration(gradient: AppUi.fondoPrincipal),
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              decoration: AppUi.panelDecoracion(radius: 18),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const Text(
+                    'Adivin\u00E1 el n\u00FAmero del 1 al 6',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w900,
+                      fontSize: 24,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  const Text(
+                    'Seleccion\u00E1 un n\u00FAmero. Si coincide con el n\u00FAmero sorteado, gan\u00E1s.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: AppUi.textoSecundario),
+                  ),
+                  const SizedBox(height: 20),
+                  Expanded(
+                    child: GridView.builder(
+                      itemCount: 6,
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            crossAxisSpacing: 14,
+                            mainAxisSpacing: 14,
+                            childAspectRatio: 1.35,
+                          ),
+                      itemBuilder: (context, index) {
+                        final numero = index + 1;
+                        return FilledButton(
+                          onPressed: () => Navigator.of(context).pop(numero),
+                          style: FilledButton.styleFrom(
+                            backgroundColor: AppUi.acento,
+                            foregroundColor: const Color(0xFF4A0E10),
+                            textStyle: const TextStyle(
+                              fontSize: 30,
+                              fontWeight: FontWeight.w900,
+                            ),
+                          ),
+                          child: Text('$numero'),
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class _JuegoComidasPage extends StatefulWidget {
   const _JuegoComidasPage();
 
@@ -778,6 +816,21 @@ class _JuegoSnakePageState extends State<_JuegoSnakePage> {
     });
   }
 
+  void _onPanEnd(DragEndDetails details) {
+    final velocidad = details.velocity.pixelsPerSecond;
+    if (velocidad.distance < 100) return;
+
+    if (velocidad.dx.abs() > velocidad.dy.abs()) {
+      _cambiarDireccion(
+        velocidad.dx > 0 ? _DireccionSnake.derecha : _DireccionSnake.izquierda,
+      );
+    } else {
+      _cambiarDireccion(
+        velocidad.dy > 0 ? _DireccionSnake.abajo : _DireccionSnake.arriba,
+      );
+    }
+  }
+
   void _finalizar(bool gano) {
     _timer?.cancel();
     setState(() {
@@ -828,95 +881,67 @@ class _JuegoSnakePageState extends State<_JuegoSnakePage> {
                 ),
                 const SizedBox(height: 10),
                 Expanded(
-                  child: AspectRatio(
-                    aspectRatio: 1,
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onPanEnd: _onPanEnd,
                     child: Container(
+                      width: double.infinity,
                       decoration: BoxDecoration(
                         color: Colors.white.withValues(alpha: 0.08),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(color: Colors.white24),
                       ),
-                      child: GridView.builder(
-                        physics: const NeverScrollableScrollPhysics(),
-                        padding: const EdgeInsets.all(8),
-                        gridDelegate:
-                            const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: _grid,
-                              crossAxisSpacing: 1,
-                              mainAxisSpacing: 1,
-                            ),
-                        itemCount: _grid * _grid,
-                        itemBuilder: (context, index) {
-                          final x = index % _grid;
-                          final y = index ~/ _grid;
-                          final p = Point(x, y);
-                          final esCabeza = p == _snake.first;
-                          final esCuerpo = _snake.contains(p);
-                          final esComida = p == _comida;
+                      child: Padding(
+                        padding: const EdgeInsets.all(6),
+                        child: GridView.builder(
+                          physics: const NeverScrollableScrollPhysics(),
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: _grid,
+                                crossAxisSpacing: 1,
+                                mainAxisSpacing: 1,
+                              ),
+                          itemCount: _grid * _grid,
+                          itemBuilder: (context, index) {
+                            final x = index % _grid;
+                            final y = index ~/ _grid;
+                            final p = Point(x, y);
+                            final esCabeza = p == _snake.first;
+                            final esCuerpo = _snake.contains(p);
+                            final esComida = p == _comida;
 
-                          Color color = const Color(0x443D3D3D);
-                          if (esComida) {
-                            color = AppUi.acento;
-                          } else if (esCabeza) {
-                            color = const Color(0xFF3DDC97);
-                          } else if (esCuerpo) {
-                            color = const Color(0xFF2D6A4F);
-                          }
+                            Color color = const Color(0x443D3D3D);
+                            if (esComida) {
+                              color = AppUi.acento;
+                            } else if (esCabeza) {
+                              color = const Color(0xFF3DDC97);
+                            } else if (esCuerpo) {
+                              color = const Color(0xFF2D6A4F);
+                            }
 
-                          return Container(
-                            decoration: BoxDecoration(
-                              color: color,
-                              borderRadius: BorderRadius.circular(2),
-                            ),
-                          );
-                        },
+                            return Container(
+                              decoration: BoxDecoration(
+                                color: color,
+                                borderRadius: BorderRadius.circular(2),
+                              ),
+                            );
+                          },
+                        ),
                       ),
                     ),
                   ),
                 ),
                 const SizedBox(height: 10),
-                _PadControles(onDireccion: _cambiarDireccion),
+                const Text(
+                  'Desliz\u00E1 el dedo sobre el tablero para mover la serpiente.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: Colors.white),
+                ),
               ],
             ),
           ),
         ),
       ),
-    );
-  }
-}
-
-class _PadControles extends StatelessWidget {
-  const _PadControles({required this.onDireccion});
-
-  final ValueChanged<_DireccionSnake> onDireccion;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        IconButton(
-          onPressed: () => onDireccion(_DireccionSnake.arriba),
-          icon: const Icon(Icons.keyboard_arrow_up, color: Colors.white),
-        ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            IconButton(
-              onPressed: () => onDireccion(_DireccionSnake.izquierda),
-              icon: const Icon(Icons.keyboard_arrow_left, color: Colors.white),
-            ),
-            const SizedBox(width: 28),
-            IconButton(
-              onPressed: () => onDireccion(_DireccionSnake.derecha),
-              icon: const Icon(Icons.keyboard_arrow_right, color: Colors.white),
-            ),
-          ],
-        ),
-        IconButton(
-          onPressed: () => onDireccion(_DireccionSnake.abajo),
-          icon: const Icon(Icons.keyboard_arrow_down, color: Colors.white),
-        ),
-      ],
     );
   }
 }

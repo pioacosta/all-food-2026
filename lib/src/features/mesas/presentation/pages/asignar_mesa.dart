@@ -443,7 +443,7 @@ class _AsignarMesaPageState extends State<AsignarMesaPage> {
                                 )
                                 : Text(
                                   _paso == 0
-                                      ? 'Siguiente ??????T'
+                                      ? 'Siguiente'
                                       : 'Asignar mesa',
                                 ),
                       ),
