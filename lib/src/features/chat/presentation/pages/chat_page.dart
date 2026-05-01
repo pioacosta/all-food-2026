@@ -205,8 +205,8 @@ class _ChatPageState extends State<ChatPage> {
                                   controller: _scrollController,
                                   reverse: true,
                                   padding: const EdgeInsets.symmetric(
-                                    horizontal: 12,
-                                    vertical: 16,
+                                    horizontal: 10,
+                                    vertical: 10,
                                   ),
                                   itemCount: mensajes.length,
                                   itemBuilder: (context, index) {

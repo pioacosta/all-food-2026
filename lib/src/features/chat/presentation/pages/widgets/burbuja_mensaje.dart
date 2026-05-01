@@ -1,4 +1,3 @@
-// ─── Burbuja de mensaje ───────────────────────────────────────────────────────
 import 'package:flutter/material.dart';
 
 class BurbujaMensaje extends StatelessWidget {
@@ -23,67 +22,48 @@ class BurbujaMensaje extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    String? tagInfo;
+    String? etiquetaEmisor;
     if (perfilEmisor == 'mozo') {
-      tagInfo = 'Mozo';
+      etiquetaEmisor = nombreEmisor;
     } else if (numeroMesa != null) {
-      tagInfo = 'Mesa $numeroMesa';
+      etiquetaEmisor = 'Mesa $numeroMesa';
+    } else {
+      etiquetaEmisor = nombreEmisor;
     }
 
-    // Color del timestamp según lado
     final Color timestampColor =
         esMio ? Colors.white.withValues(alpha: 0.65) : const Color(0xFFD4B9BC);
 
     return Align(
       alignment: esMio ? Alignment.centerRight : Alignment.centerLeft,
       child: Container(
-        margin: const EdgeInsets.only(bottom: 12),
+        margin: const EdgeInsets.only(bottom: 10),
         constraints: BoxConstraints(
-          maxWidth: MediaQuery.of(context).size.width * 0.75,
+          maxWidth: MediaQuery.of(context).size.width * 0.78,
         ),
         child: Column(
           crossAxisAlignment:
               esMio ? CrossAxisAlignment.end : CrossAxisAlignment.start,
           children: [
-            // --- Nombre + Tag encima de la burbuja ---
-            if (nombreEmisor != null)
+            if (etiquetaEmisor != null)
               Padding(
                 padding: EdgeInsets.only(
                   left: esMio ? 0 : 4,
                   right: esMio ? 4 : 0,
                   bottom: 3,
                 ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  // Si es mío, el tag queda a la izquierda del nombre
-                  textDirection: esMio ? TextDirection.rtl : TextDirection.ltr,
-                  children: [
-                    Text(
-                      nombreEmisor!,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: Color(0xFFFFDCDC),
-                      ),
-                    ),
-                    if (tagInfo != null) ...[
-                      const SizedBox(width: 4),
-                      Text(
-                        '($tagInfo)',
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: const Color(0xFFE7C7CA),
-                          fontWeight: FontWeight.w400,
-                        ),
-                      ),
-                    ],
-                  ],
+                child: Text(
+                  etiquetaEmisor,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFFFFE2E2),
+                    height: 1.1,
+                  ),
                 ),
               ),
-
-            // --- Burbuja ---
             Container(
-              padding: const EdgeInsets.fromLTRB(14, 10, 14, 8),
+              padding: const EdgeInsets.fromLTRB(12, 8, 12, 6),
               decoration: BoxDecoration(
                 color:
                     esMio ? const Color(0xFF6D1B1D) : const Color(0xFF3A242A),
@@ -102,46 +82,47 @@ class BurbujaMensaje extends StatelessWidget {
                 ],
               ),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // Texto del mensaje (alineado al inicio del texto)
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      mensaje,
-                      style: TextStyle(
-                        fontSize: 15,
-                        color: esMio ? Colors.white : const Color(0xFFFFECEC),
-                        height: 1.3,
-                      ),
+                  Text(
+                    mensaje,
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w500,
+                      color: esMio ? Colors.white : const Color(0xFFFFECEC),
+                      height: 1.25,
                     ),
                   ),
-
-                  // Fecha + hora al pie derecho
                   if (hora != null || fecha != null) ...[
-                    const SizedBox(height: 4),
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        if (fecha != null)
-                          Text(
-                            fecha!,
-                            style: TextStyle(
-                              fontSize: 13,
-                              color: timestampColor,
+                    const SizedBox(height: 3),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          if (fecha != null)
+                            Text(
+                              fecha!,
+                              style: TextStyle(
+                                fontSize: 11.5,
+                                color: timestampColor,
+                                height: 1.0,
+                              ),
                             ),
-                          ),
-                        if (fecha != null && hora != null) SizedBox(width: 3),
-                        if (hora != null)
-                          Text(
-                            hora!,
-                            style: TextStyle(
-                              fontSize: 13,
-                              color: timestampColor,
+                          if (fecha != null && hora != null)
+                            const SizedBox(width: 3),
+                          if (hora != null)
+                            Text(
+                              hora!,
+                              style: TextStyle(
+                                fontSize: 11.5,
+                                color: timestampColor,
+                                height: 1.0,
+                              ),
                             ),
-                          ),
-                      ],
+                        ],
+                      ),
                     ),
                   ],
                 ],
