@@ -68,34 +68,94 @@ class _MesaQrScannerPageState extends State<MesaQrScannerPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Escanear QR de mesa')),
-      body: Stack(
-        children: [
-          MobileScanner(controller: _controller, onDetect: _onDetect),
-          Positioned(
-            left: 16,
-            right: 16,
-            bottom: 20,
-            child: Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.black.withValues(alpha: 0.6),
-                borderRadius: BorderRadius.circular(12),
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final scanSize = (constraints.maxWidth * 0.7).clamp(220.0, 300.0);
+          final scanRect = Rect.fromCenter(
+            center: Offset(constraints.maxWidth / 2, constraints.maxHeight / 2),
+            width: scanSize,
+            height: scanSize,
+          );
+
+          return Stack(
+            children: [
+              MobileScanner(
+                controller: _controller,
+                scanWindow: scanRect,
+                onDetect: _onDetect,
               ),
-              child: const Text(
-                'Escaneá el QR de tu mesa asignada. Se validará contra cliente_id en la base de datos.',
-                textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.white),
+              Positioned.fill(
+                child: CustomPaint(
+                  painter: _SquareScannerOverlayPainter(scanRect: scanRect),
+                ),
               ),
-            ),
-          ),
-          if (_procesando)
-            Container(
-              color: Colors.black54,
-              alignment: Alignment.center,
-              child: const LogoSpinner(size: 72, strokeWidth: 4),
-            ),
-        ],
+              Center(
+                child: Container(
+                  width: scanSize,
+                  height: scanSize,
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.white, width: 2),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                ),
+              ),
+              Positioned(
+                left: 16,
+                right: 16,
+                bottom: 20,
+                child: Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withValues(alpha: 0.6),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Text(
+                    'Escanea el QR de tu mesa dentro del recuadro.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+              ),
+              if (_procesando)
+                Container(
+                  color: Colors.black54,
+                  alignment: Alignment.center,
+                  child: const LogoSpinner(size: 72, strokeWidth: 4),
+                ),
+            ],
+          );
+        },
       ),
     );
+  }
+}
+
+class _SquareScannerOverlayPainter extends CustomPainter {
+  const _SquareScannerOverlayPainter({required this.scanRect});
+
+  final Rect scanRect;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final overlayColor = Colors.black.withValues(alpha: 0.6);
+    final path =
+        Path()
+          ..addRect(Rect.fromLTWH(0, 0, size.width, size.height))
+          ..addRRect(
+            RRect.fromRectAndRadius(scanRect, const Radius.circular(16)),
+          )
+          ..fillType = PathFillType.evenOdd;
+
+    canvas.drawPath(
+      path,
+      Paint()
+        ..color = overlayColor
+        ..style = PaintingStyle.fill,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant _SquareScannerOverlayPainter oldDelegate) {
+    return oldDelegate.scanRect != scanRect;
   }
 }

@@ -33,7 +33,7 @@ class _PropinaScannerPageState extends State<PropinaScannerPage> {
 
     // Formato esperado: "PROPINA:20", "PROPINA:15", etc.
     if (!raw.startsWith('PROPINA:')) {
-      _mostrarError('QR inválido. Usá el QR de propina correspondiente.');
+      _mostrarError('QR invalido. Usa el QR de propina correspondiente.');
       return;
     }
 
@@ -41,13 +41,12 @@ class _PropinaScannerPageState extends State<PropinaScannerPage> {
     final porcentaje = int.tryParse(partes.length > 1 ? partes[1] : '');
 
     if (porcentaje == null || ![0, 5, 10, 15, 20].contains(porcentaje)) {
-      _mostrarError('El QR no contiene un porcentaje de propina válido.');
+      _mostrarError('El QR no contiene un porcentaje de propina valido.');
       return;
     }
 
     setState(() => _procesando = true);
 
-    // Pequeña pausa visual para que el usuario vea que se leyó
     await Future<void>.delayed(const Duration(milliseconds: 400));
 
     if (!mounted) return;
@@ -69,34 +68,94 @@ class _PropinaScannerPageState extends State<PropinaScannerPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Escanear QR de propina')),
-      body: Stack(
-        children: [
-          MobileScanner(controller: _controller, onDetect: _onDetect),
-          Positioned(
-            left: 16,
-            right: 16,
-            bottom: 20,
-            child: Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.black.withValues(alpha: 0.6),
-                borderRadius: BorderRadius.circular(12),
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final scanSize = (constraints.maxWidth * 0.7).clamp(220.0, 300.0);
+          final scanRect = Rect.fromCenter(
+            center: Offset(constraints.maxWidth / 2, constraints.maxHeight / 2),
+            width: scanSize,
+            height: scanSize,
+          );
+
+          return Stack(
+            children: [
+              MobileScanner(
+                controller: _controller,
+                scanWindow: scanRect,
+                onDetect: _onDetect,
               ),
-              child: const Text(
-                'Apuntá la cámara al QR de propina de la mesa.',
-                textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.white),
+              Positioned.fill(
+                child: CustomPaint(
+                  painter: _SquareScannerOverlayPainter(scanRect: scanRect),
+                ),
               ),
-            ),
-          ),
-          if (_procesando)
-            Container(
-              color: Colors.black54,
-              alignment: Alignment.center,
-              child: const LogoSpinner(size: 72, strokeWidth: 4),
-            ),
-        ],
+              Center(
+                child: Container(
+                  width: scanSize,
+                  height: scanSize,
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.white, width: 2),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                ),
+              ),
+              Positioned(
+                left: 16,
+                right: 16,
+                bottom: 20,
+                child: Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withValues(alpha: 0.6),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Text(
+                    'Apunta la camara al QR de propina dentro del recuadro.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+              ),
+              if (_procesando)
+                Container(
+                  color: Colors.black54,
+                  alignment: Alignment.center,
+                  child: const LogoSpinner(size: 72, strokeWidth: 4),
+                ),
+            ],
+          );
+        },
       ),
     );
+  }
+}
+
+class _SquareScannerOverlayPainter extends CustomPainter {
+  const _SquareScannerOverlayPainter({required this.scanRect});
+
+  final Rect scanRect;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final overlayColor = Colors.black.withValues(alpha: 0.6);
+    final path =
+        Path()
+          ..addRect(Rect.fromLTWH(0, 0, size.width, size.height))
+          ..addRRect(
+            RRect.fromRectAndRadius(scanRect, const Radius.circular(16)),
+          )
+          ..fillType = PathFillType.evenOdd;
+
+    canvas.drawPath(
+      path,
+      Paint()
+        ..color = overlayColor
+        ..style = PaintingStyle.fill,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant _SquareScannerOverlayPainter oldDelegate) {
+    return oldDelegate.scanRect != scanRect;
   }
 }
