@@ -307,6 +307,7 @@ class _ChatPageState extends State<ChatPage> {
 
   // Ejemplo de función para formatear ambos
   String _formatFechaHora(String dateString) {
+    debugPrint('debug para arreglar hora: $dateString');
     return BuenosAiresTime.formatDateTimeFromIso(dateString);
   }
 }

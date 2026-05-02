@@ -12,12 +12,16 @@ class BuenosAiresTime {
     return utc.subtract(_offset);
   }
 
-  static DateTime? tryParseToBuenosAires(String? iso) {
-    if (iso == null || iso.trim().isEmpty) return null;
-    final parsed = DateTime.tryParse(iso);
-    if (parsed == null) return null;
-    return toBuenosAires(parsed);
+static DateTime? tryParseToBuenosAires(String? iso) {
+  if (iso == null || iso.trim().isEmpty) return null;
+  String normalized = iso.trim();
+  if (!normalized.endsWith('Z') && !normalized.contains('+')) {
+    normalized = '${normalized}Z';
   }
+  final parsed = DateTime.tryParse(normalized);
+  if (parsed == null) return null;
+  return toBuenosAires(parsed);
+}
 
   static String formatDateTime(DateTime? dateTime) {
     if (dateTime == null) return '--/-- ----';
