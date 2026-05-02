@@ -1,3 +1,4 @@
+import 'package:all_food/src/features/mesas/presentation/pages/mesa_cliente_acceso_page.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 
@@ -105,6 +106,21 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
       if (estadoNuevo == 'cerrado') {
         _pedido = detalle['pedido'] as Map<String, dynamic>?;
         await _verificarCierreYRedirigir();
+        return;
+      }
+
+      if (estadoNuevo == 'confirmado_mozo' && !_redireccionando && mounted) {
+        _redireccionando = true;
+        await _detenerEscuchaPedidoRealtime();
+        if (!mounted) return;
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder:
+                (_) => MesaClienteAccesoPage(
+                  mesa: {'id': widget.mesaId, 'numero': widget.numeroMesa},
+                ),
+          ),
+        );
         return;
       }
 
@@ -330,6 +346,15 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
     try {
       await _repo.confirmarRecepcionCliente(pedido['id'] as String);
       if (!mounted) return;
+      await _detenerEscuchaPedidoRealtime();
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder:
+              (_) => MesaClienteAccesoPage(
+                mesa: {'id': widget.mesaId, 'numero': widget.numeroMesa},
+              ),
+        ),
+      );
       _mostrarMensaje('Recepción confirmada.', esError: false);
       await _cargar();
     } catch (error) {
@@ -423,6 +448,7 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
       if (mounted) setState(() => _procesando = false);
     }
   }
+
   Future<void> _pagarConConfirmacion() async {
     final pedido = _pedido;
     if (pedido == null) return;
@@ -701,7 +727,6 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
         return 'Sin pedido';
     }
   }
-
 }
 
 class _DatoHeader extends StatelessWidget {
@@ -961,4 +986,3 @@ class _AccionPrincipal extends StatelessWidget {
     );
   }
 }
-
