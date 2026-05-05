@@ -702,7 +702,7 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
   String _estadoLegible(String estado) {
     switch (estado) {
       case 'borrador':
-        return 'Borrador';
+        return 'Sin pedido';
       case 'pendiente_mozo':
         return 'Esperando mozo';
       case 'rechazado_mozo':
