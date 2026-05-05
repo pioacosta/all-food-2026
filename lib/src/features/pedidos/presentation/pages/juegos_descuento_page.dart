@@ -349,7 +349,7 @@ class _JuegosDescuentoPageState extends State<JuegosDescuentoPage> {
 
                         const SizedBox(height: 12),
 
-                        // ── Cards de juegos — ocupan el resto ───────────
+                        // ── Cards de juegos ───────────
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -379,26 +379,26 @@ class _JuegoConfig {
   const _JuegoConfig({
     required this.numero,
     required this.titulo,
-    required this.tagline, // ← nuevo
+    required this.tagline, 
     required this.porcentaje,
     required this.bgColor,
     required this.accentColor,
     required this.textColor,
     required this.subtextColor,
     required this.icon,
-    required this.reglas, // ← nuevo
+    required this.reglas, 
   });
 
   final int numero;
   final String titulo;
-  final String tagline; // ← nuevo
+  final String tagline; 
   final int porcentaje;
   final Color bgColor;
   final Color accentColor;
   final Color textColor;
   final Color subtextColor;
   final IconData icon;
-  final String reglas; // ← nuevo
+  final String reglas;
 }
 
 const _juegos = [
@@ -410,7 +410,7 @@ const _juegos = [
     bgColor: Color(0xFFBBAA88),
     accentColor: Color(0xFF5C1F1F),
     textColor: Color(0xFF3A1010),
-    subtextColor: Color(0xFF7A4040),
+    subtextColor: Color.fromARGB(255, 112, 35, 35),
     icon: Icons.casino_rounded,
     reglas:
         'Elegí un número del 1 al 6. Si el número que elegís coincide con el resultado aleatorio, ganás un 10% de descuento en tu pedido.',
@@ -423,7 +423,7 @@ const _juegos = [
     bgColor: Color(0xFFBBAA88),
     accentColor: Color(0xFF8D6200),
     textColor: Color(0xFF4A3200),
-    subtextColor: Color(0xFF7A5800),
+    subtextColor: Color.fromARGB(255, 73, 52, 0),
     icon: Icons.fastfood_rounded,
     reglas:
         'Tocá comidas para sumar puntos y evitá las bombas. Si llegás a 120 puntos sin explotar, ganás un 15% de descuento.',
@@ -478,7 +478,7 @@ class _HeroJuegosCard extends StatelessWidget {
                 Text(
                   'Descuento\nganado',
                   style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.55),
+                    color: Colors.white.withValues(alpha: 0.90),
                     fontSize: 20,
                     fontWeight: FontWeight.w500,
                     height: 1.3,
@@ -503,7 +503,7 @@ class _HeroJuegosCard extends StatelessWidget {
                 Text(
                   'Ganá jugando\ny obtené un descuento',
                   style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.55),
+                    color: Colors.white.withValues(alpha: 0.80),
                     fontSize: 18,
                     fontWeight: FontWeight.w500,
                     height: 1.3,
@@ -540,8 +540,8 @@ class _HeroJuegosCard extends StatelessWidget {
             Text(
               '· Solo cuenta el primer intento.\n· Los descuentos no se acumulan.',
               style: TextStyle(
-                color: Colors.white.withValues(alpha: 0.35),
-                fontSize: 16, // ← subí de 12 a 14
+                color: Colors.white.withValues(alpha: 0.80),
+                fontSize: 16, 
                 height: 1.6,
               ),
             ),
@@ -651,6 +651,7 @@ class _JuegoCard extends StatelessWidget {
                             style: TextStyle(
                               color: config.subtextColor,
                               fontSize: 15,
+                              fontWeight: FontWeight.w600,
                               height: 1.4,
                             ),
                           ),
@@ -1366,7 +1367,7 @@ class _JuegoSnakePageState extends State<_JuegoSnakePage> {
                                 comida: _comida,
                                 gridX: _gridX,
                                 gridY:
-                                    gridY, // ← el calculado dinámicamente, no _gridY
+                                    gridY, 
                                 cellSize: cellSize,
                               ),
                             );

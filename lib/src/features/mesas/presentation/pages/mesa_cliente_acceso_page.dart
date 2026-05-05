@@ -425,9 +425,10 @@ class _BtnCuadrado extends StatelessWidget {
               Text(
                 descripcion,
                 style: const TextStyle(
-                  color: Color(0xFF5C1F1F),
+                  color: Color.fromARGB(255, 126, 67, 67),
                   fontSize: 15,
                   height: 1.3,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ],
@@ -466,7 +467,7 @@ class _BtnWide extends StatelessWidget {
         child: Ink(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
           decoration: BoxDecoration(
-            color: bgColor ?? const Color(0xFFF0E4D0),
+            color: bgColor ??  const Color(0xFFBBAA88),
             borderRadius: BorderRadius.circular(14),
           ),
           child: Row(
@@ -513,6 +514,7 @@ class _BtnWide extends StatelessWidget {
                         color: (iconColor ?? const Color(0xFF7A4040))
                             .withValues(alpha: 0.7),
                         fontSize: 15,
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
                   ],
