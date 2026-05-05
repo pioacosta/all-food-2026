@@ -387,7 +387,7 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
           body: {
             'sector': 'mozo',
             'numeroMesa': widget.numeroMesa.toString(),
-            'mensaje': '?Y?? La mesa ${widget.numeroMesa} solicita la cuenta',
+            'mensaje': 'La mesa ${widget.numeroMesa} solicita la cuenta',
           },
         );
       } catch (_) {}
