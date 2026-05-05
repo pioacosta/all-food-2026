@@ -43,7 +43,6 @@ class _JuegosDescuentoPageState extends State<JuegosDescuentoPage> {
     try {
       final registrado = await _repo.esClienteRegistradoActual();
       final prefs = await SharedPreferences.getInstance();
-
       setState(() {
         _clienteRegistrado = registrado;
         _descuentoAplicado = widget.descuentoActual;
@@ -59,7 +58,7 @@ class _JuegosDescuentoPageState extends State<JuegosDescuentoPage> {
       _mostrarMensaje(
         AppErrorMapper.toUserMessage(
           error,
-          fallbackMessage: 'No se pudo cargar la secci\u00F3n de juegos.',
+          fallbackMessage: 'No se pudo cargar la sección de juegos.',
         ),
         esError: true,
       );
@@ -68,9 +67,8 @@ class _JuegosDescuentoPageState extends State<JuegosDescuentoPage> {
     }
   }
 
-  String _keyIntento({required int porcentaje}) {
-    return 'juego_${widget.pedidoId}_$porcentaje';
-  }
+  String _keyIntento({required int porcentaje}) =>
+      'juego_${widget.pedidoId}_$porcentaje';
 
   Future<void> _guardarIntento(int porcentaje) async {
     final prefs = await SharedPreferences.getInstance();
@@ -86,9 +84,7 @@ class _JuegosDescuentoPageState extends State<JuegosDescuentoPage> {
       );
       return;
     }
-
     final primerIntentoDisponible = _intentoConsumido[10] != true;
-
     final eleccion = await Navigator.of(
       context,
     ).push<int>(MaterialPageRoute(builder: (_) => const _JuegoNumeroPage()));
@@ -100,7 +96,6 @@ class _JuegosDescuentoPageState extends State<JuegosDescuentoPage> {
       if (!mounted) return;
       setState(() => _intentoConsumido[10] = true);
     }
-
     if (!acierto) {
       _mostrarMensaje(
         primerIntentoDisponible
@@ -110,7 +105,6 @@ class _JuegosDescuentoPageState extends State<JuegosDescuentoPage> {
       );
       return;
     }
-
     if (!primerIntentoDisponible) {
       _mostrarMensaje(
         'Ganaste, pero ya consumiste el primer intento: no se aplica descuento.',
@@ -118,7 +112,6 @@ class _JuegosDescuentoPageState extends State<JuegosDescuentoPage> {
       );
       return;
     }
-
     await _aplicarDescuentoSiCorresponde(10);
   }
 
@@ -131,9 +124,7 @@ class _JuegosDescuentoPageState extends State<JuegosDescuentoPage> {
       );
       return;
     }
-
     final primerIntentoDisponible = _intentoConsumido[15] != true;
-
     final gano = await Navigator.of(
       context,
     ).push<bool>(MaterialPageRoute(builder: (_) => const _JuegoComidasPage()));
@@ -144,7 +135,6 @@ class _JuegosDescuentoPageState extends State<JuegosDescuentoPage> {
       if (!mounted) return;
       setState(() => _intentoConsumido[15] = true);
     }
-
     if (!gano) {
       _mostrarMensaje(
         primerIntentoDisponible
@@ -154,7 +144,6 @@ class _JuegosDescuentoPageState extends State<JuegosDescuentoPage> {
       );
       return;
     }
-
     if (!primerIntentoDisponible) {
       _mostrarMensaje(
         'Ganaste, pero ya consumiste el primer intento: no se aplica descuento.',
@@ -162,7 +151,6 @@ class _JuegosDescuentoPageState extends State<JuegosDescuentoPage> {
       );
       return;
     }
-
     await _aplicarDescuentoSiCorresponde(15);
   }
 
@@ -175,9 +163,7 @@ class _JuegosDescuentoPageState extends State<JuegosDescuentoPage> {
       );
       return;
     }
-
     final primerIntentoDisponible = _intentoConsumido[20] != true;
-
     final gano = await Navigator.of(
       context,
     ).push<bool>(MaterialPageRoute(builder: (_) => const _JuegoSnakePage()));
@@ -188,7 +174,6 @@ class _JuegosDescuentoPageState extends State<JuegosDescuentoPage> {
       if (!mounted) return;
       setState(() => _intentoConsumido[20] = true);
     }
-
     if (!gano) {
       _mostrarMensaje(
         primerIntentoDisponible
@@ -198,7 +183,6 @@ class _JuegosDescuentoPageState extends State<JuegosDescuentoPage> {
       );
       return;
     }
-
     if (!primerIntentoDisponible) {
       _mostrarMensaje(
         'Ganaste, pero ya consumiste el primer intento: no se aplica descuento.',
@@ -206,7 +190,6 @@ class _JuegosDescuentoPageState extends State<JuegosDescuentoPage> {
       );
       return;
     }
-
     await _aplicarDescuentoSiCorresponde(20);
   }
 
@@ -215,22 +198,20 @@ class _JuegosDescuentoPageState extends State<JuegosDescuentoPage> {
     try {
       if (_descuentoAplicado > 0) {
         _mostrarMensaje(
-          'Ganaste, pero ya ten\u00EDas un descuento del ${_descuentoAplicado.toStringAsFixed(0)}%.',
+          'Ganaste, pero ya tenías un descuento del ${_descuentoAplicado.toStringAsFixed(0)}%.',
           esError: false,
         );
         return;
       }
-
       final aplicado = await _repo.aplicarDescuentoJuego(
         pedidoId: widget.pedidoId,
         porcentaje: porcentaje,
       );
-
       if (!mounted) return;
       if (aplicado) {
         setState(() => _descuentoAplicado = porcentaje.toDouble());
         _mostrarMensaje(
-          '\u00A1Ganaste! Se aplic\u00F3 $porcentaje% a la cuenta final.',
+          '¡Ganaste! Se aplicó $porcentaje% a la cuenta final.',
           esError: false,
         );
       } else {
@@ -254,9 +235,7 @@ class _JuegosDescuentoPageState extends State<JuegosDescuentoPage> {
   }
 
   void _mostrarMensaje(String mensaje, {required bool esError}) {
-    if (esError) {
-      ErrorFeedback.vibrate();
-    }
+    if (esError) ErrorFeedback.vibrate();
     ScaffoldMessenger.of(context).hideCurrentSnackBar();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -266,81 +245,76 @@ class _JuegosDescuentoPageState extends State<JuegosDescuentoPage> {
     );
   }
 
+  VoidCallback? _onPlayPorJuego(int index) {
+    if (_procesando) return null;
+    return () => _mostrarModalReglas(index);
+  }
+
+  Future<void> _mostrarModalReglas(int index) async {
+    final config = _juegos[index];
+    final confirmo = await showModalBottomSheet<bool>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (_) => _ModalReglasJuego(config: config),
+    );
+    if (confirmo != true) return;
+    switch (index) {
+      case 0:
+        await _jugarNumero10();
+      case 1:
+        await _jugarComidas15();
+      case 2:
+        await _jugarSnake20();
+    }
+  }
+
+  bool _intentoDeJuego(int index) {
+    return switch (index) {
+      0 => _intentoConsumido[10] == true,
+      1 => _intentoConsumido[15] == true,
+      2 => _intentoConsumido[20] == true,
+      _ => false,
+    };
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Juegos y descuentos')),
-      body: Container(
-        width: double.infinity,
+      body: DecoratedBox(
         decoration: const BoxDecoration(gradient: AppUi.fondoPrincipal),
         child: SafeArea(
           child:
               _cargando
-                  ? const Center(child: LogoSpinner(size: 70, strokeWidth: 4))
+                  ? const Center(child: LogoSpinner(size: 48, strokeWidth: 3))
                   : Padding(
-                    padding: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.fromLTRB(14, 14, 14, 18),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        Container(
-                          padding: const EdgeInsets.all(14),
-                          decoration: AppUi.panelDecoracion(radius: 16),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text(
-                                'Reglas de beneficios',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w800,
-                                  fontSize: 18,
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                              const Text(
-                                'Si gan\u00E1s en el primer intento del juego, pod\u00E9s obtener el descuento. El descuento no se acumula.',
-                                style: TextStyle(color: AppUi.textoSecundario),
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                _descuentoAplicado > 0
-                                    ? 'Descuento activo: ${_descuentoAplicado.toStringAsFixed(0)}%'
-                                    : 'A\u00FAn no hay descuento aplicado.',
-                                style: const TextStyle(
-                                  color: AppUi.acento,
-                                  fontWeight: FontWeight.w800,
-                                ),
-                              ),
-                            ],
-                          ),
+                        // ── Hero ────────────────────────────────────────
+                        _HeroJuegosCard(
+                          descuentoAplicado: _descuentoAplicado,
+                          clienteRegistrado: _clienteRegistrado,
+                          intentosConsumidos: _intentoConsumido,
                         ),
+
                         const SizedBox(height: 12),
+
+                        // ── Cards de juegos — ocupan el resto ───────────
                         Expanded(
-                          child: ListView(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
-                              _JuegoCard(
-                                titulo: 'Juego 1 - Adivinar n\u00FAmero (10%)',
-                                descripcion:
-                                    'Eleg\u00ED un n\u00FAmero del 1 al 6. Si coincide, gan\u00E1s.',
-                                intentoUsado: _intentoConsumido[10] == true,
-                                onPlay: _procesando ? null : _jugarNumero10,
-                              ),
-                              const SizedBox(height: 10),
-                              _JuegoCard(
-                                titulo: 'Juego 2 - Comidas y bombas (15%)',
-                                descripcion:
-                                    'Toc\u00E1 comidas para sumar y evit\u00E1 bombas que restan. Necesit\u00E1s 120 puntos.',
-                                intentoUsado: _intentoConsumido[15] == true,
-                                onPlay: _procesando ? null : _jugarComidas15,
-                              ),
-                              const SizedBox(height: 10),
-                              _JuegoCard(
-                                titulo: 'Juego 3 - Snake cl\u00E1sico (20%)',
-                                descripcion:
-                                    'Com\u00E9 15 veces sin perder para ganar el descuento.',
-                                intentoUsado: _intentoConsumido[20] == true,
-                                onPlay: _procesando ? null : _jugarSnake20,
-                              ),
+                              for (var i = 0; i < _juegos.length; i++) ...[
+                                _JuegoCard(
+                                  config: _juegos[i],
+                                  intentoUsado: _intentoDeJuego(i),
+                                  onPlay: _onPlayPorJuego(i),
+                                ),
+                                if (i < _juegos.length - 1)
+                                  const SizedBox(height: 10),
+                              ],
                             ],
                           ),
                         ),
@@ -353,50 +327,423 @@ class _JuegosDescuentoPageState extends State<JuegosDescuentoPage> {
   }
 }
 
+class _JuegoConfig {
+  const _JuegoConfig({
+    required this.numero,
+    required this.titulo,
+    required this.tagline, // ← nuevo
+    required this.porcentaje,
+    required this.bgColor,
+    required this.accentColor,
+    required this.textColor,
+    required this.subtextColor,
+    required this.icon,
+    required this.reglas, // ← nuevo
+  });
+
+  final int numero;
+  final String titulo;
+  final String tagline; // ← nuevo
+  final int porcentaje;
+  final Color bgColor;
+  final Color accentColor;
+  final Color textColor;
+  final Color subtextColor;
+  final IconData icon;
+  final String reglas; // ← nuevo
+}
+
+const _juegos = [
+  _JuegoConfig(
+    numero: 1,
+    titulo: 'Adivinar número',
+    tagline: 'Elegí un número del 1 al 6.',
+    porcentaje: 10,
+bgColor: Color(0xFFBBAA88),
+    accentColor: Color(0xFF5C1F1F),
+    textColor: Color(0xFF3A1010),
+    subtextColor: Color(0xFF7A4040),
+    icon: Icons.casino_rounded,
+    reglas:
+        'Elegí un número del 1 al 6. Si el número que elegís coincide con el resultado aleatorio, ganás un 10% de descuento en tu pedido.',
+  ),
+  _JuegoConfig(
+    numero: 2,
+    titulo: 'Comidas y bombas',
+    tagline: 'Sumá puntos, evitá bombas.',
+    porcentaje: 15,
+bgColor: Color(0xFFBBAA88),
+    accentColor: Color(0xFF8D6200),
+    textColor: Color(0xFF4A3200),
+    subtextColor: Color(0xFF7A5800),
+    icon: Icons.fastfood_rounded,
+    reglas:
+        'Tocá comidas para sumar puntos y evitá las bombas. Si llegás a 120 puntos sin explotar, ganás un 15% de descuento.',
+  ),
+  _JuegoConfig(
+    numero: 3,
+    titulo: 'Snake clásico',
+    tagline: 'Comé 15 veces sin perder.',
+    porcentaje: 20,
+bgColor: Color(0xFFBBAA88),
+    accentColor: Color(0xFF2A3A4A),
+    textColor: Color(0xFF2A3A4A),
+    subtextColor: Color(0xFF2A3A4A),
+    icon: Icons.videogame_asset_rounded,
+    reglas:
+        'Manejá la serpiente y comé al menos 15 veces sin chocar. Si lo lográs, ganás un 20% de descuento.',
+  ),
+];
+
+class _HeroJuegosCard extends StatelessWidget {
+  const _HeroJuegosCard({
+    required this.descuentoAplicado,
+    required this.clienteRegistrado,
+    required this.intentosConsumidos,
+  });
+
+  final double descuentoAplicado;
+  final bool clienteRegistrado;
+  final Map<int, bool> intentosConsumidos;
+
+  @override
+  Widget build(BuildContext context) {
+    final tieneDescuento = descuentoAplicado > 0;
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(20, 18, 20, 18),
+      decoration: BoxDecoration(
+        color: const Color(0xFF5C1F1F),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.07)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // ── Body según estado ─────────────────────────────
+          if (tieneDescuento) ...[
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Descuento\nganado',
+                  style: TextStyle(
+                    color: Colors.white.withValues(alpha: 0.55),
+                    fontSize: 20,
+                    fontWeight: FontWeight.w500,
+                    height: 1.3,
+                  ),
+                ),
+                Text(
+                  '${descuentoAplicado.toStringAsFixed(0)}%',
+                  style: const TextStyle(
+                    fontFamily: 'ArchivoBlack',
+                    color: AppUi.acento,
+                    fontSize: 52,
+                    height: 1,
+                  ),
+                ),
+              ],
+            ),
+          ] else ...[
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Ganá jugando\ny obtené un descuento',
+                  style: TextStyle(
+                    color: Colors.white.withValues(alpha: 0.55),
+                    fontSize: 18,
+                    fontWeight: FontWeight.w500,
+                    height: 1.3,
+                  ),
+                ),
+                Text(
+                  '?%',
+                  style: TextStyle(
+                    color: Colors.white.withValues(alpha: 0.15),
+                    fontSize: 52,
+                    fontWeight: FontWeight.w800,
+                    height: 1,
+                  ),
+                ),
+              ],
+            ),
+          ],
+
+          const SizedBox(height: 14),
+          Divider(color: Colors.white.withValues(alpha: 0.1), height: 1),
+          const SizedBox(height: 12),
+
+          // ── Reglas ────────────────────────────────────────
+          if (!clienteRegistrado) ...[
+            Text(
+              'Solo clientes registrados pueden ganar descuentos jugando.',
+              style: TextStyle(
+                color: const Color(0xFFE8A87C).withValues(alpha: 0.8),
+                fontSize: 12,
+                height: 1.4,
+              ),
+            ),
+          ] else ...[
+            Text(
+              '· Solo cuenta el primer intento.\n· Los descuentos no se acumulan.',
+              style: TextStyle(
+                color: Colors.white.withValues(alpha: 0.35),
+                fontSize: 16, // ← subí de 12 a 14
+                height: 1.6,
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Card de juego
+// ─────────────────────────────────────────────────────────────────────────────
 class _JuegoCard extends StatelessWidget {
   const _JuegoCard({
-    required this.titulo,
-    required this.descripcion,
+    required this.config,
     required this.intentoUsado,
     required this.onPlay,
   });
 
-  final String titulo;
-  final String descripcion;
+  final _JuegoConfig config;
   final bool intentoUsado;
   final VoidCallback? onPlay;
 
   @override
   Widget build(BuildContext context) {
+    return Expanded(
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onPlay,
+          borderRadius: BorderRadius.circular(18),
+          child: Ink(
+            height: double.infinity,
+            decoration: BoxDecoration(
+              color: config.bgColor,
+              borderRadius: BorderRadius.circular(18),
+            ),
+            child: Stack(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      // Top: badge + porcentaje
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 3,
+                            ),
+                            // decoration: BoxDecoration(
+                            //   color: config.accentColor.withValues(alpha: 0.12),
+                            //   borderRadius: BorderRadius.circular(20),
+                            // ),
+                            child: Text(
+                              'Juego ${config.numero}',
+                              style: TextStyle(
+                                color: config.accentColor,
+                                fontSize: 15,
+                                fontWeight: FontWeight.w700,
+                                letterSpacing: 0.4,
+                              ),
+                            ),
+                          ),
+                          Text(
+                            '${config.porcentaje}%',
+                            style: TextStyle(
+                              color: config.accentColor,
+                              fontFamily: 'ArchivoBlack',
+                              fontSize: 35,
+                              height: 1,
+                            ),
+                          ),
+                        ],
+                      ),
+                      // Título + descripción
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(
+                                config.icon,
+                                color: config.accentColor,
+                                size: 20,
+                              ),
+                              const SizedBox(width: 6),
+                              Text(
+                                config.titulo,
+                                style: TextStyle(
+                                  color: config.textColor,
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            config.tagline,
+                            style: TextStyle(
+                              color: config.subtextColor,
+                              fontSize: 15,
+                              height: 1.4,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const Spacer(),
+                      // Botón
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(vertical: 10),
+                        decoration: BoxDecoration(
+                          color: config.accentColor,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              intentoUsado
+                                  ? Icons.refresh_rounded
+                                  : Icons.play_arrow_rounded,
+                              color: config.bgColor,
+                              size: 16,
+                            ),
+                            const SizedBox(width: 6),
+                            Text(
+                              intentoUsado
+                                  ? 'Rejugar (sin descuento)'
+                                  : 'Jugar ahora',
+                              style: TextStyle(
+                                color: config.bgColor,
+                                fontSize: 15,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ModalReglasJuego extends StatelessWidget {
+  const _ModalReglasJuego({required this.config});
+
+  final _JuegoConfig config;
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: AppUi.panelDecoracion(radius: 16),
+      margin: const EdgeInsets.all(16),
+      padding: const EdgeInsets.fromLTRB(24, 24, 24, 32),
+      decoration: BoxDecoration(
+        color: config.bgColor,
+        borderRadius: BorderRadius.circular(24),
+      ),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            titulo,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 16,
-              fontWeight: FontWeight.w800,
-            ),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            descripcion,
-            style: const TextStyle(color: AppUi.textoSecundario),
-          ),
-          const SizedBox(height: 10),
-          SizedBox(
-            width: double.infinity,
-            child: FilledButton.icon(
-              onPressed: onPlay,
-              icon: Icon(intentoUsado ? Icons.refresh : Icons.play_arrow),
-              label: Text(
-                intentoUsado ? 'Rejugar (sin descuento)' : 'Jugar ahora',
+          Row(
+            children: [
+              Icon(config.icon, color: config.accentColor, size: 22),
+              const SizedBox(width: 8),
+              Text(
+                config.titulo,
+                style: TextStyle(
+                  color: config.textColor,
+                  fontSize: 20,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
+              const Spacer(),
+              Text(
+                '${config.porcentaje}%',
+                style: TextStyle(
+                  color: config.accentColor,
+                  fontFamily: 'ArchivoBlack',
+                  fontSize: 28,
+                  height: 1,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Text(
+            config.reglas,
+            style: TextStyle(
+              color: config.subtextColor,
+              fontSize: 15,
+              height: 1.5,
             ),
+          ),
+          const SizedBox(height: 24),
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: () => Navigator.pop(context, false),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: config.accentColor,
+                    side: BorderSide(color: config.accentColor),
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: const Text(
+                    'Cancelar',
+                    style: TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: () => Navigator.pop(context, true),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: config.accentColor,
+                    foregroundColor: config.bgColor,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    elevation: 0,
+                  ),
+                  child: const Text(
+                    'Jugar',
+                    style: TextStyle(fontWeight: FontWeight.w700),
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),
