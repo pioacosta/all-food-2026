@@ -85,7 +85,7 @@ class _PedidosSectorPageState extends State<PedidosSectorPage> {
               'sector': 'mozo',
               'numeroMesa': numeroMesa,
               'mensaje':
-                  '??"??? Pedido completo listo para entregar - Mesa $numeroMesa',
+                  'Pedido completo listo para entregar - Mesa $numeroMesa',
             },
           );
         }
