@@ -233,9 +233,9 @@ class _LoginPageState extends State<LoginPage> {
       }
 
       try {
-        await NotificationService().init();
+        await NotificationService().init(userId: response.user!.id);
       } catch (_) {
-        // Si falla no bloqueamos el login
+        
       }
       await SessionAudioService.playLogin();
     } catch (error) {

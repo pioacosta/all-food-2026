@@ -14,35 +14,35 @@ class NotificationService {
 
   bool _initialized = false;
 
-  Future<void> init() async {
-    if (_initialized) return;
-    _initialized = true;
-
-    await _requestPermission();
-    await _setupLocalNotifications();
-    await _saveToken();
-    _listenForeground();
-    _listenTokenRefresh();
+Future<void> init({String? userId}) async {
+  if (_initialized) {
+    if (userId != null) await _saveToken(userId: userId);
+    return;
   }
+  _initialized = true;
+
+  await _requestPermission();
+  await _setupLocalNotifications();
+  await _saveToken(userId: userId);
+  _listenForeground();
+  _listenTokenRefresh();
+}
 
   Future<void> _requestPermission() async {
     await _messaging.requestPermission();
   }
 
-  Future<void> _saveToken() async {
-    final token = await _messaging.getToken();
-    if (token == null) return;
+ Future<void> _saveToken({String? userId}) async {
+  final token = await _messaging.getToken();
+  if (token == null) return;
 
-    print("TOKEN: $token");
+  final uid = userId ?? Supabase.instance.client.auth.currentUser?.id;
+  if (uid == null) return;
 
-    final userId = Supabase.instance.client.auth.currentUser?.id;
-    if (userId == null) return;
-
-    await Supabase.instance.client
-        .from('perfiles')
-        .update({'fcm_token': token})
-        .eq('id', userId);
-  }
+  await Supabase.instance.client
+      .from('perfiles')
+      .update({'fcm_token': token}).eq('id', uid);
+}
 
   void _listenTokenRefresh() {
     _messaging.onTokenRefresh.listen((newToken) async {
