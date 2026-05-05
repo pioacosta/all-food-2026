@@ -1,3 +1,4 @@
+import 'package:all_food/src/features/pedidos/presentation/widgets/modal_resultado_juego.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'dart:math';
@@ -97,18 +98,22 @@ class _JuegosDescuentoPageState extends State<JuegosDescuentoPage> {
       setState(() => _intentoConsumido[10] = true);
     }
     if (!acierto) {
-      _mostrarMensaje(
-        primerIntentoDisponible
-            ? 'No acertaste. Solo cuenta el primer intento.'
-            : 'No acertaste. Rejugar no otorga descuento.',
-        esError: true,
+      await _mostrarResultado(
+        gano: false,
+        mensaje: 'No acertaste',
+        submensaje:
+            primerIntentoDisponible
+                ? 'Solo cuenta el primer intento. ¡Suerte la próxima!'
+                : 'Rejugar no otorga descuento.',
       );
       return;
     }
     if (!primerIntentoDisponible) {
-      _mostrarMensaje(
-        'Ganaste, pero ya consumiste el primer intento: no se aplica descuento.',
-        esError: false,
+      await _mostrarResultado(
+        gano: false,
+        mensaje: 'Ganaste, pero...',
+        submensaje:
+            'Ya habías usado tu primer intento. No se aplica descuento.',
       );
       return;
     }
@@ -136,18 +141,22 @@ class _JuegosDescuentoPageState extends State<JuegosDescuentoPage> {
       setState(() => _intentoConsumido[15] = true);
     }
     if (!gano) {
-      _mostrarMensaje(
-        primerIntentoDisponible
-            ? 'No alcanzaste la meta del juego de comidas.'
-            : 'No alcanzaste la meta. Rejugar no otorga descuento.',
-        esError: true,
+      await _mostrarResultado(
+        gano: false,
+        mensaje: 'No llegaste a la meta',
+        submensaje:
+            primerIntentoDisponible
+                ? 'Necesitabas 120 puntos. ¡La próxima!'
+                : 'Rejugar no otorga descuento.',
       );
       return;
     }
     if (!primerIntentoDisponible) {
-      _mostrarMensaje(
-        'Ganaste, pero ya consumiste el primer intento: no se aplica descuento.',
-        esError: false,
+      await _mostrarResultado(
+        gano: false,
+        mensaje: 'Ganaste, pero...',
+        submensaje:
+            'Ya habías usado tu primer intento. No se aplica descuento.',
       );
       return;
     }
@@ -175,18 +184,22 @@ class _JuegosDescuentoPageState extends State<JuegosDescuentoPage> {
       setState(() => _intentoConsumido[20] = true);
     }
     if (!gano) {
-      _mostrarMensaje(
-        primerIntentoDisponible
-            ? 'Perdiste en Snake. Necesitabas comer al menos 15 veces sin perder.'
-            : 'Perdiste en Snake. Rejugar no otorga descuento.',
-        esError: true,
+      await _mostrarResultado(
+        gano: false,
+        mensaje: 'Perdiste en Snake',
+        submensaje:
+            primerIntentoDisponible
+                ? 'Necesitabas comer 15 veces sin chocar.'
+                : 'Rejugar no otorga descuento.',
       );
       return;
     }
     if (!primerIntentoDisponible) {
-      _mostrarMensaje(
-        'Ganaste, pero ya consumiste el primer intento: no se aplica descuento.',
-        esError: false,
+      await _mostrarResultado(
+        gano: false,
+        mensaje: 'Ganaste, pero...',
+        submensaje:
+            'Ya habías usado tu primer intento. No se aplica descuento.',
       );
       return;
     }
@@ -197,9 +210,11 @@ class _JuegosDescuentoPageState extends State<JuegosDescuentoPage> {
     setState(() => _procesando = true);
     try {
       if (_descuentoAplicado > 0) {
-        _mostrarMensaje(
-          'Ganaste, pero ya tenías un descuento del ${_descuentoAplicado.toStringAsFixed(0)}%.',
-          esError: false,
+        await _mostrarResultado(
+          gano: false,
+          mensaje: 'Ganaste, pero...',
+          submensaje:
+              'Ya tenías un descuento del ${_descuentoAplicado.toStringAsFixed(0)}% aplicado.',
         );
         return;
       }
@@ -210,14 +225,16 @@ class _JuegosDescuentoPageState extends State<JuegosDescuentoPage> {
       if (!mounted) return;
       if (aplicado) {
         setState(() => _descuentoAplicado = porcentaje.toDouble());
-        _mostrarMensaje(
-          '¡Ganaste! Se aplicó $porcentaje% a la cuenta final.',
-          esError: false,
+        await _mostrarResultado(
+          gano: true,
+          mensaje: '¡Ganaste $porcentaje% de descuento!',
+          submensaje: 'El descuento se aplicó a tu cuenta. ¡Disfrutalo!',
         );
       } else {
-        _mostrarMensaje(
-          'Ya existe un descuento aplicado en este pedido.',
-          esError: false,
+        await _mostrarResultado(
+          gano: false,
+          mensaje: 'Ya hay un descuento',
+          submensaje: 'Este pedido ya tiene un descuento aplicado.',
         );
       }
     } catch (error) {
@@ -275,6 +292,37 @@ class _JuegosDescuentoPageState extends State<JuegosDescuentoPage> {
       2 => _intentoConsumido[20] == true,
       _ => false,
     };
+  }
+
+  Future<void> _mostrarResultado({
+    required bool gano,
+    required String mensaje,
+    required String submensaje,
+  }) async {
+    if (gano) {
+      // pequeña vibración de éxito opcional
+    } else {
+      ErrorFeedback.vibrate();
+    }
+
+    if (!mounted) return;
+
+    await showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isDismissible: false,
+      builder:
+          (_) => ModalResultadoJuego(
+            gano: gano,
+            mensaje: mensaje,
+            submensaje: submensaje,
+            icono:
+                gano
+                    ? Icons.celebration_rounded
+                    : Icons.sentiment_dissatisfied_rounded,
+            color: gano ? AppUi.exito : AppUi.error,
+          ),
+    );
   }
 
   @override
