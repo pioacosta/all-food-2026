@@ -237,8 +237,8 @@ class _MesaClienteAccesoPageState extends State<MesaClienteAccesoPage> {
                                     icon: Icons.sports_esports_rounded,
                                     titulo: 'Juegos y descuentos',
                                     descripcion: 'Jugá mientras esperás y ganá beneficios',
-                                    bgColor: const Color(0xFFE8F5E2),
-                                    iconColor: const Color(0xFF3B6D11),
+                                    bgColor: const Color(0xFFBBAA88),
+                                    iconColor: const Color(0xFF2A3A4A),
                                     onTap: () => _navegarY( () => Navigator.push(context,
                                       MaterialPageRoute(
                                         builder:(_,) => JuegosDescuentoPage(pedidoId: pedidoId, descuentoActual: descuentoActual),
@@ -394,7 +394,7 @@ class _BtnCuadrado extends StatelessWidget {
           padding: const EdgeInsets.all(14),
           height: double.infinity,
           decoration: BoxDecoration(
-            color: const Color(0xFFF0E4D0),
+            color: const Color(0xFFBBAA88),
             borderRadius: BorderRadius.circular(16),
           ),
           child: Column(
@@ -425,7 +425,7 @@ class _BtnCuadrado extends StatelessWidget {
               Text(
                 descripcion,
                 style: const TextStyle(
-                  color: Color(0xFF7A4040),
+                  color: Color(0xFF5C1F1F),
                   fontSize: 15,
                   height: 1.3,
                 ),
@@ -549,7 +549,7 @@ class _BtnPrincipal extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bg = esPrimario ? const Color(0xFFFFBD88 ) : const Color(0xFF5C1F1F);
+    final bg = esPrimario ? AppUi.acento : const Color(0xFF5C1F1F);
     final textColor = esPrimario ? const Color(0xFF5C1F1F) : AppUi.texto;
     final subColor =
         esPrimario
