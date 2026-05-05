@@ -359,7 +359,7 @@ const _juegos = [
     titulo: 'Adivinar número',
     tagline: 'Elegí un número del 1 al 6.',
     porcentaje: 10,
-bgColor: Color(0xFFBBAA88),
+    bgColor: Color(0xFFBBAA88),
     accentColor: Color(0xFF5C1F1F),
     textColor: Color(0xFF3A1010),
     subtextColor: Color(0xFF7A4040),
@@ -372,7 +372,7 @@ bgColor: Color(0xFFBBAA88),
     titulo: 'Comidas y bombas',
     tagline: 'Sumá puntos, evitá bombas.',
     porcentaje: 15,
-bgColor: Color(0xFFBBAA88),
+    bgColor: Color(0xFFBBAA88),
     accentColor: Color(0xFF8D6200),
     textColor: Color(0xFF4A3200),
     subtextColor: Color(0xFF7A5800),
@@ -385,13 +385,13 @@ bgColor: Color(0xFFBBAA88),
     titulo: 'Snake clásico',
     tagline: 'Comé 15 veces sin perder.',
     porcentaje: 20,
-bgColor: Color(0xFFBBAA88),
+    bgColor: Color(0xFFBBAA88),
     accentColor: Color(0xFF2A3A4A),
     textColor: Color(0xFF2A3A4A),
     subtextColor: Color(0xFF2A3A4A),
     icon: Icons.videogame_asset_rounded,
     reglas:
-        'Manejá la serpiente y comé al menos 15 veces sin chocar. Si lo lográs, ganás un 20% de descuento.',
+        'Deslizá el dedo en cualquier parte de la pantalla para mover la serpiente. Comé al menos 15 veces sin chocar con las paredes ni con vos mismo para ganar el 20% de descuento.',
   ),
 ];
 
@@ -1062,21 +1062,25 @@ class _JuegoSnakePage extends StatefulWidget {
 }
 
 class _JuegoSnakePageState extends State<_JuegoSnakePage> {
-  static const int _grid = 14;
+  static const int _gridX = 14;
   static const int _metaComidas = 15;
 
   final _random = Random();
   final List<Point<int>> _snake = [
-    const Point(7, 7),
-    const Point(6, 7),
-    const Point(5, 7),
+    const Point(7, 10),
+    const Point(6, 10),
+    const Point(5, 10),
   ];
   _DireccionSnake _direccion = _DireccionSnake.derecha;
+  _DireccionSnake _direccionPendiente = _DireccionSnake.derecha;
   Timer? _timer;
   Point<int> _comida = const Point(10, 7);
   bool _terminado = false;
   bool _gano = false;
   int _comidas = 0;
+  int _gridY = 20;
+
+  Offset? _panInicio;
 
   @override
   void initState() {
@@ -1093,7 +1097,7 @@ class _JuegoSnakePageState extends State<_JuegoSnakePage> {
 
   void _generarComida() {
     while (true) {
-      final nueva = Point(_random.nextInt(_grid), _random.nextInt(_grid));
+      final nueva = Point(_random.nextInt(_gridX), _random.nextInt(_gridY));
       if (!_snake.contains(nueva)) {
         _comida = nueva;
         return;
@@ -1112,11 +1116,39 @@ class _JuegoSnakePageState extends State<_JuegoSnakePage> {
             nueva == _DireccionSnake.izquierda)) {
       return;
     }
-    _direccion = nueva;
+    _direccionPendiente = nueva;
+  }
+
+  void _onPanStart(DragStartDetails details) {
+    _panInicio = details.globalPosition;
+  }
+
+  void _onPanUpdate(DragUpdateDetails details) {
+    if (_panInicio == null) return;
+
+    final delta = details.globalPosition - _panInicio!;
+    const umbral = 20.0;
+
+    if (delta.distance < umbral) return;
+
+    if (delta.dx.abs() > delta.dy.abs()) {
+      _cambiarDireccion(
+        delta.dx > 0 ? _DireccionSnake.derecha : _DireccionSnake.izquierda,
+      );
+    } else {
+      _cambiarDireccion(
+        delta.dy > 0 ? _DireccionSnake.abajo : _DireccionSnake.arriba,
+      );
+    }
+
+    // Resetear el inicio para el siguiente swipe
+    _panInicio = details.globalPosition;
   }
 
   void _tick() {
     if (!mounted || _terminado) return;
+
+    _direccion = _direccionPendiente;
 
     final cabeza = _snake.first;
     Point<int> nuevaCabeza;
@@ -1139,8 +1171,8 @@ class _JuegoSnakePageState extends State<_JuegoSnakePage> {
     final chocaBorde =
         nuevaCabeza.x < 0 ||
         nuevaCabeza.y < 0 ||
-        nuevaCabeza.x >= _grid ||
-        nuevaCabeza.y >= _grid;
+        nuevaCabeza.x >= _gridX ||
+        nuevaCabeza.y >= _gridY;
     final chocaCuerpo = _snake.contains(nuevaCabeza);
 
     if (chocaBorde || chocaCuerpo) {
@@ -1163,21 +1195,6 @@ class _JuegoSnakePageState extends State<_JuegoSnakePage> {
     });
   }
 
-  void _onPanEnd(DragEndDetails details) {
-    final velocidad = details.velocity.pixelsPerSecond;
-    if (velocidad.distance < 100) return;
-
-    if (velocidad.dx.abs() > velocidad.dy.abs()) {
-      _cambiarDireccion(
-        velocidad.dx > 0 ? _DireccionSnake.derecha : _DireccionSnake.izquierda,
-      );
-    } else {
-      _cambiarDireccion(
-        velocidad.dy > 0 ? _DireccionSnake.abajo : _DireccionSnake.arriba,
-      );
-    }
-  }
-
   void _finalizar(bool gano) {
     _timer?.cancel();
     setState(() {
@@ -1194,43 +1211,81 @@ class _JuegoSnakePageState extends State<_JuegoSnakePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Snake cl\u00E1sico')),
-      body: Container(
-        width: double.infinity,
-        decoration: const BoxDecoration(gradient: AppUi.fondoPrincipal),
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(12),
-            child: Column(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: AppUi.panelDecoracion(radius: 14),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          'Comidas: $_comidas / $_metaComidas',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w800,
+      body: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onPanStart: _onPanStart,
+        onPanUpdate: _onPanUpdate,
+        child: Container(
+          width: double.infinity,
+          height: double.infinity,
+          decoration: const BoxDecoration(gradient: AppUi.fondoPrincipal),
+          child: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // ── Header ──────────────────────────────────────
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 14,
+                    ),
+                    decoration: AppUi.panelDecoracion(radius: 16),
+                    child: Row(
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Comidas',
+                              style: TextStyle(
+                                color: Colors.white.withValues(alpha: 0.80),
+                                fontSize: 28,
+                                fontWeight: FontWeight.w900,
+                              ),
+                            ),
+                            Text(
+                              '$_comidas / $_metaComidas',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 28,
+                                fontFamily: 'ArchivoBlack',
+                                height: 1,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const Spacer(),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 14,
+                            vertical: 8,
+                          ),
+                          decoration: BoxDecoration(
+                            color:
+                                _terminado
+                                    ? (_gano ? AppUi.exito : AppUi.error)
+                                    : Colors.white.withValues(alpha: 0.08),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Text(
+                            _terminado
+                                ? (_gano ? '¡Ganaste!' : 'Perdiste')
+                                : 'En juego',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w700,
+                              fontSize: 14,
+                            ),
                           ),
                         ),
-                      ),
-                      Text(
-                        _terminado
-                            ? (_gano ? '\u00A1Ganaste!' : 'Perdiste')
-                            : 'En juego',
-                        style: const TextStyle(color: AppUi.acento),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-                const SizedBox(height: 10),
-                Expanded(
-                  child: GestureDetector(
-                    behavior: HitTestBehavior.opaque,
-                    onPanEnd: _onPanEnd,
+                  const SizedBox(height: 10),
+                  // ── Tablero ─────────────────────────────────────
+                  Expanded(
                     child: Container(
                       width: double.infinity,
                       decoration: BoxDecoration(
@@ -1240,36 +1295,31 @@ class _JuegoSnakePageState extends State<_JuegoSnakePage> {
                       ),
                       child: Padding(
                         padding: const EdgeInsets.all(6),
-                        child: GridView.builder(
-                          physics: const NeverScrollableScrollPhysics(),
-                          gridDelegate:
-                              const SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: _grid,
-                                crossAxisSpacing: 1,
-                                mainAxisSpacing: 1,
-                              ),
-                          itemCount: _grid * _grid,
-                          itemBuilder: (context, index) {
-                            final x = index % _grid;
-                            final y = index ~/ _grid;
-                            final p = Point(x, y);
-                            final esCabeza = p == _snake.first;
-                            final esCuerpo = _snake.contains(p);
-                            final esComida = p == _comida;
+                        child: LayoutBuilder(
+                          builder: (context, constraints) {
+                            final cellSize = constraints.maxWidth / _gridX;
+                            final gridY =
+                                (constraints.maxHeight / cellSize).floor();
 
-                            Color color = const Color(0x443D3D3D);
-                            if (esComida) {
-                              color = AppUi.acento;
-                            } else if (esCabeza) {
-                              color = const Color(0xFF3DDC97);
-                            } else if (esCuerpo) {
-                              color = const Color(0xFF2D6A4F);
+                            // Actualizarlo si cambió
+                            if (gridY != _gridY) {
+                              WidgetsBinding.instance.addPostFrameCallback((_) {
+                                if (mounted) setState(() => _gridY = gridY);
+                              });
                             }
 
-                            return Container(
-                              decoration: BoxDecoration(
-                                color: color,
-                                borderRadius: BorderRadius.circular(2),
+                            return CustomPaint(
+                              size: Size(
+                                constraints.maxWidth,
+                                constraints.maxHeight,
+                              ),
+                              painter: _SnakePainter(
+                                snake: _snake,
+                                comida: _comida,
+                                gridX: _gridX,
+                                gridY:
+                                    gridY, // ← el calculado dinámicamente, no _gridY
+                                cellSize: cellSize,
                               ),
                             );
                           },
@@ -1277,18 +1327,98 @@ class _JuegoSnakePageState extends State<_JuegoSnakePage> {
                       ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 10),
-                const Text(
-                  'Desliz\u00E1 el dedo sobre el tablero para mover la serpiente.',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(color: Colors.white),
-                ),
-              ],
+                  const SizedBox(height: 10),
+                  const Text(
+                    'Deslizá el dedo en cualquier dirección para mover la serpiente.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
       ),
     );
   }
+}
+
+class _SnakePainter extends CustomPainter {
+  const _SnakePainter({
+    required this.snake,
+    required this.comida,
+    required this.gridX,
+    required this.gridY,
+    required this.cellSize,
+  });
+
+  final List<Point<int>> snake;
+  final Point<int> comida;
+  final int gridX;
+  final int gridY;
+  final double cellSize;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paintFondo = Paint()..color = const Color(0x443D3D3D);
+    final paintCuerpo = Paint()..color = const Color(0xFF2D6A4F);
+    final paintCabeza = Paint()..color = const Color(0xFF3DDC97);
+    final paintComida = Paint()..color = AppUi.acento;
+    final radio = const Radius.circular(3);
+
+    for (var y = 0; y < gridY; y++) {
+      for (var x = 0; x < gridX; x++) {
+        canvas.drawRRect(
+          RRect.fromLTRBR(
+            x * cellSize + 1,
+            y * cellSize + 1,
+            (x + 1) * cellSize - 1,
+            (y + 1) * cellSize - 1,
+            radio,
+          ),
+          paintFondo,
+        );
+      }
+    }
+
+    for (var i = 1; i < snake.length; i++) {
+      final p = snake[i];
+      canvas.drawRRect(
+        RRect.fromLTRBR(
+          p.x * cellSize + 1,
+          p.y * cellSize + 1,
+          (p.x + 1) * cellSize - 1,
+          (p.y + 1) * cellSize - 1,
+          radio,
+        ),
+        paintCuerpo,
+      );
+    }
+
+    final cabeza = snake.first;
+    canvas.drawRRect(
+      RRect.fromLTRBR(
+        cabeza.x * cellSize + 1,
+        cabeza.y * cellSize + 1,
+        (cabeza.x + 1) * cellSize - 1,
+        (cabeza.y + 1) * cellSize - 1,
+        radio,
+      ),
+      paintCabeza,
+    );
+
+    canvas.drawRRect(
+      RRect.fromLTRBR(
+        comida.x * cellSize + 1,
+        comida.y * cellSize + 1,
+        (comida.x + 1) * cellSize - 1,
+        (comida.y + 1) * cellSize - 1,
+        radio,
+      ),
+      paintComida,
+    );
+  }
+
+  @override
+  bool shouldRepaint(_SnakePainter old) => true;
 }
