@@ -34,7 +34,11 @@ Base funcional implementada:
 - Adrián Lezcano
 
 ## Índice
-* [Splash Screen](#splashscreen)
+* [Splash Screen](#splash-screen)
+* [Inicio de Sesión](#inicio-de-sesión)
+* [Registrarse](#registrarse)
+* [Ingreso Anónimo](#ingreso-anónimo)
+* [Accesos Rápidos](#accesos-rápidos)
 
 ## Comandos útiles
 
@@ -60,9 +64,25 @@ Para anotarse en la lista de espera, el cliente debe escanear el QR de entrada.
 
 # Pantallas de la aplicación
 
-### SplashScreen
+### Splash Screen
 <br>
 <img src="https://github.com/user-attachments/assets/e57449a8-908e-439f-8d35-cd25e1b530b5" width="250" />
+
+### Inicio de Sesión
+<br>
+<img src="https://github.com/user-attachments/assets/af372118-965a-412a-827a-1cb9dca1f71a" width="250" />
+
+### Registrarse
+<br>
+<img src="https://github.com/user-attachments/assets/f8d5505e-4518-4b5b-876a-149dcb907661" width="250" />
+
+### Ingreso Anónimo
+<br>
+<img src="https://github.com/user-attachments/assets/2e492179-1eef-45c7-b8cf-ab1691aeb1af" width="250" />
+
+### Accesos Rápidos
+<br>
+<img src="https://github.com/user-attachments/assets/b8028580-2d49-4c86-8c63-9b2b19328570" width="250" />
 
 ## Lista de tareas realizadas
 
