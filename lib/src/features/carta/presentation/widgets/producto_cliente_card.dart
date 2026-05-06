@@ -257,9 +257,18 @@ class _ProductoClienteCardState extends State<ProductoClienteCard> {
                             _setCantidad(parsed);
                           },
                           decoration: const InputDecoration(
-                            labelText: 'Cantidad',
+                            
                             border: OutlineInputBorder(),
                             isDense: true,
+                            filled: true,
+                            fillColor: Color(
+                              0xFFF5F5DC,
+                            ), // mismo crema del fondo
+                            labelStyle: TextStyle(color: Color(0xFF3D1F1F)),
+                          ),
+                          style: const TextStyle(
+                            color: Color(0xFF3D1F1F),
+                            fontSize: 18,
                           ),
                         ),
                       ),

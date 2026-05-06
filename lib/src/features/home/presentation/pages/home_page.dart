@@ -680,19 +680,6 @@ class _ClienteDashboard extends StatelessWidget {
                 const SizedBox(height: 10),
                 Expanded(
                   child: _ClienteActionCard(
-                    icon: Icons.sync,
-                    titulo: 'Actualizar estado',
-                    descripcion:
-                        'Consultá si el metre ya te asignó una mesa para continuar.',
-                    habilitado: !cargandoEstado,
-                    onTap: onRefrescarEstado,
-                    loading: cargandoEstado,
-                    color: const Color(0xFF0E7490),
-                  ),
-                ),
-                const SizedBox(height: 10),
-                Expanded(
-                  child: _ClienteActionCard(
                     icon: Icons.qr_code_scanner,
                     titulo: 'Escanear QR de mesa',
                     descripcion:

@@ -35,6 +35,7 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
   bool _procesando = false;
   bool _redireccionando = false;
   bool _sincronizandoRealtime = false;
+  bool _propinaAsignada = false;
   Map<String, dynamic>? _pedido;
   List<Map<String, dynamic>> _items = [];
   int _tiempoTotal = 0;
@@ -187,6 +188,7 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
         _pedido = detalle['pedido'] as Map<String, dynamic>?;
         _items = List<Map<String, dynamic>>.from(detalle['items'] as List);
         _tiempoTotal = (detalle['tiempoTotalMin'] as num?)?.toInt() ?? 0;
+        _propinaAsignada = (_pedido?['propina_porcentaje'] as num?) != null;
       });
     } catch (error) {
       if (!mounted) return;
@@ -434,6 +436,7 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
         'Propina aplicada ($seleccion%). Total actualizado: \$${(resumen['total'] as num).toStringAsFixed(2)}',
         esError: false,
       );
+      setState(() => _propinaAsignada = true);
       await _cargar();
     } catch (error) {
       if (!mounted) return;
@@ -457,9 +460,14 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
       context: context,
       builder:
           (_) => AlertDialog(
-            title: const Text('Confirmar pago'),
+            backgroundColor: const Color(0xFFF5F5DC),
+            title: const Text(
+              'Confirmar pago',
+              style: TextStyle(color: Color(0xFF3D1F1F)),
+            ),
             content: const Text(
               '¿Deseas confirmar el pago de la cuenta? Esta acción notificará al mozo para validación final.',
+              style: TextStyle(color: Color.fromARGB(255, 51, 26, 26)),
             ),
             actions: [
               TextButton(
@@ -662,9 +670,9 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
                                 Padding(
                                   padding: const EdgeInsets.only(top: 8),
                                   child: _AccionPrincipal(
-                                    texto: 'Pagar con confirmación',
+                                    texto: 'Pagar cuenta',
                                     onPressed:
-                                        _procesando
+                                        (_procesando || !_propinaAsignada)
                                             ? null
                                             : _pagarConConfirmacion,
                                     loading: _procesando,
@@ -781,7 +789,7 @@ class _ProductosPaginados extends StatefulWidget {
 
 class _ProductosPaginadosState extends State<_ProductosPaginados> {
   int _pagina = 0;
-  static const _porPagina = 4;
+  static const _porPagina = 5;
 
   @override
   void didUpdateWidget(_ProductosPaginados old) {
@@ -977,7 +985,6 @@ class _AccionPrincipal extends StatelessWidget {
           disabledBackgroundColor: const Color(0xFFE8D7B3),
           disabledForegroundColor: const Color(0xFF4A2B1A),
           textStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 20),
-          
         ),
         onPressed: onPressed,
         child:

@@ -418,7 +418,7 @@ class PedidosRepository {
     return _service
         .updatePedido(
           pedidoId: pedidoId,
-          payload: {'estado': 'cuenta_solicitada'},
+          payload: {'estado': 'cuenta_solicitada','propina_porcentaje': null,},
         )
         .then((_) async {
           await _notificarPerfiles(
