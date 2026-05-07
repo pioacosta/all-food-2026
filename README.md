@@ -86,70 +86,22 @@ Para anotarse en la lista de espera, el cliente debe escanear el QR de entrada.
 
 ## Lista de tareas realizadas
 
-**Apellidos y nombres:** Acosta Abasto Pio.
+Resumen armado a partir del historial completo de commits, priorizando hitos funcionales y excluyendo hotfixes, correcciones menores y actualizaciones del README.
 
-**Módulos (objetivos) a desarrollar:**
-
-1. Deploy inicial + base de registro, login y home. | Fecha de inicio de la tarea: 28/03/2026 | Fecha de finalización de la tarea: 28/03/2026
-
-2. Actualización de colores principales (azul -> rojo). Agregar logo e incluirlo en el splash | Fecha de inicio de la tarea: 06/04/2026 | Fecha de finalización de la tarea: 06/04/2026.
-
-3. Ingreso rápido a la pantalla de ingreso (para dueño) y alerta al cerrar sesión. | Fecha de inicio de la tarea: 06/04/2026 | Fecha de finalización de la tarea: 06/04/2026.
-
-4. Creación de la función "alta de empleados" para roles de dueño y supervisor. | Fecha de inicio de la tarea: 10/04/2026 | Fecha de finalización de la tarea: 10/04/2026
-
-5. Actualización del spinner con logo y círculo de carga. | Fecha de inicio de la tarea: 10/04/2026 | Fecha de finalización de la tarea: 10/04/2026
-
-6. Corrección de UI para pantallas de alta de empleados, inicio de sesión y registro. Ahora ocupa mejor los espacios y se eliminó el scroll horizontal. | Fecha de inicio de la tarea: 11/04/2026 | Fecha de finalización de la tarea: 11/04/2026
-
-7. Crear mesas, verlas y editarlas. | Fecha de inicio de la tarea: 11/04/2026 | Fecha de finalización de la tarea: 11/04/2026
-
-8. Ingreso como cliente anónimo. | Fecha de inicio de la tarea: 14/04/2026 | Fecha de finalización de la tarea: 14/04/2026
-
-9. Generar código QR al crear una mesa. Visible en ver/editar mesa. | Fecha de inicio de la tarea: 15/04/2026 | Fecha de finalización de la tarea: 15/04/2026
-
----
-
-**Apellidos y nombres:** Lezcano Adrian.
-
-**Módulos (objetivos) a desarrollar:**
-
-1. Splash screen con sus respectivas animaciones (logo a modificar). | Fecha de inicio de la tarea: 31/03/2026 | Fecha de finalización de la tarea: 01/04/2026
-
-2. Implementación de registro cliente con todos sus respectivos datos pendiente de aprobación. | Fecha de inicio de la tarea: 06/04/2026 | Fecha de finalización de la tarea: 07/04/2026
-
-3. Funcionalidad "aceptar/rechazar clientes pendientes" para roles de dueño y supervisor. | Fecha de inicio de la tarea: 10/04/2026 | Fecha de finalización de la tarea: 10/04/2026
-
-4. Modulo de asignar mesa, creación del modulo en donde el metre tiene una lista de clientes aprobados y puede asignarle una mesa que no está en uso | Fecha de finalización de la tarea: 15/04/2026
-
-5. Formulario de alta de clientes para el perfil metre | Fecha de inicio de la tarea: 16/04/2026 | Fecha de finalización de la tarea: 16/04/2026
-
-6. Implementacion de consultas por chat entre cliente y mozos | Fecha de inicio de la tarea: 16/04/2026 | Fecha de finalización de la tarea: 17/04/2026
-
----
-
-**Apellidos y nombres:** Bordón Luciano.
-
-**Módulos (objetivos) a desarrollar:**
-
-1. Icono de la aplicación personalizado. | Fecha de inicio de la tarea: 06/04/2026 | Fecha de finalización de la tarea: 06/04/2026
-
-2. Modularización y alta de producto (alta de platos y bebidas con validación de datos e imágenes). | Fecha de inicio de la tarea: 09/04/2026 | Fecha de finalización de la tarea: 12/04/2026
-
-3. Implementación de carta para cantinero y cocinero junto con su detalle de producto, incluyendo modelos, repositorio y servicios. | Fecha de inicio de la tarea: 13/04/2026 | Fecha de finalización de la tarea: 14/04/2026
-
-4. Se implemento la carta de cliente donde podra realizar pedidos | Fecha de inicio de la tarea: 15/04/2026 | Fecha de finalización de la tarea: 15/04/2026
-
-5. Implementación de lógica para el envío automático de correos electrónicos al aceptar o rechazar una cuenta con perfil de dueño o supervisor. | Fecha de inicio de la tarea: 16/04/2026 | Fecha de finalización de la tarea: 16/04/2026
-
-6. Configuracion e implementacion de notificaciones push para el aviso a dueño o supervisor de un nuevo cliente registrado | Fecha de inicio de la tarea: 17/04/2026 | Fecha de finalización de la tarea: 20/04/2026
-
-7. Configuración e implementación de notificaciones push para todo el flujo de pedido | Fecha de inicio de la tarea: 17/04/2026 | Fecha de finalización de la tarea: 24/04/2026
-
-8. Se implementó la lectura de QR para seleccionar el porcentaje de propina al momento del pago. El cliente escanea el QR correspondiente a su nivel de satisfacción (Excelente 20%, Muy bueno 15%, Bueno 10%, Regular 5%, Malo 0%) y el monto se aplica automáticamente al total antes de confirmar el pago.Fecha de inicio de la tarea: 24/04/2026 | Fecha de finalización de la tarea: 25/04/2026
-
----
-
+| Período | Hito funcional | Responsable(s) | Evidencia en commits |
+|---|---|---|---|
+| 28/03/2026 | Base inicial del proyecto y primer deploy (home, login, registro). | Pio Acosta | `d765eaf`, `c80a45a` |
+| 31/03/2026 - 06/04/2026 | Estructura por features, splash screen, branding (logo, colores) e ícono personalizado. | Adrian Lezcano, Pio Acosta, Luciano Bordón | `743470e`, `939dfcf`, `42f26d9` |
+| 06/04/2026 - 07/04/2026 | Registro de usuario con foto y subida a Supabase (incluye spinner). | Adrian Lezcano | `9fb140a` |
+| 09/04/2026 - 12/04/2026 | Alta de empleados (dueño/supervisor), modularización y unificación de formularios de productos/platos/bebidas. | Pio Acosta, Luciano Bordón | `87c1adc`, `7d2a518`, `4a5c86e` |
+| 10/04/2026 - 12/04/2026 | Gestión de clientes pendientes (aceptar/rechazar), scanner QR de registro y mejoras de UI en registro/login/alta empleado. | Adrian Lezcano, Pio Acosta | `fa01c5d`, `8ce371c`, `c150cd2`, `46d72fb`, `2e635fe`, `d7e72eb` |
+| 11/04/2026 - 15/04/2026 | Gestión de mesas: crear, listar, editar y generación de QR por mesa. | Pio Acosta | `94535d1`, `c4da8f2` |
+| 14/04/2026 - 17/04/2026 | Flujo de clientes: ingreso anónimo, lista de espera, asignación de mesa por metre y alta de cliente desde metre. | Pio Acosta, Adrian Lezcano | `a35077f`, `ee9b002`, `e3a064c`, `cad3adf` |
+| 14/04/2026 - 18/04/2026 | Carta de productos (staff y cliente), flujo inicial de pedidos y mejoras de UI/UX de carta y panel mozo. | Luciano Bordón, Pio Acosta | `2b3781e`, `beb7d44`, `44c8b04`, `a2cac2a`, `cd729ed`, `d235149` |
+| 16/04/2026 - 22/04/2026 | Consultas por chat entre cliente y mozo, realtime y mejoras de experiencia en home/carta. | Adrian Lezcano, Pio Acosta | `0f77537`, `9491559`, `1b5329c`, `52700dd`, `98d516d`, `e6410c9` |
+| 16/04/2026 - 24/04/2026 | Comunicación al cliente: correos de aprobación/rechazo y notificaciones push (registro, mesa, pedidos, pago). | Luciano Bordón | `6d5e92c`, `fa662b7`, `6391251`, `9e12a39`, `85e801a`, `3688ba4`, `cae1b1a` |
+| 17/04/2026 - 05/05/2026 | Encuestas, cuenta, juegos de descuento y cierre completo del ciclo pedido/mesa. | Pio Acosta, Adrian Lezcano | `08f2ffa`, `88fd463`, `b1c09ba`, `94a8c73`, `3216e7f`, `bf32f59`, `ad117c1` |
+| 25/04/2026 - 07/05/2026 | Pulido UX/UI transversal (registro/login/home, mozo/mesas, chat, juegos, flujo cliente). | Pio Acosta, Adrian Lezcano, Luciano Bordón | `2ce42fe`, `10200d3`, `b68010b`, `82eace5`, `1894d27`, `6dee481`, `b3d4e4f` |
 
 # Qr de propinas
 
