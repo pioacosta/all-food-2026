@@ -85,7 +85,7 @@ class _EncuestaClientePageState extends State<EncuestaClientePage> {
             keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
             padding: EdgeInsets.fromLTRB(
               16,
-              16,
+              55,
               16,
               16 + MediaQuery.of(context).viewInsets.bottom,
             ),
@@ -104,6 +104,7 @@ class _EncuestaClientePageState extends State<EncuestaClientePage> {
                       valueIndicatorTextStyle: const TextStyle(
                         color: Color(0xFF4A0E10),
                         fontWeight: FontWeight.w700,
+                        fontSize: 90
                       ),
                     ),
                     child: Slider(
@@ -116,7 +117,7 @@ class _EncuestaClientePageState extends State<EncuestaClientePage> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 16),
                 _PreguntaCard(
                   titulo: '¿Cómo evaluas la atención?',
                   child: DropdownButtonFormField<int>(
@@ -150,7 +151,7 @@ class _EncuestaClientePageState extends State<EncuestaClientePage> {
                     onChanged: (v) => setState(() => _servicio = v ?? 4),
                   ),
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 16),
                 _PreguntaCard(
                   titulo: '¿Recomendarías All Food?',
                   child: SwitchListTile(
@@ -172,12 +173,13 @@ class _EncuestaClientePageState extends State<EncuestaClientePage> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 16),
                 _PreguntaCard(
                   titulo: 'Comentario adicional',
                   child: TextField(
                     controller: _comentarioController,
-                    maxLines: 4,
+                    maxLines: 8,
+                    minLines: 8,
                     style: const TextStyle(color: Colors.white),
                     decoration: InputDecoration(
                       hintText: 'Escribe tu opinión...',
@@ -233,7 +235,7 @@ class _PreguntaCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white.withOpacity(0.14),
         borderRadius: BorderRadius.circular(14),
