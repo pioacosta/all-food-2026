@@ -9,24 +9,6 @@ Aplicación móvil para la gestión de restaurante.
 - Flutter
 - Supabase
 
-## Estado actual
-
-Base funcional implementada:
-
-- Inicialización de Supabase por variables de entorno
-- Splash screen con animaciones + branding en rojo (logo e ícono personalizados)
-- Inicio de sesión con validaciones
-- Ingreso rápido por perfiles demo (dueño, supervisor, cocinero y cantinero)
-- Registro de cliente registrado con foto de cámara, validaciones y estado pendiente de aprobación
-- Registro de cliente anónimo con foto de cámara (perfil `cliente_anonimo`, estado `aprobado`)
-- Lector QR/PDF417 de DNI para autocompletar datos en los formularios
-- Alta de empleados (dueño/supervisor), incluyendo validaciones y carga de foto
-- Gestión de clientes pendientes (aceptar/rechazar) para dueño/supervisor
-- Home con accesos según rol
-- Alta de productos (platos y bebidas) con validaciones e imágenes
-- Alta de mesas + visualización/edición de mesas
-- Cierre de sesión con feedback visual
-
 ## Integrantes
 
 - Luciano Bordón
@@ -34,11 +16,17 @@ Base funcional implementada:
 - Adrián Lezcano
 
 ## Índice
+
+* [QR de entrada (lista de espera)](#qr-de-entrada-lista-de-espera)
+* [QR Mesas](#qr-mesas)
+* [Pantallas de la aplicación](#pantallas-de-la-aplicación)
 * [Splash Screen](#splash-screen)
 * [Inicio de Sesión](#inicio-de-sesión)
 * [Registrarse](#registrarse)
 * [Ingreso Anónimo](#ingreso-anónimo)
 * [Accesos Rápidos](#accesos-rápidos)
+* [Lista de tareas realizadas](#lista-de-tareas-realizadas)
+* [Qr de propinas](#qr-de-propinas)
 
 ## Comandos útiles
 
@@ -52,7 +40,7 @@ flutter run
 
 Para anotarse en la lista de espera, el cliente debe escanear el QR de entrada.
 
-![QR de entrada]<img src="./assets/images/qrcode.png" width="200"/>
+<img src="./assets/images/qrcode.png" alt="QR de entrada" width="200"/>
 
 ----
 ## QR Mesas
