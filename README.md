@@ -86,22 +86,21 @@ Para anotarse en la lista de espera, el cliente debe escanear el QR de entrada.
 
 ## Lista de tareas realizadas
 
-Resumen armado a partir del historial completo de commits, priorizando hitos funcionales y excluyendo hotfixes, correcciones menores y actualizaciones del README.
 
-| Período | Hito funcional | Responsable(s) | Evidencia en commits |
-|---|---|---|---|
-| 28/03/2026 | Base inicial del proyecto y primer deploy (home, login, registro). | Pio Acosta | `d765eaf`, `c80a45a` |
-| 31/03/2026 - 06/04/2026 | Estructura por features, splash screen, branding (logo, colores) e ícono personalizado. | Adrian Lezcano, Pio Acosta, Luciano Bordón | `743470e`, `939dfcf`, `42f26d9` |
-| 06/04/2026 - 07/04/2026 | Registro de usuario con foto y subida a Supabase (incluye spinner). | Adrian Lezcano | `9fb140a` |
-| 09/04/2026 - 12/04/2026 | Alta de empleados (dueño/supervisor), modularización y unificación de formularios de productos/platos/bebidas. | Pio Acosta, Luciano Bordón | `87c1adc`, `7d2a518`, `4a5c86e` |
-| 10/04/2026 - 12/04/2026 | Gestión de clientes pendientes (aceptar/rechazar), scanner QR de registro y mejoras de UI en registro/login/alta empleado. | Adrian Lezcano, Pio Acosta | `fa01c5d`, `8ce371c`, `c150cd2`, `46d72fb`, `2e635fe`, `d7e72eb` |
-| 11/04/2026 - 15/04/2026 | Gestión de mesas: crear, listar, editar y generación de QR por mesa. | Pio Acosta | `94535d1`, `c4da8f2` |
-| 14/04/2026 - 17/04/2026 | Flujo de clientes: ingreso anónimo, lista de espera, asignación de mesa por metre y alta de cliente desde metre. | Pio Acosta, Adrian Lezcano | `a35077f`, `ee9b002`, `e3a064c`, `cad3adf` |
-| 14/04/2026 - 18/04/2026 | Carta de productos (staff y cliente), flujo inicial de pedidos y mejoras de UI/UX de carta y panel mozo. | Luciano Bordón, Pio Acosta | `2b3781e`, `beb7d44`, `44c8b04`, `a2cac2a`, `cd729ed`, `d235149` |
-| 16/04/2026 - 22/04/2026 | Consultas por chat entre cliente y mozo, realtime y mejoras de experiencia en home/carta. | Adrian Lezcano, Pio Acosta | `0f77537`, `9491559`, `1b5329c`, `52700dd`, `98d516d`, `e6410c9` |
-| 16/04/2026 - 24/04/2026 | Comunicación al cliente: correos de aprobación/rechazo y notificaciones push (registro, mesa, pedidos, pago). | Luciano Bordón | `6d5e92c`, `fa662b7`, `6391251`, `9e12a39`, `85e801a`, `3688ba4`, `cae1b1a` |
-| 17/04/2026 - 05/05/2026 | Encuestas, cuenta, juegos de descuento y cierre completo del ciclo pedido/mesa. | Pio Acosta, Adrian Lezcano | `08f2ffa`, `88fd463`, `b1c09ba`, `94a8c73`, `3216e7f`, `bf32f59`, `ad117c1` |
-| 25/04/2026 - 07/05/2026 | Pulido UX/UI transversal (registro/login/home, mozo/mesas, chat, juegos, flujo cliente). | Pio Acosta, Adrian Lezcano, Luciano Bordón | `2ce42fe`, `10200d3`, `b68010b`, `82eace5`, `1894d27`, `6dee481`, `b3d4e4f` |
+| Período | Tarea(s) realizada(s) | Responsable(s) |
+|---|---|---|
+| 28/03/2026 | Base inicial del proyecto y primer deploy (home, login, registro). | Pio Acosta |
+| 31/03/2026 - 06/04/2026 | Estructura por features, splash screen, branding (logo, colores) e ícono personalizado. | Adrian Lezcano, Pio Acosta, Luciano Bordón |
+| 06/04/2026 - 07/04/2026 | Registro de usuario con foto y subida a Supabase (incluye spinner). | Adrian Lezcano |
+| 09/04/2026 - 12/04/2026 | Alta de empleados (dueño/supervisor), modularización y unificación de formularios de productos/platos/bebidas. | Pio Acosta, Luciano Bordón |
+| 10/04/2026 - 12/04/2026 | Gestión de clientes pendientes (aceptar/rechazar), scanner QR de registro y mejoras de UI en registro/login/alta empleado. | Adrian Lezcano, Pio Acosta |
+| 11/04/2026 - 15/04/2026 | Gestión de mesas: crear, listar, editar y generación de QR por mesa. | Pio Acosta |
+| 14/04/2026 - 17/04/2026 | Flujo de clientes: ingreso anónimo, lista de espera, asignación de mesa por metre y alta de cliente desde metre. | Pio Acosta, Adrian Lezcano |
+| 14/04/2026 - 18/04/2026 | Carta de productos (staff y cliente), flujo inicial de pedidos y mejoras de UI/UX de carta y panel mozo. | Luciano Bordón, Pio Acosta |
+| 16/04/2026 - 22/04/2026 | Consultas por chat entre cliente y mozo, realtime y mejoras de experiencia en home/carta. | Adrian Lezcano, Pio Acosta |
+| 16/04/2026 - 24/04/2026 | Comunicación al cliente: correos de aprobación/rechazo y notificaciones push (registro, mesa, pedidos, pago). | Luciano Bordón |
+| 17/04/2026 - 05/05/2026 | Encuestas, cuenta, juegos de descuento y cierre completo del ciclo pedido/mesa. | Pio Acosta, Adrian Lezcano |
+| 25/04/2026 - 07/05/2026 | Pulido UX/UI transversal (registro/login/home, mozo/mesas, chat, juegos, flujo cliente). | Pio Acosta, Adrian Lezcano, Luciano Bordón |
 
 # Qr de propinas
 
