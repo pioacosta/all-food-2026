@@ -551,12 +551,12 @@ class _BtnPrincipal extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bg = esPrimario ? AppUi.acento : const Color(0xFF5C1F1F);
+    final bg = esPrimario ? const Color.fromARGB(255, 223, 200, 144) : const Color(0xFF5C1F1F);
     final textColor = esPrimario ? const Color(0xFF5C1F1F) : AppUi.texto;
     final subColor =
         esPrimario
-            ? const Color(0xFF2C1A1A).withValues(alpha: 0.55)
-            : AppUi.textoSecundario.withValues(alpha: 0.5);
+            ? const Color(0xFF2C1A1A).withValues(alpha: 0.95)
+            : AppUi.textoSecundario.withValues(alpha: 0.9);
     final iconBg =
         esPrimario
             ? const Color(0xFF2C1A1A).withValues(alpha: 0.12)
@@ -613,7 +613,7 @@ class _BtnPrincipal extends StatelessWidget {
                     const SizedBox(height: 2),
                     Text(
                       descripcion,
-                      style: TextStyle(color: subColor, fontSize: 17),
+                      style: TextStyle(color: subColor, fontSize: 17, fontWeight: FontWeight.w800),
                     ),
                   ],
                 ),
