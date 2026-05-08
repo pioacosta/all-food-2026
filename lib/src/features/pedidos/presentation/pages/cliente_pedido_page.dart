@@ -724,7 +724,7 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
       case 'entregado_por_mozo':
         return 'Entregado';
       case 'recibido_cliente':
-        return 'Recibido por cliente';
+        return 'Recibido';
       case 'cuenta_solicitada':
         return 'Cuenta solicitada';
       case 'pago_pendiente_confirmacion':

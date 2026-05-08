@@ -240,7 +240,7 @@ class _CartaPageState extends State<CartaPage> {
                         LengthLimitingTextInputFormatter(_maxDescripcion),
                       ],
                       decoration: InputDecoration(
-                            labelText: 'Descripción',
+                        labelText: 'Descripción',
                         labelStyle: const TextStyle(color: Color(0xFF5D3030)),
                         filled: true,
                         fillColor: Colors.white,
@@ -275,7 +275,7 @@ class _CartaPageState extends State<CartaPage> {
                       validator:
                           (v) =>
                               int.tryParse(v ?? '') == null
-                              ? 'Número inválido'
+                                  ? 'Número inválido'
                                   : null,
                       onChanged: (v) => tiempoTexto = v,
                     ),
@@ -302,7 +302,7 @@ class _CartaPageState extends State<CartaPage> {
                       validator:
                           (v) =>
                               double.tryParse(v ?? '') == null
-                              ? 'Número inválido'
+                                  ? 'Número inválido'
                                   : null,
                       onChanged: (v) => precioTexto = v,
                     ),
@@ -719,7 +719,7 @@ class _CartaPageState extends State<CartaPage> {
                                 ),
                                 const SizedBox(width: 12),
                                 Text(
-                        'Página ${_paginaActual + 1} / $_totalPaginas',
+                                  'Página ${_paginaActual + 1} / $_totalPaginas',
                                   style: const TextStyle(
                                     color: Color(0xFFFFE9E9),
                                     fontWeight: FontWeight.w700,
@@ -774,9 +774,16 @@ class _ProductoCard extends StatelessWidget {
 
   static String _limitarTexto(String value, int maxChars) {
     final limpio = value.trim();
-    if (maxChars <= 1) return limpio.isEmpty ? '' : '??,??';
-    if (limpio.length <= maxChars) return limpio;
-    return '${limpio.substring(0, maxChars - 1)}??,??';
+
+    if (maxChars <= 1) {
+      return limpio.isEmpty ? '' : '...';
+    }
+
+    if (limpio.length <= maxChars) {
+      return limpio;
+    }
+
+    return '${limpio.substring(0, maxChars - 3)}...';
   }
 
   @override
@@ -979,7 +986,7 @@ class _SlotVacioProducto extends StatelessWidget {
       child:
           mostrarMensaje
               ? const Text(
-                                  'No hay más productos',
+                'No hay más productos',
                 style: TextStyle(
                   color: Colors.white70,
                   fontWeight: FontWeight.w600,
