@@ -19,14 +19,39 @@ Aplicación móvil para la gestión de restaurante.
 
 * [QR de entrada (lista de espera)](#qr-de-entrada-lista-de-espera)
 * [QR Mesas](#qr-mesas)
+
 * [Pantallas de la aplicación](#pantallas-de-la-aplicación)
-* [Splash Screen](#splash-screen)
-* [Inicio de Sesión](#inicio-de-sesión)
-* [Registrarse](#registrarse)
-* [Ingreso Anónimo](#ingreso-anónimo)
-* [Accesos Rápidos](#accesos-rápidos)
+  * [Splash Screen](#splash-screen)
+  * [Inicio de Sesión](#inicio-de-sesión)
+  * [Registrarse](#registrarse)
+  * [Ingreso Anónimo](#ingreso-anónimo)
+  * [Accesos Rápidos](#accesos-rápidos)
+
+* [Cliente Registrado](#cliente-registrado)
+  * [Inicio de sesión cliente registrado](#inicio-de-sesión-cliente-registrado)
+  * [QR de entrada escaneado con éxito](#qr-de-entrada-escaneado-con-éxito)
+  * [Gráficos de encuestas](#gráficos-de-encuestas)
+  * [Solicitud de mesa enviada](#solicitud-de-mesa-enviada)
+  * [Mesa asignada](#mesa-asignada)
+  * [Mesa validada estado: Sin pedido](#mesa-validada-estado-sin-pedido)
+  * [Carta de productos](#carta-de-productos)
+  * [Detalle del producto](#detalle-del-producto)
+  * [Slide de imágenes del producto](#slide-de-imagenes-del-producto)
+  * [Chat de consultas al mozo](#chat-de-consultas-al-mozo)
+  * [Enviar pedido al mozo](#enviar-pedido-al-mozo)
+  * [Mesa validada estado: Pedido confirmado por mozo](#mesa-validada-estado--pedido-confirmado-por-mozo)
+  * [Juegos y descuentos](#juegos-y-descuentos)
+  * [Juego: Adiviná el número](#juego-adiviná-el-numero)
+  * [Juego: Comidas y Bombas](#juego-comidas-y-bombas)
+  * [Juego: Snake](#juego-snake)
+  * [Sala de juegos con 20 porciento de descuento aplicado](#sala-de-juegos-con-20-porciento-de-descuento-aplicado)
+  * [Mesa validada estado: Recibido](#mesa-validada-estado-recibido)
+  * [Completar encuesta](#completar-encuesta)
+  * [Cuenta solicitada y QR de propina BUENA escaneado](#cuenta-solicitada-y-qr-de-propina-buena-escaneado)
+  * [Pago pendiente de confirmación, pago confirmado y mesa liberada](#pago-pediente-de-confirmación-pago-confirmado-y-mesa-liberada)
+
 * [Lista de tareas realizadas](#lista-de-tareas-realizadas)
-* [Qr de propinas](#qr-de-propinas)
+* [QR de propinas](#qr-de-propinas)
 
 ## Comandos útiles
 
@@ -71,6 +96,117 @@ Para anotarse en la lista de espera, el cliente debe escanear el QR de entrada.
 ### Accesos Rápidos
 <br>
 <img src="https://github.com/user-attachments/assets/b8028580-2d49-4c86-8c63-9b2b19328570" width="250" />
+
+# Cliente Registrado
+
+### Inicio de sesion cliente registrado
+<img src="https://github.com/user-attachments/assets/4f58db0a-f7f7-4643-84c5-41a51e44ac44" width="250" />
+
+### QR de entrada escaneado con éxito
+<br>
+<img src="https://github.com/user-attachments/assets/05b7ebe1-6ed5-44a3-9f34-e9b437ff01d1" width="250" />
+
+### Gráficos de encuestas
+<br>
+<img src="https://github.com/user-attachments/assets/0420fff9-a8d3-4c31-adc7-7b739302ebe1" width="250" />
+<br>
+<img src="https://github.com/user-attachments/assets/48017a70-4cf1-482d-8b5f-05a3eb4c7e67" width="250" />
+<br>
+<img src="https://github.com/user-attachments/assets/ced4f967-2070-4ca3-b76a-e29d8069921d" width="250" />
+<br>
+
+### Solicitud de mesa enviada
+<br>
+<img src="https://github.com/user-attachments/assets/82a3774c-6705-4d28-81df-303b2cbdbdc2" width="250" />
+
+### Mesa asignada
+<br>
+<img src="https://github.com/user-attachments/assets/3c14dd46-0608-4a90-9646-c133e0221902" width="250" />
+
+### Mesa validada estado: Sin pedido
+<br>
+<img src="https://github.com/user-attachments/assets/b271f6e2-be39-4402-ad49-f083de307922" width="250" />
+
+### Carta de productos
+<br>
+<img src="https://github.com/user-attachments/assets/7aaca026-5cf1-421c-8f80-7bb8ff6cfc97" width="250" />
+
+### Detalle del producto
+<br>
+<img src="https://github.com/user-attachments/assets/bbd9635d-b01c-440c-a624-20ce4051bb62" width="250" />
+
+### Slide de imagenes del producto
+<br>
+<img src="https://github.com/user-attachments/assets/4837c321-6f0c-453a-b10a-eaaee488ebd8" width="250" />
+
+### Chat de consultas al mozo
+<br>
+<img src="https://github.com/user-attachments/assets/4e9bd2f1-5352-4264-a894-33e33b12df25" width="250" />
+
+### Enviar pedido al mozo 
+<br>
+<img src="https://github.com/user-attachments/assets/97ccec42-40de-4116-a2a3-1a42efdc1992" width="250" />
+
+### Mesa validada estado : Pedido confirmado por mozo
+<br>
+<img src="https://github.com/user-attachments/assets/50bd8614-43fd-41fd-9ab8-889c6f795359" width="250" />
+
+### Juegos y descuentos
+<br>
+<img src="https://github.com/user-attachments/assets/46a81587-db55-4f72-9b72-e494cc083add" width="250" />
+
+### Juego: Adiviná el numero
+<br>
+Modal de explicación
+<br>
+<img src="https://github.com/user-attachments/assets/53350a20-0c5e-4a8a-a054-6b375be2c014" width="250"/>
+<br>
+Juego:
+<br>
+<img src="https://github.com/user-attachments/assets/85e53e63-a32f-4abf-87bc-b2921d7cf748" width="250" />
+
+### Juego: Comidas y Bombas
+<br>
+Modal de explicación
+<br>
+<img src="https://github.com/user-attachments/assets/388bb867-5bb1-4b2f-8a5e-586358a2e372" width="250"/>
+<br>
+Juego:
+<br>
+<img src="https://github.com/user-attachments/assets/8bd598b9-bb5d-4cb3-8b34-cbe435abec86" width="250"/>
+
+### Juego: Snake
+<br>
+Modale de explicación
+<br>
+<img src="https://github.com/user-attachments/assets/fcf07c0c-a5d0-4c5f-8aa2-ece1e9be6a68" width="250"/>
+<br>
+Juego:
+<br>
+<img src="https://github.com/user-attachments/assets/0d7a7f14-626e-4e31-8b60-8c0e990b5bde" width="250"/>
+
+### Sala de juegos con 20 porciento de descuento aplicado
+<br>
+<img src="https://github.com/user-attachments/assets/8947f8cf-9c5d-4e0d-a659-50b265670a52" width="250" />
+
+### Mesa validada estado: Recibido 
+<br>
+<img src="https://github.com/user-attachments/assets/763fb1ac-afa9-4736-8a8a-2de737c71c39" width="250"/>
+
+### Completar encuesta
+<br>
+<img src="https://github.com/user-attachments/assets/ac0c17d8-a84d-4587-b918-1c48de41501b" width="250" />
+
+### Cuenta solicitada y QR de propina BUENA escaneado
+<br>
+<img src="https://github.com/user-attachments/assets/286c6f1a-3067-42c9-a93a-8cadcfd3135f" width="250"/>
+
+### Pago pediente de confirmación, pago confirmado y mesa liberada
+<br>
+<img src="https://github.com/user-attachments/assets/7b92f7f3-aa9b-4ee7-b51b-3fb6a0559036" width="250" />
+<br>
+<img src="https://github.com/user-attachments/assets/a821c912-eef8-45ea-ab30-05b90ccfc13e" width="250" />
+
 
 ## Lista de tareas realizadas
 
