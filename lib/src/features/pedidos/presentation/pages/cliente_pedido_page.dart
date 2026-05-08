@@ -714,7 +714,7 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
       case 'pendiente_mozo':
         return 'Esperando mozo';
       case 'rechazado_mozo':
-        return 'Rechazado por mozo';
+        return 'Rechazado';
       case 'confirmado_mozo':
         return 'Confirmado';
       case 'en_preparacion':
