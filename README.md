@@ -28,7 +28,7 @@ Aplicación móvil para la gestión de restaurante.
   * [Accesos Rápidos](#accesos-rápidos)
 
 * [Cliente Registrado](#cliente-registrado)
-  * [Inicio de sesión cliente registrado](#inicio-de-sesión-cliente-registrado)
+  * [Inicio del flujo de cliente registrado](#inicio-del-flujo-de-cliente-registrado)
   * [QR de entrada escaneado con éxito](#qr-de-entrada-escaneado-con-éxito)
   * [Gráficos de encuestas](#gráficos-de-encuestas)
   * [Solicitud de mesa enviada](#solicitud-de-mesa-enviada)
@@ -99,7 +99,7 @@ Para anotarse en la lista de espera, el cliente debe escanear el QR de entrada.
 
 # Cliente Registrado
 
-### Inicio de sesion cliente registrado
+### Inicio del flujo de cliente registrado
 <img src="https://github.com/user-attachments/assets/4f58db0a-f7f7-4643-84c5-41a51e44ac44" width="250" />
 
 ### QR de entrada escaneado con éxito
