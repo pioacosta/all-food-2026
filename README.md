@@ -241,6 +241,8 @@ Juego:
 <img src="https://github.com/user-attachments/assets/7b92f7f3-aa9b-4ee7-b51b-3fb6a0559036" width="250" />
 <br>
 <img src="https://github.com/user-attachments/assets/a821c912-eef8-45ea-ab30-05b90ccfc13e" width="250" />
+<br>
+[⬆ Volver al índice](#índice)
 
 # STAFF
 
@@ -265,6 +267,9 @@ Juego:
 ### Clientes pendientes
 <br>
 <img src="https://github.com/user-attachments/assets/9b87aeed-7f7f-423c-8610-b0eb8a7bccc8" width="250" />
+<br>
+<br>
+[⬆ Volver al índice](#índice)
 
 ---
 
@@ -290,6 +295,8 @@ Juego:
 ### Alta de clientes
 <br>
 <img src="https://github.com/user-attachments/assets/409226e0-7f56-4e7f-96cb-e7826f0fc63e" width="250" />
+<br>
+[⬆ Volver al índice](#índice)
 
 ---
 
@@ -326,6 +333,8 @@ Juego:
 ### Detalle de cuenta
 <br>
 <img src="https://github.com/user-attachments/assets/0d0884aa-1e7d-4e8f-a80f-b20300724d95" width="250" />
+<br>
+[⬆ Volver al índice](#índice)
 
 ---
 
@@ -343,6 +352,8 @@ Juego:
 (Compartido con Cantinero)
 <br>
 <img src="https://github.com/user-attachments/assets/87bcf2a9-45cb-417a-98af-63a8ba3f1810" width="250" />
+<br>
+[⬆ Volver al índice](#índice)
 
 ---
 
@@ -355,7 +366,8 @@ Juego:
 ### Listado de pedidos - Bar
 <br>
 <img src="https://github.com/user-attachments/assets/f8d0b9f4-4405-4182-8a4c-c8c56af01928" width="250" />
-
+<br>
+[⬆ Volver al índice](#índice)
 
 ## Lista de tareas realizadas
 
