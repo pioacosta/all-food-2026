@@ -74,7 +74,6 @@ Aplicación móvil para la gestión de restaurante.
     * [Detalle del pedido](#detalle-del-pedido)
     * [Gestión de pedidos listos](#gestión-de-pedidos-listos)
     * [Gestión de pagos](#gestión-de-pagos)
-    * [Detalle de cuenta](#detalle-de-cuenta)
 
   * [Cocinero](#cocinero)
     * [Home Cocinero](#home-cocinero)
@@ -332,10 +331,6 @@ Juego:
 <br>
 <img src="https://github.com/user-attachments/assets/9541db4a-ce71-47eb-a979-37f62e501e68" width="330" />
 
-### Detalle de cuenta
-<br>
-<img src="https://github.com/user-attachments/assets/0d0884aa-1e7d-4e8f-a80f-b20330724d95" width="330" />
-<br>
 
 [⬆ Volver al índice](#indice)
 
