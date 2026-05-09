@@ -1098,7 +1098,7 @@ class _DetallePedidoPendientePage extends StatelessWidget {
                             () => Navigator.of(
                               context,
                             ).pop(_AccionPedidoPendiente.confirmar),
-                        child: const Text('Aceptar'),
+                        child: const Text('Aceptar', style: TextStyle(color: Colors.white)),
                       ),
                     ),
                     const SizedBox(width: 28),
@@ -1116,7 +1116,7 @@ class _DetallePedidoPendientePage extends StatelessWidget {
                             () => Navigator.of(
                               context,
                             ).pop(_AccionPedidoPendiente.rechazar),
-                        child: const Text('Rechazar'),
+                        child: const Text('Rechazar', style: TextStyle(color: Colors.white),),
                       ),
                     ),
                   ],
