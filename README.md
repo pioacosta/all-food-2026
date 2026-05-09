@@ -15,7 +15,7 @@ Aplicación móvil para la gestión de restaurante.
 - Pio Acosta
 - Adrián Lezcano
 
-## Índice
+# Índice
 
 * [QR de entrada (lista de espera)](#qr-de-entrada-lista-de-espera)
 * [QR Mesas](#qr-mesas)
