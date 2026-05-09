@@ -78,13 +78,6 @@ class _JuegosDescuentoPageState extends State<JuegosDescuentoPage> {
 
   Future<void> _jugarNumero10() async {
     if (_procesando) return;
-    if (!_clienteRegistrado) {
-      _mostrarMensaje(
-        'Solo clientes registrados pueden obtener descuentos con juegos.',
-        esError: true,
-      );
-      return;
-    }
     final primerIntentoDisponible = _intentoConsumido[10] != true;
     final eleccion = await Navigator.of(
       context,
@@ -122,13 +115,6 @@ class _JuegosDescuentoPageState extends State<JuegosDescuentoPage> {
 
   Future<void> _jugarComidas15() async {
     if (_procesando) return;
-    if (!_clienteRegistrado) {
-      _mostrarMensaje(
-        'Solo clientes registrados pueden obtener descuentos con juegos.',
-        esError: true,
-      );
-      return;
-    }
     final primerIntentoDisponible = _intentoConsumido[15] != true;
     final gano = await Navigator.of(
       context,
@@ -165,13 +151,6 @@ class _JuegosDescuentoPageState extends State<JuegosDescuentoPage> {
 
   Future<void> _jugarSnake20() async {
     if (_procesando) return;
-    if (!_clienteRegistrado) {
-      _mostrarMensaje(
-        'Solo clientes registrados pueden obtener descuentos con juegos.',
-        esError: true,
-      );
-      return;
-    }
     final primerIntentoDisponible = _intentoConsumido[20] != true;
     final gano = await Navigator.of(
       context,
@@ -209,6 +188,15 @@ class _JuegosDescuentoPageState extends State<JuegosDescuentoPage> {
   Future<void> _aplicarDescuentoSiCorresponde(int porcentaje) async {
     setState(() => _procesando = true);
     try {
+      if (!_clienteRegistrado) {
+        await _mostrarResultado(
+          gano: false,
+          mensaje: 'Ganaste el juego',
+          submensaje: 'Registrate para poder ganar descuentos jugando.',
+        );
+        return;
+      }
+
       if (_descuentoAplicado > 0) {
         await _mostrarResultado(
           gano: false,
@@ -379,19 +367,19 @@ class _JuegoConfig {
   const _JuegoConfig({
     required this.numero,
     required this.titulo,
-    required this.tagline, 
+    required this.tagline,
     required this.porcentaje,
     required this.bgColor,
     required this.accentColor,
     required this.textColor,
     required this.subtextColor,
     required this.icon,
-    required this.reglas, 
+    required this.reglas,
   });
 
   final int numero;
   final String titulo;
-  final String tagline; 
+  final String tagline;
   final int porcentaje;
   final Color bgColor;
   final Color accentColor;
@@ -541,7 +529,7 @@ class _HeroJuegosCard extends StatelessWidget {
               '· Solo cuenta el primer intento.\n· Los descuentos no se acumulan.',
               style: TextStyle(
                 color: Colors.white.withValues(alpha: 0.80),
-                fontSize: 16, 
+                fontSize: 16,
                 height: 1.6,
               ),
             ),
@@ -1366,8 +1354,7 @@ class _JuegoSnakePageState extends State<_JuegoSnakePage> {
                                 snake: _snake,
                                 comida: _comida,
                                 gridX: _gridX,
-                                gridY:
-                                    gridY, 
+                                gridY: gridY,
                                 cellSize: cellSize,
                               ),
                             );
