@@ -50,6 +50,41 @@ Aplicación móvil para la gestión de restaurante.
   * [Cuenta solicitada y QR de propina BUENA escaneado](#cuenta-solicitada-y-qr-de-propina-buena-escaneado)
   * [Pago pendiente de confirmación, pago confirmado y mesa liberada](#pago-pediente-de-confirmación-pago-confirmado-y-mesa-liberada)
 
+* [STAFF](#staff)
+
+  * [Dueño / Supervisor](#dueño--supervisor)
+    * [Home Dueño](#home-dueño)
+    * [Home Supervisor](#home-supervisor)
+    * [Alta de empleados](#alta-de-empleados)
+    * [Alta de mesa](#alta-de-mesa)
+    * [Clientes pendientes](#clientes-pendientes)
+
+  * [Metre](#metre)
+    * [Home Metre](#home-metre)
+    * [Ver y editar mesas](#ver-y-editar-mesas)
+    * [Asignar mesa](#asignar-mesa)
+    * [Asignar mesa - confirmación](#asignar-mesa---confirmación)
+    * [Alta de clientes](#alta-de-clientes)
+
+  * [Mozo](#mozo)
+    * [Home Mozo](#home-mozo)
+    * [Consultas de clientes](#consultas-de-clientes)
+    * [Chat mozo-cliente](#chat-mozo-cliente)
+    * [Gestión de pedidos pendientes](#gestión-de-pedidos-pendientes)
+    * [Detalle del pedido](#detalle-del-pedido)
+    * [Gestión de pedidos listos](#gestión-de-pedidos-listos)
+    * [Gestión de pagos](#gestión-de-pagos)
+    * [Detalle de cuenta](#detalle-de-cuenta)
+
+  * [Cocinero](#cocinero)
+    * [Home Cocinero](#home-cocinero)
+    * [Listado de pedidos - Cocina](#listado-de-pedidos---cocina)
+    * [Alta de productos](#alta-de-productos)
+
+  * [Cantinero](#cantinero)
+    * [Home Cantinero](#home-cantinero)
+    * [Listado de pedidos - Bar](#listado-de-pedidos---bar)
+
 * [Lista de tareas realizadas](#lista-de-tareas-realizadas)
 * [QR de propinas](#qr-de-propinas)
 
@@ -206,6 +241,120 @@ Juego:
 <img src="https://github.com/user-attachments/assets/7b92f7f3-aa9b-4ee7-b51b-3fb6a0559036" width="250" />
 <br>
 <img src="https://github.com/user-attachments/assets/a821c912-eef8-45ea-ab30-05b90ccfc13e" width="250" />
+
+# STAFF
+
+## Dueño / Supervisor
+
+### Home Dueño
+<br>
+<img src="https://github.com/user-attachments/assets/41538a8a-a46c-475b-bb16-5bf416956ff5" width="250" />
+
+### Home Supervisor
+<br>
+<img src="https://github.com/user-attachments/assets/50abc53c-f28c-43a6-b118-9567dfaacc91" width="250" />
+
+### Alta de empleados
+<br>
+<img src="https://github.com/user-attachments/assets/a2daa151-9b55-4adb-93b7-e443a542fcdc" width="250" />
+
+### Alta de mesa
+<br>
+<img src="https://github.com/user-attachments/assets/7a5582d6-01a1-4be2-8329-6dc9717af4b8" width="250" />
+
+### Clientes pendientes
+<br>
+<img src="https://github.com/user-attachments/assets/9b87aeed-7f7f-423c-8610-b0eb8a7bccc8" width="250" />
+
+---
+
+## Metre
+
+### Home Metre
+<br>
+<img src="https://github.com/user-attachments/assets/1386f4ab-9477-4a21-b2ce-f80008b9ef2b" width="250" />
+
+### Ver y editar mesas
+(Dueño y Supervisor también pueden acceder)
+<br>
+<img src="https://github.com/user-attachments/assets/7fe0d0b3-2256-4950-b37b-1c1ebd60d4fe" width="250" />
+
+### Asignar mesa
+<br>
+<img src="https://github.com/user-attachments/assets/2c5bf12c-2064-40a0-ae0b-71a4b4c8375f" width="250" />
+
+### Asignar mesa - confirmación
+<br>
+<img src="https://github.com/user-attachments/assets/11a22b8d-0574-403b-a352-1f4ddf04903a" width="250" />
+
+### Alta de clientes
+<br>
+<img src="https://github.com/user-attachments/assets/409226e0-7f56-4e7f-96cb-e7826f0fc63e" width="250" />
+
+---
+
+## Mozo
+
+### Home Mozo
+<br>
+<img src="https://github.com/user-attachments/assets/f17bd87e-df28-4e32-9e14-363b31a293dd" width="250" />
+
+### Consultas de clientes
+<br>
+<img src="https://github.com/user-attachments/assets/05eb1f95-96a2-4bd4-9c00-0b8c02abe5a0" width="250" />
+
+### Chat mozo-cliente
+<br>
+<img src="https://github.com/user-attachments/assets/929fa1d3-879a-48dc-9c8c-4960b8ae4cb1" width="250" />
+
+### Gestión de pedidos pendientes
+<br>
+<img src="https://github.com/user-attachments/assets/593d3832-fe04-402e-bd5a-62ccef20e6e7" width="250" />
+
+### Detalle del pedido
+<br>
+<img src="https://github.com/user-attachments/assets/254cb322-ff5b-4794-b218-e80fd82f2da1" width="250" />
+
+### Gestión de pedidos listos
+<br>
+<img src="https://github.com/user-attachments/assets/be04b6ef-a205-4d14-b756-436c8999a47b" width="250" />
+
+### Gestión de pagos
+<br>
+<img src="https://github.com/user-attachments/assets/9541db4a-ce71-47eb-a979-37f62e501e68" width="250" />
+
+### Detalle de cuenta
+<br>
+<img src="https://github.com/user-attachments/assets/0d0884aa-1e7d-4e8f-a80f-b20300724d95" width="250" />
+
+---
+
+## Cocinero
+
+### Home Cocinero
+<br>
+<img src="https://github.com/user-attachments/assets/4299318c-0870-4b8a-ad42-e4527d0c4c43" width="250" />
+
+### Listado de pedidos - Cocina
+<br>
+<img src="https://github.com/user-attachments/assets/81777ad8-33ad-40c4-8441-36db3c387106" width="250" />
+
+### Alta de productos
+(Compartido con Cantinero)
+<br>
+<img src="https://github.com/user-attachments/assets/87bcf2a9-45cb-417a-98af-63a8ba3f1810" width="250" />
+
+---
+
+## Cantinero
+
+### Home Cantinero
+<br>
+<img src="https://github.com/user-attachments/assets/9ea4cb85-658b-44f1-8901-0ea97e9862e5" width="250" />
+
+### Listado de pedidos - Bar
+<br>
+<img src="https://github.com/user-attachments/assets/f8d0b9f4-4405-4182-8a4c-c8c56af01928" width="250" />
 
 
 ## Lista de tareas realizadas
