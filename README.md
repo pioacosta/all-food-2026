@@ -15,7 +15,7 @@ Aplicación móvil para la gestión de restaurante.
 - Pio Acosta
 - Adrián Lezcano
 
-# Índice
+# Indice
 
 * [QR de entrada (lista de espera)](#qr-de-entrada-lista-de-espera)
 * [QR Mesas](#qr-mesas)
@@ -242,7 +242,8 @@ Juego:
 <br>
 <img src="https://github.com/user-attachments/assets/a821c912-eef8-45ea-ab30-05b90ccfc13e" width="250" />
 <br>
-[⬆ Volver al índice](#índice)
+
+[⬆ Volver al índice](#indice)
 
 # STAFF
 
@@ -268,8 +269,8 @@ Juego:
 <br>
 <img src="https://github.com/user-attachments/assets/9b87aeed-7f7f-423c-8610-b0eb8a7bccc8" width="250" />
 <br>
-<br>
-[⬆ Volver al índice](#índice)
+
+[⬆ Volver al índice](#indice)
 
 ---
 
@@ -296,7 +297,8 @@ Juego:
 <br>
 <img src="https://github.com/user-attachments/assets/409226e0-7f56-4e7f-96cb-e7826f0fc63e" width="250" />
 <br>
-[⬆ Volver al índice](#índice)
+
+[⬆ Volver al índice](#indice)
 
 ---
 
@@ -334,7 +336,8 @@ Juego:
 <br>
 <img src="https://github.com/user-attachments/assets/0d0884aa-1e7d-4e8f-a80f-b20300724d95" width="250" />
 <br>
-[⬆ Volver al índice](#índice)
+
+[⬆ Volver al índice](#indice)
 
 ---
 
@@ -353,7 +356,8 @@ Juego:
 <br>
 <img src="https://github.com/user-attachments/assets/87bcf2a9-45cb-417a-98af-63a8ba3f1810" width="250" />
 <br>
-[⬆ Volver al índice](#índice)
+
+[⬆ Volver al índice](#indice)
 
 ---
 
@@ -367,7 +371,8 @@ Juego:
 <br>
 <img src="https://github.com/user-attachments/assets/f8d0b9f4-4405-4182-8a4c-c8c56af01928" width="250" />
 <br>
-[⬆ Volver al índice](#índice)
+
+[⬆ Volver al índice](#indice)
 
 ## Lista de tareas realizadas
 
