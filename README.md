@@ -369,7 +369,7 @@ Juego:
 
 ### Listado de pedidos - Bar
 <br>
-<img src="https://github.com/user-attachments/assets/f8d0b9f4-4405-4182-8a4c-c8c56af01928" width="300" />
+<img src="https://github.com/user-attachments/assets/f8d0b9f4-4405-4182-8a4c-c8c56af01928" width="320" />
 <br>
 
 [⬆ Volver al índice](#indice)
