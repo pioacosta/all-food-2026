@@ -735,7 +735,7 @@ class _ProductoCard extends StatelessWidget {
                           ),
                           const SizedBox(width: 4),
                           Text(
-                            '${producto.tiempoMin} min',
+                            '${producto.tiempoMin}',
                             style: const TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w700,
