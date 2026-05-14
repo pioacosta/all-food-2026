@@ -536,6 +536,12 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
     final editable = estado == 'borrador' || estado == 'rechazado_mozo';
     final total = ((_pedido?['total'] as num?) ?? 0).toDouble();
 
+    final descuentoPct =
+        ((_pedido?['descuento_juego_porcentaje'] as num?) ?? 0).toDouble();
+    final propinaPct =
+        ((_pedido?['propina_porcentaje'] as num?) ?? 0).toDouble();
+    final hayDesglose = descuentoPct > 0 || propinaPct > 0;
+
     return Scaffold(
       appBar: AppBar(title: Text('Pedido mesa ${widget.numeroMesa}')),
       body: Container(
@@ -563,23 +569,83 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
                         ),
                         child: Column(
                           children: [
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: _DatoHeader(
-                                    titulo: 'Estado',
-                                    valor: _estadoLegible(estado),
+                            // --- Estado y Tiempo (solo si no hay desglose) ---
+                            Builder(
+                              builder: (_) {
+                                final descuentoPct =
+                                    ((_pedido?['descuento_juego_porcentaje']
+                                                as num?) ??
+                                            0)
+                                        .toDouble();
+                                final propinaPct =
+                                    ((_pedido?['propina_porcentaje'] as num?) ??
+                                            0)
+                                        .toDouble();
+                                final hayDesglose =
+                                    descuentoPct > 0 || propinaPct > 0;
+
+                                if (hayDesglose) return const SizedBox.shrink();
+
+                                return Padding(
+                                  padding: const EdgeInsets.only(top: 10),
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            const Text(
+                                              'ESTADO',
+                                              style: TextStyle(
+                                                color: Colors.white60,
+                                                fontSize: 11,
+                                                letterSpacing: 0.8,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 3),
+                                            Text(
+                                              _estadoLegible(estado),
+                                              style: const TextStyle(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.w800,
+                                                fontSize: 18,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            const Text(
+                                              'TIEMPO',
+                                              style: TextStyle(
+                                                color: Colors.white60,
+                                                fontSize: 11,
+                                                letterSpacing: 0.8,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 3),
+                                            Text(
+                                              '$_tiempoTotal minutos',
+                                              style: const TextStyle(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.w800,
+                                                fontSize: 18,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                ),
-                                Expanded(
-                                  child: _DatoHeader(
-                                    titulo: 'Tiempo total',
-                                    valor: '$_tiempoTotal minutos',
-                                  ),
-                                ),
-                              ],
+                                );
+                              },
                             ),
-                            const SizedBox(height: 8),
+                            const SizedBox(height: 12),
                             Container(
                               width: double.infinity,
                               padding: const EdgeInsets.symmetric(
@@ -601,34 +667,236 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
                                 ),
                               ),
                             ),
+
+                            // --- Desglose descuento por juego ---
+                            Builder(
+                              builder: (_) {
+                                final descuentoPct =
+                                    ((_pedido?['descuento_juego_porcentaje']
+                                                as num?) ??
+                                            0)
+                                        .toDouble();
+                                final subtotal =
+                                    ((_pedido?['subtotal'] as num?) ?? 0)
+                                        .toDouble();
+                                if (descuentoPct <= 0)
+                                  return const SizedBox.shrink();
+                                final montoDescuento =
+                                    subtotal * descuentoPct / 100;
+                                return Padding(
+                                  padding: const EdgeInsets.only(top: 6),
+                                  child: Column(
+                                    children: [
+                                      const Divider(
+                                        color: Colors.white38,
+                                        height: 12,
+                                      ),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          const Text(
+                                            'Precio sin descuento:',
+                                            style: TextStyle(
+                                              color: Colors.white70,
+                                              fontSize: 14,
+                                            ),
+                                          ),
+                                          Text(
+                                            '\$${subtotal.toStringAsFixed(2)}',
+                                            style: const TextStyle(
+                                              color: Colors.white70,
+                                              fontSize: 14,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 2),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(
+                                            'Descuento juego (${descuentoPct.toStringAsFixed(0)}%):',
+                                            style: const TextStyle(
+                                              color: Color(0xFF90EE90),
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                          Text(
+                                            '-\$${montoDescuento.toStringAsFixed(2)}',
+                                            style: const TextStyle(
+                                              color: Color(0xFF90EE90),
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
+                            ),
+
+                            // --- Desglose propina ---
+                            Builder(
+                              builder: (_) {
+                                final propinaPct =
+                                    ((_pedido?['propina_porcentaje'] as num?) ??
+                                            0)
+                                        .toDouble();
+                                final subtotal =
+                                    ((_pedido?['subtotal'] as num?) ?? 0)
+                                        .toDouble();
+                                if (propinaPct <= 0)
+                                  return const SizedBox.shrink();
+                                final montoPropina =
+                                    subtotal * propinaPct / 100;
+                                return Padding(
+                                  padding: const EdgeInsets.only(top: 6),
+                                  child: Column(
+                                    children: [
+                                      const Divider(
+                                        color: Colors.white38,
+                                        height: 12,
+                                      ),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          const Text(
+                                            'Subtotal:',
+                                            style: TextStyle(
+                                              color: Colors.white70,
+                                              fontSize: 14,
+                                            ),
+                                          ),
+                                          Text(
+                                            '\$${subtotal.toStringAsFixed(2)}',
+                                            style: const TextStyle(
+                                              color: Colors.white70,
+                                              fontSize: 14,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 2),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(
+                                            'Propina (${propinaPct.toStringAsFixed(0)}%):',
+                                            style: const TextStyle(
+                                              color: Color(0xFFFFD700),
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                          Text(
+                                            '+\$${montoPropina.toStringAsFixed(2)}',
+                                            style: const TextStyle(
+                                              color: Color(0xFFFFD700),
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
+                            ),
+                            // --- Tiempo (solo si hay desglose) ---
+                            Builder(
+                              builder: (_) {
+                                final descuentoPct =
+                                    ((_pedido?['descuento_juego_porcentaje']
+                                                as num?) ??
+                                            0)
+                                        .toDouble();
+                                final propinaPct =
+                                    ((_pedido?['propina_porcentaje'] as num?) ??
+                                            0)
+                                        .toDouble();
+                                final hayDesglose =
+                                    descuentoPct > 0 || propinaPct > 0;
+
+                                if (!hayDesglose)
+                                  return const SizedBox.shrink();
+
+                                return Padding(
+                                  padding: const EdgeInsets.only(top: 8),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      const Icon(
+                                        Icons.access_time,
+                                        color: Colors.white60,
+                                        size: 16,
+                                      ),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        '$_tiempoTotal minutos',
+                                        style: const TextStyle(
+                                          color: Colors.white60,
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
+                            ),
                           ],
                         ),
                       ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        child: FilledButton.icon(
-                          onPressed: _procesando ? null : _abrirCarta,
-                          icon: const Icon(Icons.restaurant_menu),
-                          label: const Text('Agregar productos'),
+
+                      if (editable ||
+                          estado == 'pendiente_mozo' ||
+                          estado == 'en_preparacion' ||
+                          estado == 'listo_para_entrega' ||
+                          estado == 'entregado_por_mozo') ...[
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: FilledButton.icon(
+                            onPressed: _procesando ? null : _abrirCarta,
+                            icon: Icon(
+                              editable
+                                  ? Icons.restaurant_menu
+                                  : Icons.receipt_long,
+                            ),
+                            label: Text(
+                              editable ? 'Agregar productos' : 'Ver productos',
+                            ),
+                          ),
                         ),
-                      ),
+                        const SizedBox(height: 10),
+                      ],
                       const SizedBox(height: 10),
-                      Expanded(
-                        child:
-                            _items.isEmpty
-                                ? const Center(
-                                  child: Text(
-                                    'Aún no hay productos en el pedido.',
-                                    style: TextStyle(color: Colors.white70),
-                                  ),
-                                )
-                                : _ProductosPaginados(
-                                  items: _items,
-                                  editable: editable,
-                                  procesando: _procesando,
-                                  onCambiarCantidad: _cambiarCantidad,
-                                ),
-                      ),
+                      if (_items.isEmpty)
+                        const Expanded(
+                          child: Center(
+                            child: Text(
+                              'Aún no hay productos en el pedido.',
+                              style: TextStyle(color: Colors.white70),
+                            ),
+                          ),
+                        )
+                      else
+                        Expanded(
+                          child: _ProductosPaginados(
+                            items: _items,
+                            editable: editable,
+                            procesando: _procesando,
+                            onCambiarCantidad: _cambiarCantidad,
+                            hayDesglose: hayDesglose,
+                          ),
+                        ),
                       Padding(
                         padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                         child: Column(
@@ -776,11 +1044,13 @@ class _ProductosPaginados extends StatefulWidget {
     required this.editable,
     required this.procesando,
     required this.onCambiarCantidad,
+    required this.hayDesglose,
   });
 
   final List<Map<String, dynamic>> items;
   final bool editable;
   final bool procesando;
+  final bool hayDesglose;
   final void Function(Map<String, dynamic> item, int delta) onCambiarCantidad;
 
   @override
@@ -789,7 +1059,7 @@ class _ProductosPaginados extends StatefulWidget {
 
 class _ProductosPaginadosState extends State<_ProductosPaginados> {
   int _pagina = 0;
-  static const _porPagina = 5;
+  static const _porPagina = 4;
 
   @override
   void didUpdateWidget(_ProductosPaginados old) {
@@ -812,102 +1082,121 @@ class _ProductosPaginadosState extends State<_ProductosPaginados> {
     final fin = (inicio + _porPagina).clamp(0, widget.items.length);
     final paginaItems = widget.items.sublist(inicio, fin);
 
+    final cantidadItems = paginaItems.length;
+    final paddingVertical =
+        cantidadItems == 4 ? (widget.hayDesglose ? 8.0 : 18.0) : 10.0;
+    final bottomSpacing =
+        cantidadItems == 4 ? (widget.hayDesglose ? 6.0 : 12.0) : 8.0;
+
     return Column(
       children: [
         // ── Items de la página actual ──────────────────────────────
-        Expanded(
-          child: ListView.separated(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-            itemCount: paginaItems.length,
-            separatorBuilder: (_, __) => const SizedBox(height: 10),
-            itemBuilder: (context, index) {
-              final item = paginaItems[index];
-              final cantidad = (item['cantidad'] as num).toInt();
-              return Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 14,
-                  vertical: 16,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: Colors.white24),
-                ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children:
+                paginaItems.asMap().entries.map((entry) {
+                  final index = entry.key;
+                  final item = entry.value;
+                  final cantidad = (item['cantidad'] as num).toInt();
+                  return Container(
+                    padding: EdgeInsets.only(
+                      bottom:
+                          index < paginaItems.length - 1 ? bottomSpacing : 0,
+                    ),
+                    child: Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: paddingVertical,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(color: Colors.white24),
+                      ),
+                      child: Row(
                         children: [
-                          Text(
-                            item['nombre_snapshot']?.toString() ?? '',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w700,
-                              fontSize: 16,
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  item['nombre_snapshot']?.toString() ?? '',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  '\$${((item['precio_unitario'] as num?) ?? 0).toStringAsFixed(2)}',
+                                  style: const TextStyle(
+                                    color: Colors.white70,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                          const SizedBox(height: 4),
-                          Text(
-                            '\$${((item['precio_unitario'] as num?) ?? 0).toStringAsFixed(2)}',
-                            style: const TextStyle(
-                              color: Colors.white70,
-                              fontSize: 14,
+                          if (widget.editable)
+                            Row(
+                              children: [
+                                IconButton(
+                                  onPressed:
+                                      widget.procesando
+                                          ? null
+                                          : () => widget.onCambiarCantidad(
+                                            item,
+                                            -1,
+                                          ),
+                                  icon: const Icon(
+                                    Icons.remove_circle,
+                                    color: Colors.white,
+                                    size: 28,
+                                  ),
+                                ),
+                                Text(
+                                  '$cantidad',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                                IconButton(
+                                  onPressed:
+                                      widget.procesando
+                                          ? null
+                                          : () =>
+                                              widget.onCambiarCantidad(item, 1),
+                                  icon: const Icon(
+                                    Icons.add_circle,
+                                    color: Colors.white,
+                                    size: 28,
+                                  ),
+                                ),
+                              ],
+                            )
+                            
+                          else
+                            Text(
+                              'x$cantidad',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w700,
+                                fontSize: 18,
+                              ),
                             ),
-                          ),
                         ],
                       ),
                     ),
-                    if (widget.editable)
-                      Row(
-                        children: [
-                          IconButton(
-                            onPressed:
-                                widget.procesando
-                                    ? null
-                                    : () => widget.onCambiarCantidad(item, -1),
-                            icon: const Icon(
-                              Icons.remove_circle,
-                              color: Colors.white,
-                              size: 28,
-                            ),
-                          ),
-                          Text(
-                            '$cantidad',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 18,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                          IconButton(
-                            onPressed:
-                                widget.procesando
-                                    ? null
-                                    : () => widget.onCambiarCantidad(item, 1),
-                            icon: const Icon(
-                              Icons.add_circle,
-                              color: Colors.white,
-                              size: 28,
-                            ),
-                          ),
-                        ],
-                      )
-                    else
-                      Text(
-                        'x$cantidad',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w700,
-                          fontSize: 18,
-                        ),
-                      ),
-                  ],
-                ),
-              );
-            },
+                  );
+                }).toList(),
           ),
         ),
+        const Spacer(),
         // ── Paginador ─────────────────────────────────────────────
         if (totalPaginas > 1)
           Padding(
