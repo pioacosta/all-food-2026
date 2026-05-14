@@ -522,6 +522,7 @@ class _HeroJuegosCard extends StatelessWidget {
                 color: const Color(0xFFE8A87C).withValues(alpha: 0.8),
                 fontSize: 12,
                 height: 1.4,
+                fontWeight: FontWeight.w800,
               ),
             ),
           ] else ...[
