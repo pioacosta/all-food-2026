@@ -624,7 +624,7 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
                                               'TIEMPO',
                                               style: TextStyle(
                                                 color: Colors.white60,
-                                                fontSize: 11,
+                                                fontSize: 13,
                                                 letterSpacing: 0.8,
                                               ),
                                             ),
@@ -634,7 +634,7 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
                                               style: const TextStyle(
                                                 color: Colors.white,
                                                 fontWeight: FontWeight.w800,
-                                                fontSize: 18,
+                                                fontSize: 22,
                                               ),
                                             ),
                                           ],
@@ -650,7 +650,7 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
                               width: double.infinity,
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 12,
-                                vertical: 12,
+                                vertical: 14,
                               ),
                               decoration: BoxDecoration(
                                 color: const Color(0xFF2D6A4F),
@@ -662,7 +662,7 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
                                 style: const TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.w900,
-                                  fontSize: 34,
+                                  fontSize: 40,
                                   letterSpacing: 0.2,
                                 ),
                               ),
@@ -699,14 +699,14 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
                                             'Precio sin descuento:',
                                             style: TextStyle(
                                               color: Colors.white70,
-                                              fontSize: 14,
+                                              fontSize: 17,
                                             ),
                                           ),
                                           Text(
                                             '\$${subtotal.toStringAsFixed(2)}',
                                             style: const TextStyle(
                                               color: Colors.white70,
-                                              fontSize: 14,
+                                              fontSize: 17,
                                             ),
                                           ),
                                         ],
@@ -720,7 +720,7 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
                                             'Descuento juego (${descuentoPct.toStringAsFixed(0)}%):',
                                             style: const TextStyle(
                                               color: Color(0xFF90EE90),
-                                              fontSize: 14,
+                                              fontSize: 17,
                                               fontWeight: FontWeight.w600,
                                             ),
                                           ),
@@ -728,7 +728,7 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
                                             '-\$${montoDescuento.toStringAsFixed(2)}',
                                             style: const TextStyle(
                                               color: Color(0xFF90EE90),
-                                              fontSize: 14,
+                                              fontSize: 17,
                                               fontWeight: FontWeight.w600,
                                             ),
                                           ),
@@ -865,6 +865,13 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
                           padding: const EdgeInsets.symmetric(horizontal: 16),
                           child: FilledButton.icon(
                             onPressed: _procesando ? null : _abrirCarta,
+                            style: FilledButton.styleFrom(
+                              minimumSize: const Size.fromHeight(54),
+                              textStyle: const TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
                             icon: Icon(
                               editable
                                   ? Icons.restaurant_menu
@@ -1084,28 +1091,27 @@ class _ProductosPaginadosState extends State<_ProductosPaginados> {
 
     final cantidadItems = paginaItems.length;
     final paddingVertical =
-        cantidadItems == 4 ? (widget.hayDesglose ? 8.0 : 18.0) : 10.0;
+        cantidadItems == 4 ? (widget.hayDesglose ? 10.0 : 20.0) : 14.0;
     final bottomSpacing =
-        cantidadItems == 4 ? (widget.hayDesglose ? 6.0 : 12.0) : 8.0;
+        cantidadItems == 4 ? (widget.hayDesglose ? 8.0 : 14.0) : 10.0;
+    final expandirCards = cantidadItems < _porPagina;
+    final altoMinCard =
+        expandirCards ? (widget.hayDesglose ? 128.0 : 150.0) : 0.0;
 
     return Column(
       children: [
         // ── Items de la página actual ──────────────────────────────
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children:
-                paginaItems.asMap().entries.map((entry) {
-                  final index = entry.key;
-                  final item = entry.value;
-                  final cantidad = (item['cantidad'] as num).toInt();
-                  return Container(
-                    padding: EdgeInsets.only(
-                      bottom:
-                          index < paginaItems.length - 1 ? bottomSpacing : 0,
-                    ),
-                    child: Container(
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children:
+                  paginaItems.asMap().entries.map((entry) {
+                    final index = entry.key;
+                    final item = entry.value;
+                    final cantidad = (item['cantidad'] as num).toInt();
+                    final card = Container(
                       padding: EdgeInsets.symmetric(
                         horizontal: 14,
                         vertical: paddingVertical,
@@ -1126,7 +1132,7 @@ class _ProductosPaginadosState extends State<_ProductosPaginados> {
                                   style: const TextStyle(
                                     color: Colors.white,
                                     fontWeight: FontWeight.w700,
-                                    fontSize: 16,
+                                    fontSize: 22,
                                   ),
                                 ),
                                 const SizedBox(height: 4),
@@ -1134,7 +1140,7 @@ class _ProductosPaginadosState extends State<_ProductosPaginados> {
                                   '\$${((item['precio_unitario'] as num?) ?? 0).toStringAsFixed(2)}',
                                   style: const TextStyle(
                                     color: Colors.white70,
-                                    fontSize: 14,
+                                    fontSize: 17,
                                   ),
                                 ),
                               ],
@@ -1154,14 +1160,14 @@ class _ProductosPaginadosState extends State<_ProductosPaginados> {
                                   icon: const Icon(
                                     Icons.remove_circle,
                                     color: Colors.white,
-                                    size: 28,
+                                    size: 34,
                                   ),
                                 ),
                                 Text(
                                   '$cantidad',
                                   style: const TextStyle(
                                     color: Colors.white,
-                                    fontSize: 18,
+                                    fontSize: 24,
                                     fontWeight: FontWeight.w700,
                                   ),
                                 ),
@@ -1174,29 +1180,42 @@ class _ProductosPaginadosState extends State<_ProductosPaginados> {
                                   icon: const Icon(
                                     Icons.add_circle,
                                     color: Colors.white,
-                                    size: 28,
+                                    size: 34,
                                   ),
                                 ),
                               ],
                             )
-                            
                           else
                             Text(
                               'x$cantidad',
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.w700,
-                                fontSize: 18,
+                                fontSize: 24,
                               ),
                             ),
                         ],
                       ),
-                    ),
-                  );
-                }).toList(),
+                    );
+                    return Padding(
+                      padding: EdgeInsets.only(
+                        bottom:
+                            index < paginaItems.length - 1 ? bottomSpacing : 0,
+                      ),
+                      child:
+                          expandirCards
+                              ? ConstrainedBox(
+                                constraints: BoxConstraints(
+                                  minHeight: altoMinCard,
+                                ),
+                                child: card,
+                              )
+                              : card,
+                    );
+                  }).toList(),
+            ),
           ),
         ),
-        const Spacer(),
         // ── Paginador ─────────────────────────────────────────────
         if (totalPaginas > 1)
           Padding(
