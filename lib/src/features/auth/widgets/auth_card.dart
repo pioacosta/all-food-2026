@@ -9,36 +9,32 @@ class AuthCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Limita ancho maximo para mejor lectura en tablet/web.
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        return Padding(
-          padding: const EdgeInsets.all(20),
-          child: Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 430),
-              child: Card(
-                color: Colors.transparent,
-                elevation: 0,
-                child: Padding(
-                  padding: const EdgeInsets.all(0),
-                  child: Container(
-                    constraints: BoxConstraints(
-                      minHeight: constraints.maxHeight - 40,
-                    ),
-                    decoration: AppUi.panelDecoracion(radius: 22),
-                    padding: const EdgeInsets.all(20),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: children,
-                    ),
-                  ),
+    // Layout robusto para teclado: scroll + padding inferior dinámico.
+    final keyboardBottom = MediaQuery.of(context).viewInsets.bottom;
+    return SingleChildScrollView(
+      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+      padding: EdgeInsets.fromLTRB(20, 20, 20, 20 + keyboardBottom),
+      child: Align(
+        alignment: Alignment.topCenter,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 430),
+          child: Card(
+            color: Colors.transparent,
+            elevation: 0,
+            child: Padding(
+              padding: const EdgeInsets.all(0),
+              child: Container(
+                decoration: AppUi.panelDecoracion(radius: 22),
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: children,
                 ),
               ),
             ),
           ),
-        );
-      },
+        ),
+      ),
     );
   }
 }

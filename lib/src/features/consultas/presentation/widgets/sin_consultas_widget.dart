@@ -7,25 +7,35 @@ class SinConsultasWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(Icons.coffee_outlined, size: 64, color: Colors.white24),
-          SizedBox(height: 20),
-          Text(
-            'Todo tranquilo',
-            style: TextStyle(
-              fontFamily: 'ArchivoBlack',
-              fontSize: 24,
-              color: Colors.white,
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.coffee_outlined, size: 92, color: Colors.white30),
+            SizedBox(height: 24),
+            Text(
+              'Todo tranquilo',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontFamily: 'ArchivoBlack',
+                fontSize: 38,
+                color: Colors.white,
+                height: 1.05,
+              ),
             ),
-          ),
-          SizedBox(height: 6),
-          Text(
-            'No hay consultas activas en este momento.',
-            style: TextStyle(color: Colors.white54, fontSize: 14),
-          ),
-        ],
+            SizedBox(height: 10),
+            Text(
+              'No hay consultas activas en este momento.',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Colors.white70,
+                fontSize: 19,
+                height: 1.25,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

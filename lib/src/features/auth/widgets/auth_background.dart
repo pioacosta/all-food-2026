@@ -15,8 +15,8 @@ class AuthBackground extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Aplica fondo degradado y respeta zonas seguras del dispositivo.
-    final teclado = MediaQuery.of(context).viewInsets.bottom;
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       floatingActionButton: floatingActionButton,
       body: Stack(
         children: [
@@ -48,14 +48,7 @@ class AuthBackground extends StatelessWidget {
               ),
             ),
           ),
-          SafeArea(
-            child: AnimatedPadding(
-              duration: const Duration(milliseconds: 170),
-              curve: Curves.easeOut,
-              padding: EdgeInsets.only(bottom: teclado),
-              child: child,
-            ),
-          ),
+          SafeArea(child: child),
         ],
       ),
     );

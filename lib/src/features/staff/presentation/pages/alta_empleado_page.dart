@@ -379,6 +379,7 @@ class _AltaEmpleadoPageState extends State<AltaEmpleadoPage> {
     }
 
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       appBar: AppBar(title: const Text('Alta de empleados')),
       body: Container(
         width: double.infinity,
@@ -392,6 +393,7 @@ class _AltaEmpleadoPageState extends State<AltaEmpleadoPage> {
         ),
         child: SafeArea(
           child: SingleChildScrollView(
+            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
             padding: EdgeInsets.fromLTRB(
               18,
               18,

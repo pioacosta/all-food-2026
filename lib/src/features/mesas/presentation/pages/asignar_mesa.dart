@@ -15,7 +15,7 @@ class AsignarMesaPage extends StatefulWidget {
 
 class _AsignarMesaPageState extends State<AsignarMesaPage> {
   final _repo = MesasRepository();
-  static const int _itemsPorPagina = 4;
+  static const int _itemsPorPagina = 3;
 
   List<Map<String, dynamic>> _clientes = [];
   List<Map<String, dynamic>> _mesas = [];
@@ -334,57 +334,6 @@ class _AsignarMesaPageState extends State<AsignarMesaPage> {
                   padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
                   child: Column(
                     children: [
-                      // Resumen
-                      if (_clienteSeleccionado != null ||
-                          _mesaSeleccionada != null)
-                        Container(
-                          margin: const EdgeInsets.only(bottom: 10),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 14,
-                            vertical: 10,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.12),
-                            borderRadius: BorderRadius.circular(14),
-                            border: Border.all(
-                              color: Colors.white.withValues(alpha: 0.2),
-                            ),
-                          ),
-                          child: Row(
-                            children: [
-                              if (_clienteSeleccionado != null)
-                                Expanded(
-                                  child: _ResumenRow(
-                                    icon: Icons.person,
-                                    value:
-                                        _clienteSeleccionado!['perfil'] ==
-                                                'cliente_anonimo'
-                                            ? '${_clienteSeleccionado!['nombres']}'
-                                            : '${_clienteSeleccionado!['nombres']} ${_clienteSeleccionado!['apellidos']}',
-                                  ),
-                                ),
-                              if (_clienteSeleccionado != null &&
-                                  _mesaSeleccionada != null)
-                                const Padding(
-                                  padding: EdgeInsets.symmetric(horizontal: 8),
-                                  child: Icon(
-                                    Icons.arrow_forward,
-                                    color: Colors.white54,
-                                    size: 16,
-                                  ),
-                                ),
-                              if (_mesaSeleccionada != null)
-                                Expanded(
-                                  child: _ResumenRow(
-                                    icon: Icons.table_restaurant,
-                                    value:
-                                        'Mesa ${_mesaSeleccionada!['numero']}',
-                                  ),
-                                ),
-                            ],
-                          ),
-                        ),
-
                       // Bot?f?n
                       FilledButton(
                         style: FilledButton.styleFrom(
@@ -806,8 +755,8 @@ class _PasoIndicador extends StatelessWidget {
         children: [
           AnimatedContainer(
             duration: const Duration(milliseconds: 200),
-            width: 36,
-            height: 36,
+            width: 50,
+            height: 50,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color:
@@ -830,57 +779,29 @@ class _PasoIndicador extends StatelessWidget {
                       ? const Icon(
                         Icons.check,
                         color: Color(0xFF5B1718),
-                        size: 18,
+                        size: 24,
                       )
                       : Text(
                         numero,
                         style: TextStyle(
                           color: activo ? Colors.white : Colors.white54,
                           fontWeight: FontWeight.w700,
-                          fontSize: 14,
+                          fontSize: 19,
                         ),
                       ),
             ),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 6),
           Text(
             label,
             style: TextStyle(
               color: activo ? Colors.white : Colors.white54,
-              fontSize: 12,
+              fontSize: 16,
               fontWeight: activo ? FontWeight.w600 : FontWeight.w400,
             ),
           ),
         ],
       ),
-    );
-  }
-}
-
-class _ResumenRow extends StatelessWidget {
-  final IconData icon;
-  final String value;
-
-  const _ResumenRow({required this.icon, required this.value});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Icon(icon, size: 14, color: Colors.white70),
-        const SizedBox(width: 6),
-        Expanded(
-          child: Text(
-            value,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-            ),
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
-      ],
     );
   }
 }
