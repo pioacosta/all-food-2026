@@ -433,7 +433,7 @@ class _PedidosMozoPageState extends State<PedidosMozoPage> {
                     style: TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.w700,
-                      fontSize: 18,
+                      fontSize: 24,
                     ),
                   ),
                   const SizedBox(height: 10),
@@ -452,12 +452,16 @@ class _PedidosMozoPageState extends State<PedidosMozoPage> {
                             style: const TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.w700,
+                              fontSize: 24,
                             ),
                           ),
                         ),
                         Text(
                           'Emitida: ${_formatearFechaHora(emitidoAt)}',
-                          style: const TextStyle(color: Colors.white70),
+                          style: const TextStyle(
+                            color: Colors.white70,
+                            fontSize: 22,
+                          ),
                         ),
                       ],
                     ),
@@ -469,7 +473,7 @@ class _PedidosMozoPageState extends State<PedidosMozoPage> {
                       child: Text(
                         'No hay ítems en la cuenta.',
                         textAlign: TextAlign.center,
-                        style: TextStyle(color: Colors.white70),
+                        style: TextStyle(color: Colors.white70, fontSize: 22),
                       ),
                     )
                   else
@@ -492,7 +496,10 @@ class _PedidosMozoPageState extends State<PedidosMozoPage> {
                                 Expanded(
                                   child: Text(
                                     '${linea['nombre']} x${linea['cantidad']}',
-                                    style: const TextStyle(color: Colors.white),
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 24,
+                                    ),
                                   ),
                                 ),
                                 Text(
@@ -500,6 +507,7 @@ class _PedidosMozoPageState extends State<PedidosMozoPage> {
                                   style: const TextStyle(
                                     color: Colors.white,
                                     fontWeight: FontWeight.w700,
+                                    fontSize: 24,
                                   ),
                                 ),
                               ],
@@ -537,7 +545,7 @@ class _PedidosMozoPageState extends State<PedidosMozoPage> {
                       style: const TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.w800,
-                        fontSize: 20,
+                        fontSize: 38,
                       ),
                     ),
                   ),
@@ -1182,11 +1190,18 @@ class _FilaCuentaMozo extends StatelessWidget {
       child: Row(
         children: [
           Expanded(
-            child: Text(titulo, style: const TextStyle(color: Colors.white70)),
+            child: Text(
+              titulo,
+              style: const TextStyle(color: Colors.white70, fontSize: 24),
+            ),
           ),
           Text(
             '${valor < 0 ? '-' : ''}\$${valor.abs().toStringAsFixed(2)}',
-            style: TextStyle(color: color, fontWeight: FontWeight.w700),
+            style: TextStyle(
+              color: color,
+              fontWeight: FontWeight.w700,
+              fontSize: 30,
+            ),
           ),
         ],
       ),
