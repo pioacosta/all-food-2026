@@ -64,7 +64,7 @@ class _ResultadosEncuestasPageState extends State<ResultadosEncuestasPage> {
       appBar: AppBar(
         title: const Text(
           'Resultados de encuestas',
-          style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700),
+          style: TextStyle(fontSize: 28, fontWeight: FontWeight.w800),
         ),
       ),
       body: Container(
@@ -99,8 +99,8 @@ class _ResultadosEncuestasPageState extends State<ResultadosEncuestasPage> {
                                 textAlign: TextAlign.center,
                                 style: const TextStyle(
                                   color: Colors.white,
-                                  fontWeight: FontWeight.w700,
-                                  fontSize: 24,
+                                  fontWeight: FontWeight.w800,
+                                  fontSize: 30,
                                 ),
                               ),
                               const SizedBox(height: 8),
@@ -188,8 +188,8 @@ class _TarjetaGrafico extends StatelessWidget {
             textAlign: TextAlign.center,
             style: const TextStyle(
               color: Colors.white,
-              fontWeight: FontWeight.w700,
-              fontSize: 22,
+              fontWeight: FontWeight.w800,
+              fontSize: 28,
             ),
           ),
           const SizedBox(height: 12),
@@ -236,7 +236,11 @@ class _GraficoBarrasPromedios extends StatelessWidget {
         const SizedBox(height: 8),
         const Text(
           'Escala de 1 a 5',
-          style: TextStyle(color: Colors.white70, fontSize: 18),
+          style: TextStyle(
+            color: Colors.white70,
+            fontSize: 22,
+            fontWeight: FontWeight.w700,
+          ),
         ),
       ],
     );
@@ -267,8 +271,8 @@ class _BarraVertical extends StatelessWidget {
             valor.toStringAsFixed(2),
             style: const TextStyle(
               color: Colors.white,
-              fontWeight: FontWeight.w700,
-              fontSize: 20,
+              fontWeight: FontWeight.w800,
+              fontSize: 30,
             ),
           ),
           const SizedBox(height: 8),
@@ -291,7 +295,11 @@ class _BarraVertical extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             etiqueta,
-            style: const TextStyle(color: Colors.white70, fontSize: 18),
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 24,
+              fontWeight: FontWeight.w700,
+            ),
           ),
         ],
       ),
@@ -333,8 +341,8 @@ class _GraficoTortaRecomendacion extends StatelessWidget {
           'Sí: ${si.toStringAsFixed(1)}%  |  No: ${no.toStringAsFixed(1)}%',
           style: const TextStyle(
             color: Colors.white,
-            fontWeight: FontWeight.w700,
-            fontSize: 20,
+            fontWeight: FontWeight.w800,
+            fontSize: 26,
           ),
         ),
       ],
@@ -395,7 +403,11 @@ class _Leyenda extends StatelessWidget {
         const SizedBox(width: 6),
         Text(
           texto,
-          style: const TextStyle(color: Colors.white70, fontSize: 18),
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 22,
+            fontWeight: FontWeight.w700,
+          ),
         ),
       ],
     );
@@ -413,7 +425,11 @@ class _GraficoLinealTendencia extends StatelessWidget {
       return const Center(
         child: Text(
           'No hay datos suficientes para mostrar tendencia.',
-          style: TextStyle(color: Colors.white70, fontSize: 19),
+          style: TextStyle(
+            color: Colors.white70,
+            fontSize: 22,
+            fontWeight: FontWeight.w600,
+          ),
           textAlign: TextAlign.center,
         ),
       );
