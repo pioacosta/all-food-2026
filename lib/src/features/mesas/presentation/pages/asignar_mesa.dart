@@ -204,23 +204,12 @@ class _AsignarMesaPageState extends State<AsignarMesaPage> {
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontFamily: 'ArchivoBlack',
-                          fontSize: 32,
+                          fontSize: 40,
                           color: Colors.white,
-                          letterSpacing: -1.5,
+                          letterSpacing: -1.8,
                         ),
                       ),
-                      const SizedBox(height: 6),
-                      Text(
-                        _paso == 0
-                            ? 'Elegí el cliente a sentar'
-                            : 'Elegí la mesa para ${_clienteSeleccionado!['nombres']}',
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          color: Colors.white70,
-                          fontSize: 14,
-                        ),
-                      ),
-                      const SizedBox(height: 14),
+                      const SizedBox(height: 16),
 
                       // ?????,??????,? Indicador de pasos ?????,??????,??????,??????,??????,??????,??????,??????,??????,??????,??????,??????,??????,??????,??????,??????,??????,??????,??????,??????,??????,??????,??????,?
                       Row(
@@ -276,11 +265,8 @@ class _AsignarMesaPageState extends State<AsignarMesaPage> {
                                           ),
                                         ),
                                       )
-                                      : ListView.separated(
-                                        itemCount: _clientesPagina.length,
-                                        separatorBuilder:
-                                            (_, __) =>
-                                                const SizedBox(height: 8),
+                                      : _PaginaCardsAdaptativa(
+                                        cantidadItems: _clientesPagina.length,
                                         itemBuilder: (context, index) {
                                           final cliente =
                                               _clientesPagina[index];
@@ -308,11 +294,8 @@ class _AsignarMesaPageState extends State<AsignarMesaPage> {
                                           ),
                                         ),
                                       )
-                                      : ListView.separated(
-                                        itemCount: _mesasPagina.length,
-                                        separatorBuilder:
-                                            (_, __) =>
-                                                const SizedBox(height: 8),
+                                      : _PaginaCardsAdaptativa(
+                                        cantidadItems: _mesasPagina.length,
                                         itemBuilder: (context, index) {
                                           final mesa = _mesasPagina[index];
                                           final sel =
@@ -405,14 +388,14 @@ class _AsignarMesaPageState extends State<AsignarMesaPage> {
                       // Bot?f?n
                       FilledButton(
                         style: FilledButton.styleFrom(
-                          minimumSize: const Size.fromHeight(52),
+                          minimumSize: const Size.fromHeight(62),
                           backgroundColor: Colors.white,
                           foregroundColor: const Color(0xFF5B1718),
                           disabledBackgroundColor: Colors.white24,
                           disabledForegroundColor: Colors.white54,
                           textStyle: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w700,
+                            fontSize: 22,
+                            fontWeight: FontWeight.w800,
                           ),
                         ),
                         onPressed:
@@ -442,9 +425,7 @@ class _AsignarMesaPageState extends State<AsignarMesaPage> {
                                   ),
                                 )
                                 : Text(
-                                  _paso == 0
-                                      ? 'Siguiente'
-                                      : 'Asignar mesa',
+                                  _paso == 0 ? 'Continuar' : 'Asignar mesa',
                                 ),
                       ),
                     ],
@@ -461,6 +442,37 @@ class _AsignarMesaPageState extends State<AsignarMesaPage> {
   bool get _botonHabilitado {
     if (_paso == 0) return _clienteSeleccionado != null;
     return _clienteSeleccionado != null && _mesaSeleccionada != null;
+  }
+}
+
+class _PaginaCardsAdaptativa extends StatelessWidget {
+  const _PaginaCardsAdaptativa({
+    required this.cantidadItems,
+    required this.itemBuilder,
+  });
+
+  final int cantidadItems;
+  final Widget Function(BuildContext context, int index) itemBuilder;
+
+  @override
+  Widget build(BuildContext context) {
+    if (cantidadItems <= 0) {
+      return const SizedBox.shrink();
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: List.generate(cantidadItems, (index) {
+        return Expanded(
+          child: Padding(
+            padding: EdgeInsets.only(
+              bottom: index == cantidadItems - 1 ? 0 : 8,
+            ),
+            child: itemBuilder(context, index),
+          ),
+        );
+      }),
+    );
   }
 }
 
@@ -485,19 +497,22 @@ class _PaginacionLista extends StatelessWidget {
     return Row(
       children: [
         Expanded(
-          child: OutlinedButton.icon(
+          child: OutlinedButton(
             onPressed: puedeAnterior ? onAnterior : null,
             style: OutlinedButton.styleFrom(
-              minimumSize: const Size.fromHeight(42),
+              minimumSize: const Size.fromHeight(52),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
               foregroundColor: const Color(0xFF4A0E10),
               backgroundColor: Colors.white,
               disabledForegroundColor: Colors.white54,
               disabledBackgroundColor: const Color(0xFF7A2021),
               side: const BorderSide(color: Colors.white, width: 1.4),
-              textStyle: const TextStyle(fontWeight: FontWeight.w700),
+              textStyle: const TextStyle(
+                fontWeight: FontWeight.w800,
+                fontSize: 16,
+              ),
             ),
-            icon: const Icon(Icons.chevron_left),
-            label: const Text('Anterior'),
+            child: const Text('Anterior'),
           ),
         ),
         const SizedBox(width: 10),
@@ -505,24 +520,28 @@ class _PaginacionLista extends StatelessWidget {
           'Página ${paginaActual + 1} / $totalPaginas',
           style: const TextStyle(
             color: Colors.white,
-            fontWeight: FontWeight.w700,
+            fontWeight: FontWeight.w800,
+            fontSize: 17,
           ),
         ),
         const SizedBox(width: 10),
         Expanded(
-          child: OutlinedButton.icon(
+          child: OutlinedButton(
             onPressed: puedeSiguiente ? onSiguiente : null,
             style: OutlinedButton.styleFrom(
-              minimumSize: const Size.fromHeight(42),
+              minimumSize: const Size.fromHeight(52),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
               foregroundColor: const Color(0xFF4A0E10),
               backgroundColor: Colors.white,
               disabledForegroundColor: Colors.white54,
               disabledBackgroundColor: const Color(0xFF7A2021),
               side: const BorderSide(color: Colors.white, width: 1.4),
-              textStyle: const TextStyle(fontWeight: FontWeight.w700),
+              textStyle: const TextStyle(
+                fontWeight: FontWeight.w800,
+                fontSize: 16,
+              ),
             ),
-            icon: const Icon(Icons.chevron_right),
-            label: const Text('Siguiente'),
+            child: const Text('Siguiente'),
           ),
         ),
       ],
@@ -550,6 +569,12 @@ class _ClienteCard extends StatelessWidget {
         esAnonimo
             ? '${cliente['nombres']}'
             : '${cliente['nombres']} ${cliente['apellidos']}';
+    final String detalleSecundario =
+        esAnonimo
+            ? 'Cliente invitado'
+            : ((cliente['correo'] as String?)?.trim().isNotEmpty == true
+                ? cliente['correo'] as String
+                : 'Sin correo disponible');
 
     return Card(
       margin: EdgeInsets.zero,
@@ -567,11 +592,11 @@ class _ClienteCard extends StatelessWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(14),
         child: Padding(
-          padding: const EdgeInsets.all(10),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
           child: Row(
             children: [
               CircleAvatar(
-                radius: 26,
+                radius: 34,
                 backgroundColor: Colors.white12,
                 backgroundImage:
                     cliente['foto_url'] != null
@@ -585,26 +610,30 @@ class _ClienteCard extends StatelessWidget {
               const SizedBox(width: 10),
               Expanded(
                 child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       nombreCompleto,
-                      maxLines: 1,
+                      maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.w700,
-                        fontSize: 15,
+                        fontSize: 23,
+                        height: 1.08,
                       ),
                     ),
-                    const SizedBox(height: 3),
+                    const SizedBox(height: 6),
                     Text(
-                      esAnonimo ? 'Cliente anónimo' : (cliente['correo'] ?? ''),
+                      detalleSecundario,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
                         color: Color(0xFFFFDDDD),
-                        fontSize: 13,
+                        fontSize: 17,
+                        fontWeight: FontWeight.w600,
+                        height: 1.08,
                       ),
                     ),
                   ],
@@ -612,7 +641,10 @@ class _ClienteCard extends StatelessWidget {
               ),
               const SizedBox(width: 8),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 6,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.white12,
                   borderRadius: BorderRadius.circular(999),
@@ -622,14 +654,18 @@ class _ClienteCard extends StatelessWidget {
                   etiquetaTexto,
                   style: const TextStyle(
                     color: Colors.white,
-                    fontSize: 12,
+                    fontSize: 14,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
               ),
               if (seleccionado) ...[
                 const SizedBox(width: 8),
-                const Icon(Icons.check_circle, color: Color(0xFFFFE2A8)),
+                const Icon(
+                  Icons.check_circle,
+                  color: Color(0xFFFFE2A8),
+                  size: 28,
+                ),
               ],
             ],
           ),
@@ -668,55 +704,78 @@ class _MesaCard extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(14),
-        child: Padding(
-          padding: const EdgeInsets.all(10),
-          child: Row(
-            children: [
-              Container(
-                width: 52,
-                height: 52,
-                decoration: BoxDecoration(
-                  color: Colors.white12,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: const Icon(
-                  Icons.table_restaurant,
-                  color: Colors.white,
-                  size: 28,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Mesa ${mesa['numero']}',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w700,
-                        fontSize: 15,
-                      ),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final alto = constraints.maxHeight;
+            final esCardAlta = alto > 210;
+            final iconBox = esCardAlta ? 84.0 : 64.0;
+            final iconSize = esCardAlta ? 40.0 : 28.0;
+            final tituloSize = esCardAlta ? 32.0 : 23.0;
+            final subtituloSize = esCardAlta ? 24.0 : 17.0;
+            final checkSize = esCardAlta ? 36.0 : 28.0;
+            final gap = esCardAlta ? 16.0 : 12.0;
+            final padH = esCardAlta ? 18.0 : 14.0;
+            final padV = esCardAlta ? 16.0 : 12.0;
+
+            return Padding(
+              padding: EdgeInsets.symmetric(horizontal: padH, vertical: padV),
+              child: Row(
+                children: [
+                  Container(
+                    width: iconBox,
+                    height: iconBox,
+                    decoration: BoxDecoration(
+                      color: Colors.white12,
+                      borderRadius: BorderRadius.circular(10),
                     ),
-                    const SizedBox(height: 3),
-                    Text(
-                      '${mesa['cantidad_lugares']} lugares',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        color: Color(0xFFFFDDDD),
-                        fontSize: 13,
-                      ),
+                    child: Icon(
+                      Icons.table_restaurant,
+                      color: Colors.white,
+                      size: iconSize,
                     ),
-                  ],
-                ),
+                  ),
+                  SizedBox(width: gap),
+                  Expanded(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Mesa ${mesa['numero']}',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w800,
+                            fontSize: tituloSize,
+                            height: 1.08,
+                          ),
+                        ),
+                        SizedBox(height: esCardAlta ? 8 : 6),
+                        Text(
+                          '${mesa['cantidad_lugares']} lugares',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: Color(0xFFFFDDDD),
+                            fontSize: subtituloSize,
+                            fontWeight: FontWeight.w700,
+                            height: 1.08,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  if (seleccionado)
+                    Icon(
+                      Icons.check_circle,
+                      color: Color(0xFFFFE2A8),
+                      size: checkSize,
+                    ),
+                ],
               ),
-              if (seleccionado)
-                const Icon(Icons.check_circle, color: Color(0xFFFFE2A8)),
-            ],
-          ),
+            );
+          },
         ),
       ),
     );

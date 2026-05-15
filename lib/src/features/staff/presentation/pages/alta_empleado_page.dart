@@ -392,7 +392,12 @@ class _AltaEmpleadoPageState extends State<AltaEmpleadoPage> {
         ),
         child: SafeArea(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.all(18),
+            padding: EdgeInsets.fromLTRB(
+              18,
+              18,
+              18,
+              18 + MediaQuery.of(context).viewInsets.bottom,
+            ),
             child: Theme(
               data: Theme.of(context).copyWith(
                 inputDecorationTheme: const InputDecorationTheme(

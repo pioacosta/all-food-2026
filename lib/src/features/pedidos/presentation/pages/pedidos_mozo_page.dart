@@ -197,10 +197,7 @@ class _PedidosMozoPageState extends State<PedidosMozoPage> {
                   const SizedBox(height: 12),
                   const Text(
                     'El pedido será rechazado y el cliente podrá modificarlo.',
-                    style: TextStyle(
-                      color: Color(0xFF3A2222),
-                      height: 1.35,
-                    ),
+                    style: TextStyle(color: Color(0xFF3A2222), height: 1.35),
                   ),
                   const SizedBox(height: 14),
                   Row(
@@ -325,7 +322,7 @@ class _PedidosMozoPageState extends State<PedidosMozoPage> {
                   ),
                   const SizedBox(height: 12),
                   Text(
-      '¿Confirmar pago de la mesa $numeroMesa y liberar la mesa?',
+                    '¿Confirmar pago de la mesa $numeroMesa y liberar la mesa?',
                     style: const TextStyle(
                       color: Color(0xFF3A2222),
                       height: 1.35,
@@ -771,11 +768,8 @@ class _PendientesList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (pedidos.isEmpty) {
-      return const Center(
-        child: Text(
-          'No hay pedidos pendientes de confirmación.',
-          style: TextStyle(color: Colors.white70),
-        ),
+      return const _EstadoVacioGrande(
+        mensaje: 'No hay pedidos pendientes de confirmación.',
       );
     }
     return ListView.separated(
@@ -857,9 +851,7 @@ class _EstadoList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (pedidos.isEmpty) {
-      return Center(
-        child: Text(vacio, style: const TextStyle(color: Colors.white70)),
-      );
+      return _EstadoVacioGrande(mensaje: vacio);
     }
     return ListView.separated(
       padding: const EdgeInsets.fromLTRB(14, 8, 14, 14),
@@ -948,6 +940,42 @@ class _EstadoList extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+}
+
+class _EstadoVacioGrande extends StatelessWidget {
+  const _EstadoVacioGrande({required this.mensaje});
+
+  final String mensaje;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 26),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.disabled_by_default_rounded,
+              size: 170,
+              color: Colors.white.withValues(alpha: 0.82),
+            ),
+            const SizedBox(height: 24),
+            Text(
+              mensaje,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 38,
+                fontWeight: FontWeight.w800,
+                height: 1.1,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -1098,7 +1126,10 @@ class _DetallePedidoPendientePage extends StatelessWidget {
                             () => Navigator.of(
                               context,
                             ).pop(_AccionPedidoPendiente.confirmar),
-                        child: const Text('Aceptar', style: TextStyle(color: Colors.white)),
+                        child: const Text(
+                          'Aceptar',
+                          style: TextStyle(color: Colors.white),
+                        ),
                       ),
                     ),
                     const SizedBox(width: 28),
@@ -1116,7 +1147,10 @@ class _DetallePedidoPendientePage extends StatelessWidget {
                             () => Navigator.of(
                               context,
                             ).pop(_AccionPedidoPendiente.rechazar),
-                        child: const Text('Rechazar', style: TextStyle(color: Colors.white),),
+                        child: const Text(
+                          'Rechazar',
+                          style: TextStyle(color: Colors.white),
+                        ),
                       ),
                     ),
                   ],
