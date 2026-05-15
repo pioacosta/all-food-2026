@@ -418,7 +418,7 @@ class PedidosRepository {
     return _service
         .updatePedido(
           pedidoId: pedidoId,
-          payload: {'estado': 'cuenta_solicitada',},
+          payload: {'estado': 'cuenta_solicitada', 'propina_porcentaje': null},
         )
         .then((_) async {
           await _notificarPerfiles(
@@ -540,8 +540,13 @@ class PedidosRepository {
     final subtotal = ((pedido['subtotal'] as num?) ?? 0).toDouble();
     final descuento =
         ((pedido['descuento_juego_porcentaje'] as num?) ?? 0).toDouble();
-    final propinaPorcentaje =
-        ((pedido['propina_porcentaje'] as num?) ?? 0).toDouble();
+    final propinaRaw = pedido['propina_porcentaje'] as num?;
+    if (propinaRaw == null) {
+      throw const PedidosFlowException(
+        'Debes escanear el QR de propina antes de pagar.',
+      );
+    }
+    final propinaPorcentaje = propinaRaw.toDouble();
     final baseConDescuento = subtotal * (1 - descuento / 100);
     final totalFinal = baseConDescuento * (1 + propinaPorcentaje / 100);
 
