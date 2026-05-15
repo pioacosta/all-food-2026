@@ -518,12 +518,6 @@ class _ClienteCard extends StatelessWidget {
         esAnonimo
             ? '${cliente['nombres']}'
             : '${cliente['nombres']} ${cliente['apellidos']}';
-    final String detalleSecundario =
-        esAnonimo
-            ? 'Cliente invitado'
-            : ((cliente['correo'] as String?)?.trim().isNotEmpty == true
-                ? cliente['correo'] as String
-                : 'Sin correo disponible');
 
     return Card(
       margin: EdgeInsets.zero,
@@ -574,11 +568,11 @@ class _ClienteCard extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 6),
-                    Text(
-                      detalleSecundario,
+                    const Text(
+                      'Cliente',
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: Color(0xFFFFDDDD),
                         fontSize: 17,
                         fontWeight: FontWeight.w600,

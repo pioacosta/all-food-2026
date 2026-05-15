@@ -70,7 +70,12 @@ class _EncuestaClientePageState extends State<EncuestaClientePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Encuesta de satisfacción')),
+      appBar: AppBar(
+        title: const Text(
+          'Encuesta de satisfaccion',
+          style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700),
+        ),
+      ),
       body: Container(
         width: double.infinity,
         decoration: const BoxDecoration(
@@ -93,7 +98,7 @@ class _EncuestaClientePageState extends State<EncuestaClientePage> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 _PreguntaCard(
-                  titulo: '¿Cómo evaluas la comida?',
+                  titulo: 'Como evaluas la comida?',
                   child: SliderTheme(
                     data: SliderTheme.of(context).copyWith(
                       activeTrackColor: const Color(0xFFFFD27A),
@@ -104,7 +109,7 @@ class _EncuestaClientePageState extends State<EncuestaClientePage> {
                       valueIndicatorTextStyle: const TextStyle(
                         color: Color(0xFF4A0E10),
                         fontWeight: FontWeight.w700,
-                        fontSize: 90
+                        fontSize: 20,
                       ),
                     ),
                     child: Slider(
@@ -119,12 +124,12 @@ class _EncuestaClientePageState extends State<EncuestaClientePage> {
                 ),
                 const SizedBox(height: 16),
                 _PreguntaCard(
-                  titulo: '¿Cómo evaluas la atención?',
+                  titulo: 'Como evaluas la atencion?',
                   child: DropdownButtonFormField<int>(
                     value: _servicio,
                     dropdownColor: const Color(0xFF8D2628),
                     iconEnabledColor: const Color(0xFFFFE2A8),
-                    style: const TextStyle(color: Colors.white),
+                    style: const TextStyle(color: Colors.white, fontSize: 18),
                     decoration: InputDecoration(
                       isDense: true,
                       filled: true,
@@ -142,18 +147,33 @@ class _EncuestaClientePageState extends State<EncuestaClientePage> {
                       ),
                     ),
                     items: const [
-                      DropdownMenuItem(value: 1, child: Text('1 - Muy mala')),
-                      DropdownMenuItem(value: 2, child: Text('2 - Mala')),
-                      DropdownMenuItem(value: 3, child: Text('3 - Regular')),
-                      DropdownMenuItem(value: 4, child: Text('4 - Buena')),
-                      DropdownMenuItem(value: 5, child: Text('5 - Excelente')),
+                      DropdownMenuItem(
+                        value: 1,
+                        child: Text('1 - Muy mala', style: TextStyle(fontSize: 18)),
+                      ),
+                      DropdownMenuItem(
+                        value: 2,
+                        child: Text('2 - Mala', style: TextStyle(fontSize: 18)),
+                      ),
+                      DropdownMenuItem(
+                        value: 3,
+                        child: Text('3 - Regular', style: TextStyle(fontSize: 18)),
+                      ),
+                      DropdownMenuItem(
+                        value: 4,
+                        child: Text('4 - Buena', style: TextStyle(fontSize: 18)),
+                      ),
+                      DropdownMenuItem(
+                        value: 5,
+                        child: Text('5 - Excelente', style: TextStyle(fontSize: 18)),
+                      ),
                     ],
                     onChanged: (v) => setState(() => _servicio = v ?? 4),
                   ),
                 ),
                 const SizedBox(height: 16),
                 _PreguntaCard(
-                  titulo: '¿Recomendarías All Food?',
+                  titulo: 'Recomendarias All Food?',
                   child: SwitchListTile(
                     contentPadding: EdgeInsets.zero,
                     activeColor: const Color(0xFFFFE2A8),
@@ -164,11 +184,12 @@ class _EncuestaClientePageState extends State<EncuestaClientePage> {
                     onChanged: (v) => setState(() => _recomendaria = v),
                     title: Text(
                       _recomendaria
-                          ? 'Sí, lo recomendaría'
-                          : 'No lo recomendaría',
+                          ? 'Si, lo recomendaria'
+                          : 'No lo recomendaria',
                       style: const TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.w600,
+                        fontSize: 18,
                       ),
                     ),
                   ),
@@ -180,10 +201,13 @@ class _EncuestaClientePageState extends State<EncuestaClientePage> {
                     controller: _comentarioController,
                     maxLines: 8,
                     minLines: 8,
-                    style: const TextStyle(color: Colors.white),
+                    style: const TextStyle(color: Colors.white, fontSize: 18),
                     decoration: InputDecoration(
-                      hintText: 'Escribe tu opinión...',
-                      hintStyle: const TextStyle(color: Colors.white60),
+                      hintText: 'Escribe tu opinion...',
+                      hintStyle: const TextStyle(
+                        color: Colors.white60,
+                        fontSize: 17,
+                      ),
                       filled: true,
                       fillColor: Colors.white.withOpacity(0.08),
                       enabledBorder: OutlineInputBorder(
@@ -207,13 +231,19 @@ class _EncuestaClientePageState extends State<EncuestaClientePage> {
                     style: FilledButton.styleFrom(
                       backgroundColor: const Color(0xFF2D6A4F),
                       foregroundColor: Colors.white,
-                      minimumSize: const Size.fromHeight(48),
+                      minimumSize: const Size.fromHeight(56),
                     ),
                     onPressed: _guardando ? null : _guardar,
                     child:
                         _guardando
                             ? const LogoSpinner(size: 18, strokeWidth: 2)
-                            : const Text('Guardar encuesta'),
+                            : const Text(
+                              'Guardar encuesta',
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
                   ),
                 ),
               ],
@@ -249,9 +279,10 @@ class _PreguntaCard extends StatelessWidget {
             style: const TextStyle(
               color: Color(0xFFFFE2A8),
               fontWeight: FontWeight.w700,
+              fontSize: 22,
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 10),
           child,
         ],
       ),
