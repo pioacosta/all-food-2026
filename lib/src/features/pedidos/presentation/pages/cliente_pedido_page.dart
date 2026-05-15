@@ -126,9 +126,15 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
       }
 
       setState(() {
+        final estadoAnterior = (_pedido?['estado'] as String?) ?? '';
         _pedido = detalle['pedido'] as Map<String, dynamic>?;
         _items = List<Map<String, dynamic>>.from(detalle['items'] as List);
         _tiempoTotal = (detalle['tiempoTotalMin'] as num?)?.toInt() ?? 0;
+        final estadoActual = (_pedido?['estado'] as String?) ?? '';
+        if (estadoActual != 'cuenta_solicitada' ||
+            estadoAnterior != 'cuenta_solicitada') {
+          _propinaAsignada = false;
+        }
       });
     } catch (e) {
       debugPrint('[Realtime] Error en _cargarSilencioso: $e');
@@ -185,10 +191,15 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
       }
 
       setState(() {
+        final estadoAnterior = (_pedido?['estado'] as String?) ?? '';
         _pedido = detalle['pedido'] as Map<String, dynamic>?;
         _items = List<Map<String, dynamic>>.from(detalle['items'] as List);
         _tiempoTotal = (detalle['tiempoTotalMin'] as num?)?.toInt() ?? 0;
-        _propinaAsignada = (_pedido?['propina_porcentaje'] as num?) != null;
+        final estadoActual = (_pedido?['estado'] as String?) ?? '';
+        if (estadoActual != 'cuenta_solicitada' ||
+            estadoAnterior != 'cuenta_solicitada') {
+          _propinaAsignada = false;
+        }
       });
     } catch (error) {
       if (!mounted) return;
@@ -381,6 +392,9 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
     setState(() => _procesando = true);
     try {
       await _repo.solicitarCuenta(pedido['id'] as String);
+      if (mounted) {
+        setState(() => _propinaAsignada = false);
+      }
 
       //  Notificar al mozo
       try {
