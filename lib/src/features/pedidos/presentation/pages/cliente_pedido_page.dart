@@ -188,8 +188,7 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
         _pedido = detalle['pedido'] as Map<String, dynamic>?;
         _items = List<Map<String, dynamic>>.from(detalle['items'] as List);
         _tiempoTotal = (detalle['tiempoTotalMin'] as num?)?.toInt() ?? 0;
-        _propinaAsignada =
-            ((_pedido?['propina_porcentaje'] as num?) ?? 0) > 0;
+        _propinaAsignada = (_pedido?['propina_porcentaje'] as num?) != null;
       });
     } catch (error) {
       if (!mounted) return;
@@ -437,7 +436,7 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
         'Propina aplicada ($seleccion%). Total actualizado: \$${(resumen['total'] as num).toStringAsFixed(2)}',
         esError: false,
       );
-      setState(() => _propinaAsignada = seleccion > 0);
+      setState(() => _propinaAsignada = true);
       await _cargar();
     } catch (error) {
       if (!mounted) return;
