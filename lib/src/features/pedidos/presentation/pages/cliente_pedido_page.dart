@@ -656,14 +656,17 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
                                 color: const Color(0xFF2D6A4F),
                                 borderRadius: BorderRadius.circular(12),
                               ),
-                              child: Text(
-                                'TOTAL: \$${total.toStringAsFixed(2)}',
-                                textAlign: TextAlign.center,
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w900,
-                                  fontSize: 40,
-                                  letterSpacing: 0.2,
+                              child: FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: Text(
+                                  'TOTAL: \$${total.toStringAsFixed(2)}',
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w900,
+                                    fontSize: 34,
+                                    letterSpacing: 0.2,
+                                  ),
                                 ),
                               ),
                             ),
@@ -752,8 +755,15 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
                                         .toDouble();
                                 if (propinaPct <= 0)
                                   return const SizedBox.shrink();
+                                final descuentoPct =
+                                    ((_pedido?['descuento_juego_porcentaje']
+                                                as num?) ??
+                                            0)
+                                        .toDouble();
+                                final subtotalConDescuento =
+                                    subtotal * (1 - descuentoPct / 100);
                                 final montoPropina =
-                                    subtotal * propinaPct / 100;
+                                    subtotalConDescuento * propinaPct / 100;
                                 return Padding(
                                   padding: const EdgeInsets.only(top: 6),
                                   child: Column(
@@ -766,18 +776,20 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
                                         mainAxisAlignment:
                                             MainAxisAlignment.spaceBetween,
                                         children: [
-                                          const Text(
-                                            'Subtotal:',
+                                          Text(
+                                            descuentoPct > 0
+                                                ? 'Subtotal con descuento:'
+                                                : 'Subtotal:',
                                             style: TextStyle(
                                               color: Colors.white70,
-                                              fontSize: 14,
+                                              fontSize: 17,
                                             ),
                                           ),
                                           Text(
-                                            '\$${subtotal.toStringAsFixed(2)}',
+                                            '\$${(descuentoPct > 0 ? subtotalConDescuento : subtotal).toStringAsFixed(2)}',
                                             style: const TextStyle(
                                               color: Colors.white70,
-                                              fontSize: 14,
+                                              fontSize: 17,
                                             ),
                                           ),
                                         ],
@@ -791,7 +803,7 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
                                             'Propina (${propinaPct.toStringAsFixed(0)}%):',
                                             style: const TextStyle(
                                               color: Color(0xFFFFD700),
-                                              fontSize: 14,
+                                              fontSize: 17,
                                               fontWeight: FontWeight.w600,
                                             ),
                                           ),
@@ -799,7 +811,7 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
                                             '+\$${montoPropina.toStringAsFixed(2)}',
                                             style: const TextStyle(
                                               color: Color(0xFFFFD700),
-                                              fontSize: 14,
+                                              fontSize: 17,
                                               fontWeight: FontWeight.w600,
                                             ),
                                           ),
@@ -1094,9 +1106,6 @@ class _ProductosPaginadosState extends State<_ProductosPaginados> {
         cantidadItems == 4 ? (widget.hayDesglose ? 10.0 : 20.0) : 14.0;
     final bottomSpacing =
         cantidadItems == 4 ? (widget.hayDesglose ? 8.0 : 14.0) : 10.0;
-    final expandirCards = cantidadItems < _porPagina;
-    final altoMinCard =
-        expandirCards ? (widget.hayDesglose ? 128.0 : 150.0) : 0.0;
 
     return Column(
       children: [
@@ -1202,15 +1211,7 @@ class _ProductosPaginadosState extends State<_ProductosPaginados> {
                         bottom:
                             index < paginaItems.length - 1 ? bottomSpacing : 0,
                       ),
-                      child:
-                          expandirCards
-                              ? ConstrainedBox(
-                                constraints: BoxConstraints(
-                                  minHeight: altoMinCard,
-                                ),
-                                child: card,
-                              )
-                              : card,
+                      child: card,
                     );
                   }).toList(),
             ),
