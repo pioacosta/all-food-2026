@@ -188,7 +188,8 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
         _pedido = detalle['pedido'] as Map<String, dynamic>?;
         _items = List<Map<String, dynamic>>.from(detalle['items'] as List);
         _tiempoTotal = (detalle['tiempoTotalMin'] as num?)?.toInt() ?? 0;
-        _propinaAsignada = (_pedido?['propina_porcentaje'] as num?) != null;
+        _propinaAsignada =
+            ((_pedido?['propina_porcentaje'] as num?) ?? 0) > 0;
       });
     } catch (error) {
       if (!mounted) return;
@@ -436,7 +437,7 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
         'Propina aplicada ($seleccion%). Total actualizado: \$${(resumen['total'] as num).toStringAsFixed(2)}',
         esError: false,
       );
-      setState(() => _propinaAsignada = true);
+      setState(() => _propinaAsignada = seleccion > 0);
       await _cargar();
     } catch (error) {
       if (!mounted) return;
@@ -956,13 +957,28 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
                               if (estado == 'cuenta_solicitada')
                                 Padding(
                                   padding: const EdgeInsets.only(top: 8),
-                                  child: _AccionPrincipal(
-                                    texto: 'Pagar cuenta',
-                                    onPressed:
-                                        (_procesando || !_propinaAsignada)
-                                            ? null
-                                            : _pagarConConfirmacion,
-                                    loading: _procesando,
+                                  child: Column(
+                                    children: [
+                                      _AccionPrincipal(
+                                        texto: 'Pagar cuenta',
+                                        onPressed:
+                                            (_procesando || !_propinaAsignada)
+                                                ? null
+                                                : _pagarConConfirmacion,
+                                        loading: _procesando,
+                                      ),
+                                      if (!_propinaAsignada)
+                                        const Padding(
+                                          padding: EdgeInsets.only(top: 8),
+                                          child: Text(
+                                            'Escaneá el QR de propina para habilitar el pago.',
+                                            textAlign: TextAlign.center,
+                                            style: TextStyle(
+                                              color: Colors.white70,
+                                            ),
+                                          ),
+                                        ),
+                                    ],
                                   ),
                                 ),
                               if (estado == 'pago_pendiente_confirmacion')
