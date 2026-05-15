@@ -1103,9 +1103,9 @@ class _ProductosPaginadosState extends State<_ProductosPaginados> {
 
     final cantidadItems = paginaItems.length;
     final paddingVertical =
-        cantidadItems == 4 ? (widget.hayDesglose ? 10.0 : 20.0) : 14.0;
+        cantidadItems == 4 ? (widget.hayDesglose ? 8.0 : 16.0) : 10.0;
     final bottomSpacing =
-        cantidadItems == 4 ? (widget.hayDesglose ? 8.0 : 14.0) : 10.0;
+        cantidadItems == 4 ? (widget.hayDesglose ? 6.0 : 10.0) : 8.0;
 
     return Column(
       children: [
@@ -1141,7 +1141,7 @@ class _ProductosPaginadosState extends State<_ProductosPaginados> {
                                   style: const TextStyle(
                                     color: Colors.white,
                                     fontWeight: FontWeight.w700,
-                                    fontSize: 22,
+                                    fontSize: 20,
                                   ),
                                 ),
                                 const SizedBox(height: 4),
@@ -1149,7 +1149,7 @@ class _ProductosPaginadosState extends State<_ProductosPaginados> {
                                   '\$${((item['precio_unitario'] as num?) ?? 0).toStringAsFixed(2)}',
                                   style: const TextStyle(
                                     color: Colors.white70,
-                                    fontSize: 17,
+                                    fontSize: 15,
                                   ),
                                 ),
                               ],
@@ -1169,14 +1169,14 @@ class _ProductosPaginadosState extends State<_ProductosPaginados> {
                                   icon: const Icon(
                                     Icons.remove_circle,
                                     color: Colors.white,
-                                    size: 34,
+                                    size: 30,
                                   ),
                                 ),
                                 Text(
                                   '$cantidad',
                                   style: const TextStyle(
                                     color: Colors.white,
-                                    fontSize: 24,
+                                    fontSize: 22,
                                     fontWeight: FontWeight.w700,
                                   ),
                                 ),
@@ -1189,7 +1189,7 @@ class _ProductosPaginadosState extends State<_ProductosPaginados> {
                                   icon: const Icon(
                                     Icons.add_circle,
                                     color: Colors.white,
-                                    size: 34,
+                                    size: 30,
                                   ),
                                 ),
                               ],
@@ -1200,7 +1200,7 @@ class _ProductosPaginadosState extends State<_ProductosPaginados> {
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.w700,
-                                fontSize: 24,
+                                fontSize: 22,
                               ),
                             ),
                         ],
