@@ -1053,39 +1053,6 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
   }
 }
 
-class _DatoHeader extends StatelessWidget {
-  const _DatoHeader({required this.titulo, required this.valor});
-
-  final String titulo;
-  final String valor;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          titulo,
-          style: const TextStyle(
-            color: Colors.white60,
-            fontSize: 11,
-            letterSpacing: 0.8,
-          ),
-        ),
-        const SizedBox(height: 3),
-        Text(
-          valor,
-          style: const TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.w800,
-            fontSize: 18,
-          ),
-        ),
-      ],
-    );
-  }
-}
-
 class _ProductosPaginados extends StatefulWidget {
   const _ProductosPaginados({
     required this.items,
@@ -1129,16 +1096,12 @@ class _ProductosPaginadosState extends State<_ProductosPaginados> {
     final inicio = _pagina * _porPagina;
     final fin = (inicio + _porPagina).clamp(0, widget.items.length);
     final paginaItems = widget.items.sublist(inicio, fin);
-
     final cantidadItems = paginaItems.length;
-    final paddingVertical =
-        cantidadItems == 4 ? (widget.hayDesglose ? 8.0 : 16.0) : 10.0;
-    final bottomSpacing =
-        cantidadItems == 4 ? (widget.hayDesglose ? 6.0 : 10.0) : 8.0;
+    final gap = 8.0;
 
     return Column(
       children: [
-        // ── Items de la página actual ──────────────────────────────
+        // ── Lista de cards ─────────────────────────────────────────
         Expanded(
           child: Padding(
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
@@ -1150,9 +1113,9 @@ class _ProductosPaginadosState extends State<_ProductosPaginados> {
                     final item = entry.value;
                     final cantidad = (item['cantidad'] as num).toInt();
                     final card = Container(
-                      padding: EdgeInsets.symmetric(
+                      padding: const EdgeInsets.symmetric(
                         horizontal: 14,
-                        vertical: paddingVertical,
+                        vertical: 8,
                       ),
                       decoration: BoxDecoration(
                         color: Colors.white.withValues(alpha: 0.1),
@@ -1164,21 +1127,24 @@ class _ProductosPaginadosState extends State<_ProductosPaginados> {
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Text(
                                   item['nombre_snapshot']?.toString() ?? '',
                                   style: const TextStyle(
                                     color: Colors.white,
                                     fontWeight: FontWeight.w700,
-                                    fontSize: 20,
+                                    fontSize: 18,
                                   ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
                                 ),
-                                const SizedBox(height: 4),
+                                const SizedBox(height: 2),
                                 Text(
                                   '\$${((item['precio_unitario'] as num?) ?? 0).toStringAsFixed(2)}',
                                   style: const TextStyle(
                                     color: Colors.white70,
-                                    fontSize: 15,
+                                    fontSize: 14,
                                   ),
                                 ),
                               ],
@@ -1186,8 +1152,14 @@ class _ProductosPaginadosState extends State<_ProductosPaginados> {
                           ),
                           if (widget.editable)
                             Row(
+                              mainAxisSize: MainAxisSize.min,
                               children: [
                                 IconButton(
+                                  padding: EdgeInsets.zero,
+                                  constraints: const BoxConstraints(
+                                    minWidth: 36,
+                                    minHeight: 36,
+                                  ),
                                   onPressed:
                                       widget.procesando
                                           ? null
@@ -1198,18 +1170,23 @@ class _ProductosPaginadosState extends State<_ProductosPaginados> {
                                   icon: const Icon(
                                     Icons.remove_circle,
                                     color: Colors.white,
-                                    size: 30,
+                                    size: 28,
                                   ),
                                 ),
                                 Text(
                                   '$cantidad',
                                   style: const TextStyle(
                                     color: Colors.white,
-                                    fontSize: 22,
+                                    fontSize: 20,
                                     fontWeight: FontWeight.w700,
                                   ),
                                 ),
                                 IconButton(
+                                  padding: EdgeInsets.zero,
+                                  constraints: const BoxConstraints(
+                                    minWidth: 36,
+                                    minHeight: 36,
+                                  ),
                                   onPressed:
                                       widget.procesando
                                           ? null
@@ -1218,7 +1195,7 @@ class _ProductosPaginadosState extends State<_ProductosPaginados> {
                                   icon: const Icon(
                                     Icons.add_circle,
                                     color: Colors.white,
-                                    size: 30,
+                                    size: 28,
                                   ),
                                 ),
                               ],
@@ -1229,23 +1206,37 @@ class _ProductosPaginadosState extends State<_ProductosPaginados> {
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.w700,
-                                fontSize: 22,
+                                fontSize: 20,
                               ),
                             ),
                         ],
                       ),
                     );
-                    return Padding(
-                      padding: EdgeInsets.only(
-                        bottom:
-                            index < paginaItems.length - 1 ? bottomSpacing : 0,
-                      ),
-                      child: card,
-                    );
+
+                    // Con 4 items: Flexible para que se repartan el espacio sin overflow
+                    // Con menos: tamaño natural
+                    if (cantidadItems == 4) {
+                      return Flexible(
+                        child: Padding(
+                          padding: EdgeInsets.only(
+                            bottom: index < paginaItems.length - 1 ? gap : 0,
+                          ),
+                          child: SizedBox(width: double.infinity, child: card),
+                        ),
+                      );
+                    } else {
+                      return Padding(
+                        padding: EdgeInsets.only(
+                          bottom: index < paginaItems.length - 1 ? gap : 0,
+                        ),
+                        child: card,
+                      );
+                    }
                   }).toList(),
             ),
           ),
         ),
+
         // ── Paginador ─────────────────────────────────────────────
         if (totalPaginas > 1)
           Padding(
