@@ -387,6 +387,7 @@ Juego:
 | 17/04/2026 - 05/05/2026 | Encuestas, cuenta, juegos de descuento y cierre completo del ciclo pedido/mesa. | Pio Acosta, Adrian Lezcano |
 | 25/04/2026 - 07/05/2026 | Pulido UX/UI transversal (registro/login/home, mozo/mesas, chat, juegos, flujo cliente). | Pio Acosta, Adrian Lezcano, Luciano Bordón |
 
+[⬆ Volver al índice](#indice)
 # Qr de propinas
 
 | Nivel       | Propina | QR |
@@ -396,3 +397,5 @@ Juego:
 | Bueno      | 10%    | <img src="./assets/images/qrPropina/10%25.png" width="250"/> |
 | Regular    | 5%     | <img src="./assets/images/qrPropina/5%25.png" width="250"/> |
 | Malo       | 0%     | <img src="./assets/images/qrPropina/0%25.png" width="250"/> |
+
+[⬆ Volver al índice](#indice)
