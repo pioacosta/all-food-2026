@@ -179,7 +179,7 @@ Para anotarse en la lista de espera, el cliente debe escanear el QR de entrada.
 
 ### Enviar pedido al mozo 
 <br>
-<img src="https://github.com/user-attachments/assets/97ccec42-40de-4116-a2a3-1a42efdc1992" width="330" />
+<img src="https://github.com/user-attachments/assets/d30b8879-4ad9-458f-99b5-16baa3f152c9" width="330" />
 
 ### Mesa validada estado : Pedido confirmado por mozo
 <br>
@@ -233,13 +233,13 @@ Juego:
 
 ### Cuenta solicitada y QR de propina BUENA escaneado
 <br>
-<img src="https://github.com/user-attachments/assets/286c6f1a-3067-42c9-a93a-8cadcfd3135f" width="330"/>
+<img src="https://github.com/user-attachments/assets/91bfb485-3318-44c8-b6dc-f79aa6a9ef8b" width="330" />
 
 ### Pago pediente de confirmación, pago confirmado y mesa liberada
 <br>
-<img src="https://github.com/user-attachments/assets/7b92f7f3-aa9b-4ee7-b51b-3fb6a0559036" width="330" />
+<img src="https://github.com/user-attachments/assets/c5d348a8-2d7a-4aeb-ac80-769cdfa3f249" width="330"/>
 <br>
-<img src="https://github.com/user-attachments/assets/a821c912-eef8-45ea-ab30-05b90ccfc13e" width="330" />
+<img src="https://github.com/user-attachments/assets/872811bb-461b-4f01-b41e-24e418d70dd2" width="330" />
 <br>
 
 [⬆ Volver al índice](#indice)
