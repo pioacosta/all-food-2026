@@ -286,11 +286,11 @@ Juego:
 
 ### Asignar mesa
 <br>
-<img src="https://github.com/user-attachments/assets/2c5bf12c-2064-40a0-ae0b-71a4b4c8375f" width="330" />
+<img src="https://github.com/user-attachments/assets/1a13b767-483d-40bc-a2c3-f89934eae19b" width="330"/>
 
 ### Asignar mesa - confirmación
 <br>
-<img src="https://github.com/user-attachments/assets/11a22b8d-0574-403b-a352-1f4ddf04903a" width="330" />
+<img src="https://github.com/user-attachments/assets/0b9ac331-64d4-4a86-8462-f3bfa3d616a5" width="330"/>
 
 ### Alta de clientes
 <br>
