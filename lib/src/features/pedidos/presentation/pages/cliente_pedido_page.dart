@@ -852,6 +852,7 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
                                     descuentoPct > 0 || propinaPct > 0;
 
                                 if (!hayDesglose ||
+                                    estado == 'recibido_cliente' ||
                                     estado == 'cuenta_solicitada' ||
                                     estado == 'pago_pendiente_confirmacion' ||
                                     estado == 'cerrado') {
