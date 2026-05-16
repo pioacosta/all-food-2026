@@ -851,8 +851,12 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
                                 final hayDesglose =
                                     descuentoPct > 0 || propinaPct > 0;
 
-                                if (!hayDesglose)
+                                if (!hayDesglose ||
+                                    estado == 'cuenta_solicitada' ||
+                                    estado == 'pago_pendiente_confirmacion' ||
+                                    estado == 'cerrado') {
                                   return const SizedBox.shrink();
+                                }
 
                                 return Padding(
                                   padding: const EdgeInsets.only(top: 8),
@@ -980,17 +984,17 @@ class _ClientePedidoPageState extends State<ClientePedidoPage> {
                                                 : _pagarConConfirmacion,
                                         loading: _procesando,
                                       ),
-                                      if (!_propinaAsignada)
-                                        const Padding(
-                                          padding: EdgeInsets.only(top: 8),
-                                          child: Text(
-                                            'Escaneá el QR de propina para habilitar el pago.',
-                                            textAlign: TextAlign.center,
-                                            style: TextStyle(
-                                              color: Colors.white70,
-                                            ),
-                                          ),
-                                        ),
+                                      // if (!_propinaAsignada)
+                                      //   const Padding(
+                                      //     padding: EdgeInsets.only(top: 8),
+                                      //     child: Text(
+                                      //       'Escaneá el QR de propina para habilitar el pago.',
+                                      //       textAlign: TextAlign.center,
+                                      //       style: TextStyle(
+                                      //         color: Colors.white70,
+                                      //       ),
+                                      //     ),
+                                      //   ),
                                     ],
                                   ),
                                 ),
