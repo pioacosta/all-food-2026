@@ -222,7 +222,7 @@ class _PedidosSectorPageState extends State<PedidosSectorPage> {
                                     ),
                                     const SizedBox(height: 4),
                                     Text(
-                                      'Fecha y hora: $fechaHora (Buenos Aires)',
+                                      'Fecha y hora: $fechaHora',
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
                                       style: const TextStyle(
